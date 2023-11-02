@@ -1,6 +1,6 @@
 # Eophis
 
-**<font color='red'>E</font>... <font color='red'>O</font>...  <font color='red'>P</font>... <font color='red'>H</font>...  <font color='red'>I</font>...  <font color='red'>S</font>...**
+**E**... **O**... **P**... **H**... **I**... **S**...
 
 Eophis is a collection of tools to deploy Python written pre-trained machine learning components (Inference Models) for coupled runs with Fortran written Earth-System (ES) simulations.
 > _Also it is the currently oldest known snake ancestra (2023)_
@@ -30,7 +30,8 @@ Detailed documentation about installation and use of Eophis.
 
 ### tests 
 Unit tests and testing routines. 
-<font color='red'>Work In Progress</font>
+
+_...WORK IN PROGRESS..._
 
 ### src
 Package sources: 
@@ -60,5 +61,4 @@ pip install eophis
 
 Here is a list of repositories containing demonstrations of coupled runs between different ES codes and inferences models deployed by Eophis:
 - [Morays](https://github.com/alexis-barge/morays/) : coupled runs with ocean modelling code [NEMO](https://www.nemo-ocean.eu/) 
-- ...
 
