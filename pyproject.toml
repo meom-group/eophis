@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eophis"
+version = "0.1.0"
+description = "Tools to couple Inferences Models with Earth-System simulation codes"
+authors = [
+  { name="Alexis Barge", email="alexis.barge@proton.me" },
+]
+readme = "README.md"
+license = {file = "LICENSE.md"}
+requires-python = ">=3.10.4"
+
+dependencies = [
+]
+
+[project.urls]
+"Homepage" = "https://github.com/alexis-barge/eophis"
+"Bug Tracker" = "https://github.com/alexis-barge/eophis/issues"
+
+[tool.setuptools]
+package-dir = {}

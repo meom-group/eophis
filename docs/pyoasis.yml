@@ -1,0 +1,15 @@
+name: pyoasis
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.10.4
+  - mpi4py
+  - netcdf4
+  - numpy
+  - f90nml
+  - matplotlib
+  - scipy
+  - shapely
+  - cartopy
+  - pytest
