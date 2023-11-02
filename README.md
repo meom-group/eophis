@@ -1,6 +1,6 @@
 # Eophis
 
-**<span style="color:red">E</span>... <span style="color:red">O</span>... <span style="color:red">P</span>... <span style="color:red">H</span>... <span style="color:red">I</span> ... <span style="color:red">S</span>...**
+**<font color='red'>E</font>... <font color='red'>O</font>...  <font color='red'>P</font>... <font color='red'>H</font>...  <font color='red'>I</font>...  <font color='red'>S</font>...**
 
 Eophis is a collection of tools to deploy Python written pre-trained machine learning components (Inference Models) for coupled runs with Fortran written Earth-System (ES) simulations.
 > _Also it is the currently oldest known snake ancestra (2023)_
@@ -25,12 +25,12 @@ Eophis is a collection of tools to deploy Python written pre-trained machine lea
 ### docs 
 
 Detailed documentation about installation and use of Eophis. 
-- Quick [guide](https://github.com/alexis-barge/eophis/blob/main/python_cpl/pyOASIS_installation.md) to manually install OASIS libraries with python API (compulsory).
+- Quick [guide](https://github.com/alexis-barge/eophis/blob/main/docs/pyOASIS_installation.md) to manually install OASIS libraries with python API (compulsory).
 - ...
 
 ### tests 
 Unit tests and testing routines. 
-<span style="color:red">Work In Progress</span>
+<font color='red'>Work In Progress</font>
 
 ### src
 Package sources: 
