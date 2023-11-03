@@ -1,5 +1,5 @@
 # eophis modules
-from ..utils import logs
+from .utils import logs
 from .coupling import Tunnel
 # external modules
 import datetime

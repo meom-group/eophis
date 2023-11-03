@@ -34,7 +34,7 @@ class Tunnel:
         _define_variables: create OASIS variables from exchs and aliases
     """
     def __init__(self, label, grids, exchs, aliases):
-        logs.info(f'----------------------- TUNNEL {label} CREATED --------------------------')
+        logs.info(f'-------- Tunnel {label} created')
         self.label = label
         self.grids = grids
         self.exchs = exchs

@@ -1,4 +1,4 @@
-name: pyoasis
+name: eophis
 channels:
   - defaults
   - conda-forge
@@ -7,8 +7,6 @@ dependencies:
   - mpi4py
   - netcdf4
   - numpy
-  - matplotlib
-  - scipy
-  - shapely
-  - cartopy
+  - f90nml
   - pytest
+  - watermark

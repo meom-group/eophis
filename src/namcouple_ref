@@ -5,20 +5,18 @@
 #
 # Any line beginning with # is ignored. Blank lines are not allowed
 ####################################################################
- $NFIELDS 
+$NFIELDS 
 0
- $END
+$END
 ############################################
- $RUNTIME 
+$RUNTIME 
 0
- $END
+$END
 ############################################
- $NLOGPRT 
+$NLOGPRT 
 1 0
- $END
+$END
 ############################################
- $STRINGS
+$STRINGS
 #
- $END
-
-
+$END

@@ -1,5 +1,5 @@
 # eophis modules
-from ..utils import logs
+from .utils import logs
 # external modules
 #import pytorch_lightning as lt
 #import torch ...
