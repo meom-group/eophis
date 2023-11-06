@@ -4,9 +4,10 @@ channels:
   - conda-forge
 dependencies:
   - python=3.10.4
-  - mpi4py
   - netcdf4
   - numpy
   - f90nml
   - pytest
   - watermark
+  - pip:
+      - mpi4py==3.1.5    

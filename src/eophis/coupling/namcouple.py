@@ -82,7 +82,8 @@ class Namcouple:
 
         # Init all Oasis commands, spread them over tunnels
         self.comp = init_oasis()
-        map(Tunnel._configure(self.comp),self.tunnels)
+        for tnl in self.tunnels:
+            tnl._configure(self.comp)
 
         # Finalize OASIS coupling
         self.comp.enddef()

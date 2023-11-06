@@ -44,11 +44,11 @@ class Tunnel:
         self._variables = { "rcv": {}, "snd": {} }
 
     def _configure(self, comp):
-        self._define_partitions(comp.comm_rank,comp.comm_size)
+        self._define_partitions(comp.localcomm.rank,comp.localcomm.size)
         self._define_variables()
     
     def _define_partitions(self,comm_rank,comm_size):
-        for grd_lbl, (nlon, nlat) in self.grids.items():
+        for grd_lbl, (nlon, nlat, _, _) in self.grids.items():
             local_size = int(nlon * nlat / comm_size)
             offset = comm_rank * local_size
         
@@ -60,15 +60,15 @@ class Tunnel:
     def _define_variables(self):
         for ex in self.exchs:
             for varin in ex['in']:
-                self._variables["rcv"][varin] = pyoasis.Var(self._aliases[varin], self._partitions[ex['grd']], OASIS.IN, bundle_size=ex['lvl'])
+                self._variables["rcv"][varin] = pyoasis.Var(self.aliases[varin], self._partitions[ex['grd']], OASIS.IN, bundle_size=ex['lvl'])
             for varout in ex['out']:
-                self._variables["snd"][varout] = pyoasis.Var(self._aliases[varout], self._partitions[ex['grd']], OASIS.OUT, bundle_size=ex['lvl'])
+                self._variables["snd"][varout] = pyoasis.Var(self.aliases[varout], self._partitions[ex['grd']], OASIS.OUT, bundle_size=ex['lvl'])
     
     def arriving_list(self):
-        return list(ocean._variables['rcv'].keys())
+        return list(self._variables['rcv'].keys())
     
     def departure_list(self):
-        return list(ocean._variables['snd'].keys())
+        return list(self._variables['snd'].keys())
     
     def send(self, var_label, date, values):
         if values is not None:
