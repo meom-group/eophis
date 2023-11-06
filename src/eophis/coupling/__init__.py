@@ -24,16 +24,16 @@ def _init_coupling():
     logs.info('  Looking for OASIS namelist "namcouple"')
     
     cpl_nml = os.path.join(os.getcwd(), "namcouple")
-    cpl_nml_tmp = os.path.join(os.getcwd(), "namcouple_tmp")
-    cpl_nml_ref = os.path.join(os.path.abspath(cpl.__file__)[:-23], "namcouple_ref")
+    cpl_nml_ref = os.path.join(os.getcwd(), "namcouple_ref")
+    cpl_nml_base = os.path.join(os.path.abspath(cpl.__file__)[:-23], "namcouple_base")
     
     if params.RANK == 0:
         if not os.path.isfile(cpl_nml):
-            shutil.copy(cpl_nml_ref, cpl_nml_tmp)
-            logs.info(f'  "namcouple" not found, copy from {cpl_nml_ref} \n')
+            shutil.copy(cpl_nml_base, cpl_nml_ref)
+            logs.info(f'  "namcouple" not found, create one from {cpl_nml_base} \n')
         else:
-            os.rename(cpl_nml, cpl_nml_tmp)
-            logs.info(f'  "namcouple" found\n')
+            shutil.copy(cpl_nml, cpl_nml_ref)
+            logs.info(f'  "namcouple" found, save copy as {cpl_nml_ref}\n')
 
     # Instantiate OASIS namcouple
-    init_namcouple(cpl_nml_tmp,cpl_nml)
+    init_namcouple(cpl_nml_ref,cpl_nml)

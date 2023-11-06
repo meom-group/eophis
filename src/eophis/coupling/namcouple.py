@@ -4,7 +4,7 @@ from .cpl import init_oasis, Tunnel
 from ..utils.params import RANK, COMM
 from ..utils import logs
 
-__all__ = ['init_namcouple','register_tunnels','open_tunnels','close_tunnels']
+__all__ = ['init_namcouple','register_tunnels','write_oasis_namelist','open_tunnels','close_tunnels']
 
 class Namcouple:
     _instance = None
@@ -20,10 +20,12 @@ class Namcouple:
         _lines : raw namcouple file content
         _Nin: number of reception sections
         _Nout: number of sending sections
-        _activated: indicates if Namcouple may be modified
+        _activated: indicates if coupling environment is set
     Private Methods
+        -reset: unset coupling environment, reinit attributes
         _add_tunnel: create new Tunnel, update namcouple file content
-        _finalize: final namcouple updates, write file, set OASIS environment, configure Tunnels
+        _finalize: final namcouple updates, write file
+        _activate: set OASIS environment, configure Tunnels
     """
     def __new__(cls,*args,**kwargs):
         if not cls._instance:
@@ -71,7 +73,10 @@ class Namcouple:
         return self.tunnels[-1:][0]
     
     def _finalize(self,total_time):
-        # Update Nbfield and Runtime - write final namelist
+        if self._activated:
+            logs.abort('Oasis environment set, impossible to write namcouple')
+    
+        # Update Nbfield and Runtime
         nfield = int(self._lines[ find(self._lines,'$NFIELDS') + 1 ]) + self._Nin + self._Nout
         find_and_replace(self._lines,'$NFIELDS',str(nfield),offset=1)
         find_and_replace(self._lines,'$RUNTIME',str(total_time),offset=1)
@@ -80,6 +85,10 @@ class Namcouple:
         write(self._lines,self.outfile,add_header=True) if RANK == 0 else None
         COMM.Barrier()
 
+    def _activate(self):
+        if self._activated:
+            logs.abort('Oasis environment already set')
+    
         # Init all Oasis commands, spread them over tunnels
         self.comp = init_oasis()
         for tnl in self.tunnels:
@@ -103,22 +112,25 @@ def _create_bloc(name_snd,name_rcv,freq,grd,nlon,nlat,overlap_x,overlap_y):
 
 """
 Public Namcouple API
-    register_tunnels: explicit by itself
-    open_tunnels: link all registered tunnels with OASIS library
-    close_tunnels: terminate coupling environement
     init_namcouple: explicit by itself
+    register_tunnels: explicit by itself
+    write_tunnel_namelist: write namcouple
+    open_tunnels: start couling environement
+    close_tunnels: terminate coupling environement
 """
-def register_tunnels(*configs):
-    oasis_nml = Namcouple()
-    return [ oasis_nml._add_tunnel(**cfg) for cfg in configs ]
-
-def open_tunnels(opening_time=31536000.0):
-    Namcouple()._finalize( int(opening_time + opening_time*1.01) )
-
-def close_tunnels():
-    Namcouple()._reset()
-
 def init_namcouple(cpl_nml_tmp,cpl_nml):
     if Namcouple._instance is not None:
         logs.abort('Namcouple is not supposed to be instantiated before initialization routines')
     Namcouple(cpl_nml_tmp,cpl_nml)
+
+def register_tunnels(*configs):
+    return [ Namcouple()._add_tunnel(**cfg) for cfg in configs ]
+
+def write_oasis_namelist(simulation_time=31536000.0):
+    Namcouple()._finalize( int(opening_time + opening_time*1.01) )
+
+def open_tunnels():
+    Namcouple()._activate()
+
+def close_tunnels():
+    Namcouple()._reset()

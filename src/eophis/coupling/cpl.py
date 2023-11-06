@@ -23,10 +23,10 @@ class Tunnel:
         _variables: list of OASIS Var objects
         
     Public Methods
-        inputs: return variable names that can be received
-        outputs: return variables names that can be sent
-        receive: wrapp OASIS steps for reception
+        arriving_list: return variable names that can be received
+        departure_list: return variables names that can be sent
         send: wrapp OASIS steps for sending
+        receive: wrapp OASIS steps for reception
         
     Private Methods
         _configure: orchestrates definition methods below
