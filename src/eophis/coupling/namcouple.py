@@ -15,14 +15,14 @@ class Namcouple:
     Public attributes
         outfile: name of ouput namcouple file
         tunnels: registered tunnels
-        comp: main OASIS component
+        comp: main OASIS Component
     Private attributes
         _lines : raw namcouple file content
         _Nin: number of reception sections
         _Nout: number of sending sections
         _activated: indicates if coupling environment is set
     Private Methods
-        -reset: unset coupling environment, reinit attributes
+        -reset: unset coupling environment, reinit namcouple
         _add_tunnel: create new Tunnel, update namcouple file content
         _finalize: final namcouple updates, write file
         _activate: set OASIS environment, configure Tunnels
@@ -35,6 +35,7 @@ class Namcouple:
     
     def __init__(self,file_path='',outfile=''):
         if not self.initialized:
+            self.initialized = True
             self.outfile = outfile
             self.tunnels = []
             self.comp = None
@@ -42,7 +43,6 @@ class Namcouple:
             self._Nout = 0
             self._lines = raw_content(file_path)
             self._activated = False
-            self.initialized = True
 
     def _reset(self):
         del self.comp
@@ -50,24 +50,23 @@ class Namcouple:
         self.__init__()
         self.initialized = False
 
-    def _add_tunnel(self,label,grids,exchs):
+    def _add_tunnel(self,label,grids,exchs,aliases={}):
         if self._activated:
             logs.abort('Oasis environment set, impossible to create new tunnels')
-    
-        aliases = {}
-        replace(self._lines, "# ======= Tunnel "+label+" =======", len(self._lines)-2)
+            
+        replace(self._lines, '# ======= Tunnel "+label+" =======', len(self._lines)-2)
         for ex in exchs:
             for varin in ex['in']:
-                aliases.update({ varin : "M_IN_"+str(self._Nin) })
-                self._lines.insert( len(self._lines)-1, "# Earth -- "+varin+" --> Models")
-                self._lines.insert( len(self._lines)-1, _create_bloc("E_OUT_"+str(self._Nin),aliases[varin],ex['freq'],ex['grd'],*grids[ex['grd']]))
+                aliases.update({ varin : 'E_OUT_'+str(self._Nin) }) if varin not in aliases.keys()
+                self._lines.insert( len(self._lines)-1, '# Earth -- '+varin+' --> Models')
+                self._lines.insert( len(self._lines)-1, _create_bloc(aliases[varin],'M_IN_'+str(self._Nin),ex['freq'],ex['grd'],*grids[ex['grd']]))
                 self._Nin += 1
             for varout in ex['out']:
-                aliases.update({ varout : "M_OUT_"+str(self._Nout) })
-                self._lines.insert( len(self._lines)-1, "# Earth <-- "+varout+" -- Models")
-                self._lines.insert( len(self._lines)-1, _create_bloc(aliases[varout],"E_IN_"+str(self._Nout),ex['freq'],ex['grd'],*grids[ex['grd']]))
+                aliases.update({ varout : 'E_IN_'+str(self._Nout) }) if varout not in aliases.keys()
+                self._lines.insert( len(self._lines)-1, '# Earth <-- '+varout+' -- Models')
+                self._lines.insert( len(self._lines)-1, _create_bloc('M_OUT_'+str(self._Nout),aliases[varout],ex['freq'],ex['grd'],*grids[ex['grd']]))
                 self._Nout += 1
-        self._lines.insert(len(self._lines)-1, "#")
+        self._lines.insert(len(self._lines)-1, '#')
 
         self.tunnels.append( Tunnel(label,grids,exchs,aliases) )
         return self.tunnels[-1:][0]
@@ -78,8 +77,10 @@ class Namcouple:
     
         # Update Nbfield and Runtime
         nfield = int(self._lines[ find(self._lines,'$NFIELDS') + 1 ]) + self._Nin + self._Nout
+        runtime = int(self._lines[ find(self._lines,'$RUNTIME') + 1 ])
         find_and_replace(self._lines,'$NFIELDS',str(nfield),offset=1)
-        find_and_replace(self._lines,'$RUNTIME',str(total_time),offset=1)
+        if total_time > runtime:
+            find_and_replace(self._lines,'$RUNTIME',str(total_time),offset=1)
 
         # Write namcouple
         write(self._lines,self.outfile,add_header=True) if RANK == 0 else None
@@ -101,12 +102,12 @@ class Namcouple:
 
 def _create_bloc(name_snd,name_rcv,freq,grd,nlon,nlat,overlap_x,overlap_y):
     if overlap_x == 0 and overlap_y == 0:
-        bnd = "R 0 R 0"
+        bnd = 'R 0 R 0'
     else:
-        bnd = "P "+str(abs(overlap_x))+" P "+str(abs(overlap_y))
-    bloc = name_snd+" "+name_rcv+" 1 "+str(int(freq))+" 0 rst.nc EXPOUT\n"+ \
-           str(nlon)+" "+str(nlat)+" "+str(nlon)+" "+str(nlat)+" "+str(grd)+" "+ \
-           str(grd)+" LAG=0\n"+bnd
+        bnd = 'P '+str(abs(overlap_x))+' P '+str(abs(overlap_y))
+    bloc = name_snd+' '+name_rcv+' 1 '+str(int(freq))+' 0 rst.nc EXPORTED\n'+ \
+           str(nlon)+' '+str(nlat)+' '+str(nlon)+' '+str(nlat)+' '+str(grd)+' '+ \
+           str(grd)+' LAG=0\n'+bnd
     return bloc
 
 

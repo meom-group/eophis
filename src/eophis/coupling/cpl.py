@@ -17,31 +17,34 @@ class Tunnel:
         grids: Tunnel user-defined grids
         exchs: Tunnel user-defined transferts
         aliases: Rename rules between user-defined variables and namcouple auto-writing
-        
     Private Attributes
         _partitions: list of OASIS Partition objects
         _variables: list of OASIS Var objects
-        
     Public Methods
         arriving_list: return variable names that can be received
         departure_list: return variables names that can be sent
         send: wrapp OASIS steps for sending
         receive: wrapp OASIS steps for reception
-        
     Private Methods
         _configure: orchestrates definition methods below
         _define_partitions: create OASIS partitions from grids
         _define_variables: create OASIS variables from exchs and aliases
     """
     def __init__(self, label, grids, exchs, aliases):
-        logs.info(f'-------- Tunnel {label} created')
+        # public
         self.label = label
         self.grids = grids
         self.exchs = exchs
         self.aliases = aliases
-        # Private
+        # private
         self._partitions = {}
-        self._variables = { "rcv": {}, "snd": {} }
+        self._variables = { 'rcv': {}, 'snd': {} }
+
+        # print some infos
+        logs.info(f'-------- Tunnel {label} created')
+        logs.info(f'  Variables -> namcouple names correspondence')
+        for var,oas_var in aliases.items():
+            logs.info(f'  {var} -> {oas_var}')
 
     def _configure(self, comp):
         self._define_partitions(comp.localcomm.rank,comp.localcomm.size)
@@ -60,9 +63,9 @@ class Tunnel:
     def _define_variables(self):
         for ex in self.exchs:
             for varin in ex['in']:
-                self._variables["rcv"][varin] = pyoasis.Var(self.aliases[varin], self._partitions[ex['grd']], OASIS.IN, bundle_size=ex['lvl'])
+                self._variables['rcv'][varin] = pyoasis.Var(self.aliases[varin], self._partitions[ex['grd']], OASIS.IN, bundle_size=ex['lvl'])
             for varout in ex['out']:
-                self._variables["snd"][varout] = pyoasis.Var(self.aliases[varout], self._partitions[ex['grd']], OASIS.OUT, bundle_size=ex['lvl'])
+                self._variables['snd'][varout] = pyoasis.Var(self.aliases[varout], self._partitions[ex['grd']], OASIS.OUT, bundle_size=ex['lvl'])
     
     def arriving_list(self):
         return list(self._variables['rcv'].keys())
@@ -73,7 +76,7 @@ class Tunnel:
     def send(self, var_label, date, values):
         if values is not None:
             snd_fld = pyoasis.asarray(values)
-            var = self._variables["snd"][var_label]
+            var = self._variables['snd'][var_label]
             if snd_fld.shape != (3,):
                 logs.abort('  Shape of sending array for var {var_label} must be equal to 3')
             if (snd_fld.shape[0] * snd_fld.shape[1], snd_fld.shape[2]) != (var._partition_local_size, var.bundle_size):
@@ -82,7 +85,7 @@ class Tunnel:
 
     def receive(self, var_label, date):
         rcv_fld = None
-        var = self._variables["rcv"][var_label]
+        var = self._variables['rcv'][var_label]
         if (var.cpl_freqs() % date) == 0.0:
             rcv_fld = pyoasis.asarray(np.zeros((var._partition_local_size, var.bundle_size)))
             var.get(date, rcv_fld)

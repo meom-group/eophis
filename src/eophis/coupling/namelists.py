@@ -50,7 +50,7 @@ def find_and_replace(lines,old_txt,new_txt,offset=0):
     replace(lines,new_txt,pos+offset)
         
 def write(lines,outfile,add_header=False):
-    header = "############# MODIFIED BY EOPHIS ###############"
+    header = '############# MODIFIED BY EOPHIS ###############'
     lines.insert(0,header) if add_header else None 
     file = open(outfile,'w')
     for l in lines:

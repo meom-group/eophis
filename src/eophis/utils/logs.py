@@ -12,13 +12,14 @@ def info(message=''):
 def warning(message='Warning not described'):
     if RANK == 0:
         caller = inspect.stack()[1]
-        _logger_err.warning("from "+caller.filename+" at line "+str(caller.lineno)+": "+message)
+        _logger_err.warning('from '+caller.filename+' at line '+str(caller.lineno)+': '+message)
+        _logger_info.info(f'Warning raised ! See error log for details')
 
 def abort(message='Error not described'):
     if RANK == 0 :
         caller = inspect.stack()[1]
         _logger_info.info('RUN ABORTED, see error log for details')
-        _logger_err.error("from "+caller.filename+" at line "+str(caller.lineno)+": "+message)
+        _logger_err.error('from '+caller.filename+' at line '+str(caller.lineno)+': '+message)
     quit()
 
 def _setup_logger(name, log_file, formatter, level=logging.INFO):
