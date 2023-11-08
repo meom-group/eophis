@@ -9,6 +9,7 @@ from .utils import logs
 from .coupling import _init_coupling
 # external modules
 from watermark import watermark
+import pkg_resources as pkg
 import atexit
 
 """
@@ -18,12 +19,13 @@ Eophis initialization
 - call initialization routines
 """
 def _init_eophis():
-    logs.info('===============================')
-    logs.info('     CNRS - IGE - MEOM Team    ')
-    logs.info('            ------             ')
-    logs.info('      EOPHIS 0.1.0 (2023)      ')
-    logs.info('===============================')
-    logs.info('Main packages used:')
+    ver = pkg.get_distribution("eophis").version
+    logs.info(f'===============================')
+    logs.info(f'|    CNRS - IGE - MEOM Team   |')
+    logs.info(f'|           ------            |')
+    logs.info(f'|     EOPHIS {ver} (2023)     |')
+    logs.info(f'===============================')
+    logs.info(f'Main packages used:')
     
     logs.info(watermark(packages="mpi4py,f90nml,numpy",python=True))
     
@@ -35,7 +37,7 @@ def _init_eophis():
 
 def _finish_eophis():
     close_tunnels()
-    logs.info('EOPHIS run successfully finished')
+    logs.info('\nEOPHIS run successfully finished')
 
 
 _init_eophis()

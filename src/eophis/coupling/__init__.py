@@ -33,7 +33,7 @@ def _init_coupling():
             logs.info(f'    "namcouple_ref" not found either, creating it from {cpl_nml_base} \n')
             shutil.copy(cpl_nml_base, cpl_nml_ref) if params.RANK == 0 else None
         else:
-            logs.info(f'    "namcouple_ref" found, copied as "namcouple"')
+            logs.info(f'    "namcouple_ref" found, copied as "namcouple"\n')
             shutil.copy(cpl_nml_ref,cpl_nml) if params.RANK == 0 else None
     else:
         if not os.path.isfile(cpl_nml_ref):
@@ -41,7 +41,7 @@ def _init_coupling():
             shutil.copy(cpl_nml, cpl_nml_ref) if params.RANK == 0 else None
         else:
             logs.info(f'    "namcouple" and "namcouple_ref" found, nothing done\n')
-            logs.warning(f'Priority given to "namcouple" for reading if "namcouple_ref" is also present"')
+            logs.warning(f'Priority given to "namcouple" for reading if "namcouple_ref" is also present')
             cpl_nml_ref = cpl_nml
 
     # Instantiate OASIS namcouple

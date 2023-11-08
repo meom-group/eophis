@@ -13,7 +13,7 @@ def warning(message='Warning not described'):
     if RANK == 0:
         caller = inspect.stack()[1]
         _logger_err.warning('from '+caller.filename+' at line '+str(caller.lineno)+': '+message)
-        _logger_info.info(f'Warning raised ! See error log for details')
+        _logger_info.info(f'Warning raised ! See error log for details\n')
 
 def abort(message='Error not described'):
     if RANK == 0 :

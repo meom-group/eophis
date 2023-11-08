@@ -50,25 +50,27 @@ class Namcouple:
         self.__init__()
         self.initialized = False
 
-    def _add_tunnel(self,label,grids,exchs,aliases={}):
+    def _add_tunnel(self,label,grids,exchs,es_aliases={},im_aliases={}):
         if self._activated:
             logs.abort('Oasis environment set, impossible to create new tunnels')
             
-        replace(self._lines, '# ======= Tunnel "+label+" =======', len(self._lines)-2)
+        replace(self._lines, '# ======= Tunnel '+label+' =======', len(self._lines)-2)
         for ex in exchs:
             for varin in ex['in']:
-                aliases.update({ varin : 'E_OUT_'+str(self._Nin) }) if varin not in aliases.keys()
+                im_aliases.update({ varin : 'M_IN_'+str(self._Nin) }) if varin not in im_aliases.keys() else None
+                es_aliases.update({ varin : 'E_OUT_'+str(self._Nin) }) if varin not in es_aliases.keys() else None
                 self._lines.insert( len(self._lines)-1, '# Earth -- '+varin+' --> Models')
-                self._lines.insert( len(self._lines)-1, _create_bloc(aliases[varin],'M_IN_'+str(self._Nin),ex['freq'],ex['grd'],*grids[ex['grd']]))
+                self._lines.insert( len(self._lines)-1, _create_bloc(es_aliases[varin],im_aliases[varin],ex['freq'],ex['grd'],*grids[ex['grd']]))
                 self._Nin += 1
             for varout in ex['out']:
-                aliases.update({ varout : 'E_IN_'+str(self._Nout) }) if varout not in aliases.keys()
+                im_aliases.update({ varout : 'M_OUT_'+str(self._Nout) }) if varout not in im_aliases.keys() else None
+                es_aliases.update({ varout : 'E_IN_'+str(self._Nout) }) if varout not in es_aliases.keys() else None
                 self._lines.insert( len(self._lines)-1, '# Earth <-- '+varout+' -- Models')
-                self._lines.insert( len(self._lines)-1, _create_bloc('M_OUT_'+str(self._Nout),aliases[varout],ex['freq'],ex['grd'],*grids[ex['grd']]))
+                self._lines.insert( len(self._lines)-1, _create_bloc(im_aliases[varout],es_aliases[varout],ex['freq'],ex['grd'],*grids[ex['grd']]))
                 self._Nout += 1
         self._lines.insert(len(self._lines)-1, '#')
 
-        self.tunnels.append( Tunnel(label,grids,exchs,aliases) )
+        self.tunnels.append( Tunnel(label,grids,exchs,es_aliases,im_aliases) )
         return self.tunnels[-1:][0]
     
     def _finalize(self,total_time):
@@ -128,7 +130,7 @@ def register_tunnels(*configs):
     return [ Namcouple()._add_tunnel(**cfg) for cfg in configs ]
 
 def write_oasis_namelist(simulation_time=31536000.0):
-    Namcouple()._finalize( int(opening_time + opening_time*1.01) )
+    Namcouple()._finalize( int(simulation_time + simulation_time*1.01) )
 
 def open_tunnels():
     Namcouple()._activate()
