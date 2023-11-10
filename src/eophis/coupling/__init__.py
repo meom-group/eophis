@@ -35,7 +35,7 @@ def _init_coupling():
     
     cpl_nml = os.path.join(os.getcwd(), 'namcouple')
     cpl_nml_ref = os.path.join(os.getcwd(), 'namcouple_ref')
-    cpl_nml_base = os.path.join(os.path.abspath(cpl.__file__)[:-23], 'namcouple_eophis')
+    cpl_nml_base = os.path.join(os.path.abspath(tunnel.__file__)[:-26], 'namcouple_eophis')
     
     if not os.path.isfile(cpl_nml):
         logs.info(f'    "namcouple" not found, looking for reference file "namcouple_ref"')
