@@ -50,7 +50,7 @@ Quick guide to compile OASIS_V5.0 with the Python API.
 
         matplotlib         scipy         shapely         cartopy         pytest
 
-    **NB:** See PyOASIS documentation for more details.
+    **NB:** A conda environement file `pyoasis.yml` is provided in repository.
 
 ## Testing PyOASIS
 

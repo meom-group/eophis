@@ -1,16 +1,43 @@
+"""
+loop.py - This module contains time loop structures to synchronize connexions between coupled Earth-System and inferences models
+"""
 # eophis modules
 from .utils import logs
 from .coupling import Tunnel
 # external modules
 import datetime
 
-# wrapper to run built loop
-def start(assembled_loop):
+def starter(assembled_loop):
+    """
+    Starter for constructed loops
+    
+    Args:
+        assembled_loop (function): functions to start
+    """
     assembled_loop()
 
-# All In All Out : receive everything - modeling routine - send everything
-def all_in_all_out(earth_system,step,niter):
 
+def all_in_all_out(earth_system,step,niter):
+    """
+    Build a custom time loop on All In All Out (AIAO) structure: receive all data from earth - transfert data to models - send back all results.
+    Customization is in the data-to-models transfert instructions that are provided from user-defined 'modeling_routine()' function.
+    'assembler()' function inserts 'modeling_routine()' inside 'base_loop()' in which receivings and sendings steps are pre-defined.
+    
+    Args:
+        earth_system (eophis.Tunnel): coupling Tunnel to perform exchanges with earth
+        step (int): loop time step, in seconds
+        niter(int): number of loop iteration
+    Returns:
+        base_loop (function): AIAO loop completed with modeling routine
+    Raises:
+        ValueError: if no modeling_routine defined to construct loop
+    Example:
+        @all_in_all_out(coupledEarth,timeStep,timeIter)
+        def transfert_instructions(**inputs):
+            outputs = {}
+            outputs[varToSendBack] = my_model(inputs[varReceived])
+            return outputs
+    """
     final_date = datetime.timedelta(seconds=niter*step)
     step_date = datetime.timedelta(seconds=step)
     
@@ -49,6 +76,6 @@ def all_in_all_out(earth_system,step,niter):
                     results = ", ".join( [ varout for varout,inf in inferences.items() if type(inf) is not type(None) ] )
                     logs.info(f'   Sending back {results} through tunnel {earth_system.label}')
 
-            logs.info(f'------------------ END OF LOOP -------------------------')
+            logs.info(f'------------------- END OF LOOP -------------------')
         return base_loop
     return assembler

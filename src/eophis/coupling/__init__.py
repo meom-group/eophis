@@ -1,6 +1,16 @@
-# package import
-from .cpl import *
-from .namelists import *
+"""
+coupling subpackage
+-------------------
+OASIS is a Fortran coupling library that performs field exchanges between two coupled executables.
+Last release provided C and Python APIs, which enables coupling between non-homogeneously written codes.
+
+This subpackage is built on this librabry and provides:
+    1. an OASIS interface wrapper to exchange data with Earth-System
+    2. tools to create and manipulate OASIS and Fortran namelists
+"""
+# package export
+from .tunnel import *
+from .namelist import *
 from .namcouple import *
 
 # eophis modules
@@ -9,15 +19,15 @@ from ..utils import logs, params
 import os
 import shutil
 
-"""
-Coupling initialization
------------------------
-- Inquire namcouple file
-- Copy namcouple file from Eophis reference if not
-- ...
-- instantiate Namcouple object
-"""
 def _init_coupling():
+    """
+    Run the coupling subpackage initialization:
+        - Inquire coupling namelists 'namcouple' and 'namcouple_ref'
+        - Create 'namcouple' from 'namcouple_ref' if exists, from Eophis otherwise
+        - Save copy of 'namcouple' as 'namcouple_ref' if exists alone
+        - If both exist, does nothing
+        - instantiate Namcouple singleton with 'namcouple'
+    """
     logs.info('---------------------------')
     logs.info('  Coupling Initialization  ')
     logs.info('---------------------------')
@@ -37,10 +47,10 @@ def _init_coupling():
             shutil.copy(cpl_nml_ref,cpl_nml) if params.RANK == 0 else None
     else:
         if not os.path.isfile(cpl_nml_ref):
-            logs.info(f'    only "namcouple" found, save copy as {cpl_nml_ref}\n')
+            logs.info(f'  only "namcouple" found, save copy as {cpl_nml_ref}\n')
             shutil.copy(cpl_nml, cpl_nml_ref) if params.RANK == 0 else None
         else:
-            logs.info(f'    "namcouple" and "namcouple_ref" found, nothing done\n')
+            logs.info(f'  "namcouple" and "namcouple_ref" found, nothing done\n')
             logs.warning(f'Priority given to "namcouple" for reading if "namcouple_ref" is also present')
             cpl_nml_ref = cpl_nml
 

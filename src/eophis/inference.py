@@ -1,3 +1,6 @@
+"""
+inferences.py - empty module for now
+"""
 # eophis modules
 from .utils import logs
 # external modules

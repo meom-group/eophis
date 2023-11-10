@@ -1,3 +1,6 @@
+"""
+tunnel.py - this module is a wrapper for python OASIS API
+"""
 # eophis modules
 from ..utils import logs
 from ..utils.params import COMM
@@ -10,26 +13,26 @@ __all__ = ['Tunnel']
 
 class Tunnel:
     """
-    Wrapper for python OASIS API
+    This class gathers a set of OASIS objects created during an Eophis execution under a common entity.
+    This allows to spread OASIS commands between different identified coupled earth-systems.
     
-    Public Attributes
+    Attributes:
         label: Tunnel name
         grids: Tunnel user-defined grids
-        exchs: Tunnel user-defined transferts
+        exchs: Tunnel user-defined exchanges
         es_aliases: Correspondence between exchange variables and namcouple names from earth-system side
         im_aliases: Same from inference models side
-    Private Attributes
+        local_grids: sliced grids dimensions for parallel execution
         _partitions: list of OASIS Partition objects
         _variables: list of OASIS Var objects
-    Public Methods
+    Methods:
         arriving_list: return variable names that can be received
         departure_list: return variables names that can be sent
         send: wrapp OASIS steps for sending
         receive: wrapp OASIS steps for reception
-    Private Methods
-        _configure: orchestrates definition methods below
-        _define_partitions: create OASIS partitions from grids
-        _define_variables: create OASIS variables from exchs and aliases
+        _configure: orchestrates OASIS definition methods
+        _define_partitions: create OASIS Partitions from grids
+        _define_variables: create OASIS Vars from exchs and aliases
     """
     def __init__(self, label, grids, exchs, es_aliases, im_aliases):
         # public
@@ -58,6 +61,13 @@ class Tunnel:
         self._define_variables()
     
     def _define_partitions(self,rank,size):
+        """
+        Create OASIS Partition from attributes
+        
+        Args:
+            rank (int): local process rank
+            size (int): local process size
+        """
         for grd_lbl, (nlon, nlat, _, _) in self.grids.items():
             local_size = int(nlon * nlat / size)
             offset = rank * local_size
@@ -69,6 +79,7 @@ class Tunnel:
             self._partitions[grd_lbl] = pyoasis.ApplePartition(offset, local_size)
 
     def _define_variables(self):
+        """ Create OASIS Variable from attributes """
         for ex in self.exchs:
             for varin in ex['in']:
                 self._variables['rcv'][varin] = pyoasis.Var(self.im_aliases[varin], self._partitions[ex['grd']], OASIS.IN, bundle_size=ex['lvl'])
@@ -82,19 +93,36 @@ class Tunnel:
         return list(self._variables['snd'].keys())
     
     def send(self, var_label, date, values):
+        """
+        Send variable value to earth-system if date does match frequency exchange, nothing otherwise
+        
+        Args:
+            var_label (str): variable name to send
+            date (int): current simulation time
+            values (numpy.ndarray): array to send via OASIS under var_label
+        """
         if values is not None:
             snd_fld = pyoasis.asarray(values)
             var = self._variables['snd'][var_label]
             if len(snd_fld.shape) != 3:
-                logs.abort('  Shape of sending array for var {var_label} must be equal to 3')
+                logs.abort('  Shape of sending array for {var_label} must be equal to 3')
             if (snd_fld.shape[0] * snd_fld.shape[1], snd_fld.shape[2]) != (var._partition_local_size, var.bundle_size):
                 logs.abort('  Size of sending array for {var_label} does not match partition')
             var.put(date, snd_fld)
 
     def receive(self, var_label, date):
+        """
+        Request a variable reception from earth-system
+        
+        Args:
+            var_label (str): variable name to receive
+            date (int): current simulation time
+        Returns:
+            rcv_fld (numpy.ndarray): array sent by earth-system, None if date does not match frequency exchange
+        """
         rcv_fld = None
         var = self._variables['rcv'][var_label]
-        if (date % var.cpl_freqs[0]) == 0.0:
+        if (date % var.cpl_freqs[0]) == 0:
             loclon, loclat = [ self.local_grids[ex['grd']] for ex in self.exchs if var_label in ex['in'] ][0]
             rcv_fld = pyoasis.asarray( np.zeros( (loclon,loclat,var.bundle_size) ) )
             var.get(date, rcv_fld)
@@ -102,4 +130,12 @@ class Tunnel:
 
 
 def init_oasis(comp_name='eophis'):
+    """
+    Initialize OASIS environment
+    
+    Args:
+        comp_name (str): OASIS component name
+    Returns:
+        comp(pyoasis.Component): created OASIS component
+    """
     return pyoasis.Component(comp_name, True, COMM)
