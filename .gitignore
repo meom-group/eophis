@@ -1,3 +1,11 @@
+# tests logs
+*.out
+*.err
+nout*
+debug*
+namcouple
+namcouple_ref
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
