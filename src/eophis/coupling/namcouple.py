@@ -146,7 +146,7 @@ def register_tunnels(*configs):
 
 def write_coupling_namelist(simulation_time=31536000.0):
     """ Namcouple API: write namcouple at its current state """
-    Namcouple()._finalize( int(simulation_time + simulation_time*1.01) )
+    Namcouple()._finalize( int(simulation_time + simulation_time*0.01) )
 
 
 def open_tunnels():
