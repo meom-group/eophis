@@ -10,7 +10,7 @@ authors = [
   { name="Alexis Barge", email="alexis.barge@proton.me" },
 ]
 readme = "README.md"
-license = {file = "LICENSE.md"}
+license = {file = "LICENSE"}
 requires-python = ">=3.10.4"
 
 dependencies = [
