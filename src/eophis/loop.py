@@ -71,7 +71,7 @@ def all_in_all_out(earth_system,step,niter):
 
                 # perform all sendings
                 # --------------------
-                [ earth_system.send(varout,it_sec,inf) for varout,inf in inferences.items() ]
+                [ earth_system.send(varout,inf,it_sec) for varout,inf in inferences.items() ]
                 if not all( type(arr) == type(None) for arr in arrays.values()  ):
                     results = ", ".join( [ varout for varout,inf in inferences.items() if type(inf) is not type(None) ] )
                     logs.info(f'   Sending back {results} through tunnel {earth_system.label}')

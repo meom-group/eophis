@@ -7,14 +7,16 @@ import os
 from mpi4py import MPI
 
 def earth_info():
-    # coupling config
+    # coupling config (STATIC: ignored in loop, manual operation only)
     tunnel_config = { 'label' : 'TO_EARTH', \
-                      'grids' : { 'eORCA05' : Grids.eORCA05, \
-                                  'lmdz' : (180,151,0,0)  }, \
-                      'exchs' : [ {'freq' : Freqs.HOURLY, 'grd' : 'eORCA05', 'lvl' : 1, 'in' : ['sst'], 'out' : ['sst_var'] },  \
-                                  {'freq' : Freqs.DAILY,  'grd' : 'eORCA05', 'lvl' : 3, 'in' : ['svt'], 'out' : ['svt_var'] } ] }
-      # optional      'es_aliases' : { 'sst' : 'EAR_SST', 'svt' : 'EAR_TEMP', 'sst_var' : 'EAR_SSTV', 'svt_var' : 'EARTEMPV'},  \
-      # optional      'im_aliases' : { 'sst' : 'EOP_SST', 'svt' : 'EOP_TEMP', 'sst_var' : 'EOP_SSTV', 'svt_var' : 'EOPTEMPV'}   }
+                            'grids' : { 'eORCA05' : Grids.eORCA05, \
+                                        'lmdz' : (180,151,0,0)  }, \
+                            'exchs' : [ {'freq' : Freqs.HOURLY, 'grd' : 'eORCA05', 'lvl' : 1, 'in' : ['sst'], 'out' : ['sst_var'] },  \
+                                        {'freq' : Freqs.DAILY,  'grd' : 'eORCA05', 'lvl' : 3, 'in' : ['svt'], 'out' : ['svt_var'] },  \
+                                        {'freq' : Freqs.STATIC, 'grd' : 'eORCA05', 'lvl' : 1, 'in' : ['msk'], 'out' : [] } ] }
+            # optional      'es_aliases' : { 'sst' : 'EAR_SST', 'svt' : 'EAR_TEMP', 'sst_var' : 'EAR_SSTV', 'svt_var' : 'EARTEMPV'},  \
+            # optional      'im_aliases' : { 'sst' : 'EOP_SST', 'svt' : 'EOP_TEMP', 'sst_var' : 'EOP_SSTV', 'svt_var' : 'EOPTEMPV'}   }
+                        
 
     # earth namelist
     earth_nml = eophis.FortranNamelist(os.path.join(os.getcwd(),'earth_namelist'))
@@ -57,6 +59,9 @@ def production():
     #  Models
     # ++++++++
     from models import add_100
+
+    # receive manually
+    mask = earth.receive('msk')
 
     #  Assemble
     # ++++++++++

@@ -55,11 +55,12 @@ def main():
     # ++++++++++++++++++++++++
     #   VARIABLES DEFINITION
     # ++++++++++++++++++++++++
-    var_out = ['E_OUT_0','E_OUT_1']
+    var_out = ['E_OUT_0','E_OUT_1','E_OUT_2']
     var_in = ['E_IN_0','E_IN_1']
 
     dat_sst = pyoasis.Var(var_out[0],partition,OASIS.OUT,bundle_size=1)
     dat_svt = pyoasis.Var(var_out[1],partition,OASIS.OUT,bundle_size=nlvl)
+    dat_msk = pyoasis.Var(var_out[2],partition,OASIS.OUT,bundle_size=1)
     
     inf_sst = pyoasis.Var(var_in[0],partition,OASIS.IN,bundle_size=1)
     inf_svt = pyoasis.Var(var_in[1],partition,OASIS.IN,bundle_size=nlvl)
@@ -93,8 +94,12 @@ def main():
 
     sst = pyoasis.asarray( numpy.zeros((local_size,1)) )
     svt = pyoasis.asarray( numpy.zeros((local_size,nlvl)) )
+    msk = pyoasis.asarray( numpy.arange(local_size,1) )
     var_sst = pyoasis.asarray( numpy.zeros((local_size,1)) )
     var_svt = pyoasis.asarray( numpy.zeros((local_size,nlvl)) )
+
+    # send mask once
+    mask.put(0,mask)
 
     for it in range(niter):
         it_sec = int(time_step * it)

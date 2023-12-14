@@ -17,12 +17,14 @@ class Freqs:
     This class contains pre-defined commonly used exchange frequencies for coupled run
     
     Attributes:
+        STATIC (int): dummy integer for OASIS
         HOURLY (int): 3600 seconds
         DAILY (int): 24 x HOURLY
         WEEKLY (int): 7 x DAILY
         MONTHLY (int): 31 x DAILY
         YEARLY (int): 365 x DAILY
     """
+    STATIC = -1
     HOURLY = 3600
     DAILY = 24 * HOURLY
     WEEKLY = 7 * DAILY

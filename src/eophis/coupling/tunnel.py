@@ -92,7 +92,7 @@ class Tunnel:
     def departure_list(self):
         return list(self._variables['snd'].keys())
     
-    def send(self, var_label, date, values):
+    def send(self, var_label, values, date=0):
         """
         Send variable value to earth-system if date does match frequency exchange, nothing otherwise
         
@@ -110,7 +110,7 @@ class Tunnel:
                 logs.abort('  Size of sending array for {var_label} does not match partition')
             var.put(date, snd_fld)
 
-    def receive(self, var_label, date):
+    def receive(self, var_label, date=0):
         """
         Request a variable reception from earth-system
         

@@ -112,7 +112,7 @@ def _create_bloc(name_snd,name_rcv,freq,grd,nlon,nlat,overlap_x,overlap_y):
         bnd = 'R 0 R 0'
     else:
         bnd = 'P '+str(abs(overlap_x))+' P '+str(abs(overlap_y))
-    bloc = name_snd+' '+name_rcv+' 1 '+str(int(freq))+' 0 rst.nc EXPORTED\n'+ \
+    bloc = name_snd+' '+name_rcv+' 1 '+str(int(abs(freq)))+' 0 rst.nc EXPORTED\n'+ \
            str(nlon)+' '+str(nlat)+' '+str(nlon)+' '+str(nlat)+' '+str(grd)+' '+ \
            str(grd)+' LAG=0\n'+bnd
     return bloc
