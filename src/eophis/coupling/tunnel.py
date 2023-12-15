@@ -87,10 +87,12 @@ class Tunnel:
                 self._variables['snd'][varout] = pyoasis.Var(self.im_aliases[varout], self._partitions[ex['grd']], OASIS.OUT, bundle_size=ex['lvl'])
     
     def arriving_list(self):
-        return list(self._variables['rcv'].keys())
+        """ Returns list of non-static receiveable variables """
+        return list( ex['in'][0] for ex in self.exchs if ex['freq'] > 0 )
     
     def departure_list(self):
-        return list(self._variables['snd'].keys())
+        """ Returns list of non-static sendable variables """
+        return list( ex['out'][0] for ex in self.exchs if ex['freq'] > 0 )
     
     def send(self, var_label, values, date=0):
         """
@@ -110,7 +112,7 @@ class Tunnel:
                 logs.abort('  Size of sending array for {var_label} does not match partition')
             var.put(date, snd_fld)
 
-    def receive(self, var_label, date=0):
+    def receive(self, var_label, date=86573):
         """
         Request a variable reception from earth-system
         

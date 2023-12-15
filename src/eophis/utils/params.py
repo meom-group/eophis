@@ -25,6 +25,7 @@ class Freqs:
         YEARLY (int): 365 x DAILY
     """
     STATIC = -1
+    MINUTLY = 60
     HOURLY = 3600
     DAILY = 24 * HOURLY
     WEEKLY = 7 * DAILY

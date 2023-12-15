@@ -11,11 +11,11 @@ __all__ = ['init_namcouple','register_tunnels','write_coupling_namelist','open_t
 
 class Namcouple:
     """
-    This class represents the OASIS namelist 'namcouple' that is the most fundamental entity to setup couplings. Only one OASIS namelist is required for all couplings.
+    This class represents the OASIS namelist 'namcouple'. This is the most fundamental entity to setup couplings. Only one OASIS namelist is required for all couplings.
     The class provides tools for creation, manipulation and writing of namcouple file content. Every action related to Tunnel configuration is supervised by Namcouple.
     Modification of Namcouple without good understanding of OASIS libraries may lead to errors hard to track.
     
-    For all these reasons, object Namcouple is a protected singleton that can only be handled from its API defined in same module.
+    For all these reasons, object Namcouple is a protected singleton that can only be handled from its API defined in this module.
 
     Attributes:
         infile/ (str): name of input/output namcouple file
@@ -112,7 +112,7 @@ def _create_bloc(name_snd,name_rcv,freq,grd,nlon,nlat,overlap_x,overlap_y):
         bnd = 'R 0 R 0'
     else:
         bnd = 'P '+str(abs(overlap_x))+' P '+str(abs(overlap_y))
-    bloc = name_snd+' '+name_rcv+' 1 '+str(int(abs(freq)))+' 0 rst.nc EXPORTED\n'+ \
+    bloc = name_snd+' '+name_rcv+' 1 '+str(abs(int(freq)))+' 0 rst.nc EXPORTED\n'+ \
            str(nlon)+' '+str(nlat)+' '+str(nlon)+' '+str(nlat)+' '+str(grd)+' '+ \
            str(grd)+' LAG=0\n'+bnd
     return bloc
