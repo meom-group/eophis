@@ -4,6 +4,7 @@ tunnel.py - this module is a wrapper for python OASIS API
 # eophis modules
 from ..utils import logs
 from ..utils.paral import COMM
+from ..utils.params import Freqs
 # external modules
 import pyoasis
 from pyoasis import OASIS
@@ -25,9 +26,10 @@ class Tunnel:
         local_grids: sliced grids dimensions for parallel execution
         _partitions: list of OASIS Partition objects
         _variables: list of OASIS Var objects
+        _static_used: status of static variables (exchanged or not)
     Methods:
-        arriving_list: return variable names that can be received
-        departure_list: return variables names that can be sent
+        arriving_list: return non-static variable names that can be received
+        departure_list: return non-static variable names that can be sent
         send: wrapp OASIS steps for sending
         receive: wrapp OASIS steps for reception
         _configure: orchestrates OASIS definition methods
@@ -45,6 +47,7 @@ class Tunnel:
         # private
         self._partitions = {}
         self._variables = { 'rcv': {}, 'snd': {} }
+        self._static_used = {}
 
         # print some infos
         logs.info(f'-------- Tunnel {label} created --------')
@@ -79,22 +82,28 @@ class Tunnel:
             self._partitions[grd_lbl] = pyoasis.ApplePartition(offset, local_size)
 
     def _define_variables(self):
-        """ Create OASIS Variable from attributes """
+        """ Create OASIS Variable from attributes and initialise status of static variables """
         for ex in self.exchs:
             for varin in ex['in']:
                 self._variables['rcv'][varin] = pyoasis.Var(self.im_aliases[varin], self._partitions[ex['grd']], OASIS.IN, bundle_size=ex['lvl'])
+                self._static_used[varin] = False if ex['freq'] == Freqs.STATIC
             for varout in ex['out']:
                 self._variables['snd'][varout] = pyoasis.Var(self.im_aliases[varout], self._partitions[ex['grd']], OASIS.OUT, bundle_size=ex['lvl'])
-    
+                self._static_used[varout] = False if ex['freq'] == Freqs.STATIC
+
     def arriving_list(self):
-        """ Returns list of non-static receiveable variables """
+        """ Return list of non-static receiveable variables """
         return list( ex['in'][0] for ex in self.exchs if ex['freq'] > 0 )
     
     def departure_list(self):
-        """ Returns list of non-static sendable variables """
+        """ Return list of non-static sendable variables """
         return list( ex['out'][0] for ex in self.exchs if ex['freq'] > 0 )
-    
-    def send(self, var_label, values, date=-1):
+
+    def ready(self):
+        """ Return True if every static variables have been exchanged """
+        return all( done for done in self._static_used.values() )
+
+    def send(self, var_label, values, date=0):
         """
         Send variable value to earth-system if date does match frequency exchange, nothing otherwise
         
@@ -103,6 +112,14 @@ class Tunnel:
             date (int): current simulation time
             values (numpy.ndarray): array to send via OASIS under var_label
         """
+        # static treatment
+        if var_label in self._static_used and not self._static_used[var_label]:
+            logs.info(f'\n-!- Static sending of {var_label} through tunnel {self.label}')
+            self._static_used[var_label] = True
+        elif var_label in self._static_used and self._static_used[var_label]:
+            logs.warning(f'Static sending of {var_label} through tunnel {self.label} already done, skipped')
+            return
+        
         if values is not None:
             snd_fld = pyoasis.asarray(values)
             var = self._variables['snd'][var_label]
@@ -110,12 +127,9 @@ class Tunnel:
                 logs.abort('  Shape of sending array for {var_label} must be equal to 3')
             if (snd_fld.shape[0] * snd_fld.shape[1], snd_fld.shape[2]) != (var._partition_local_size, var.bundle_size):
                 logs.abort('  Size of sending array for {var_label} does not match partition')
-            if (date == -1):
-                logs.info(f'\n-!- Static sending of {var_label} through tunnel {self.label}')
-                date = 0
             var.put(date, snd_fld)
 
-    def receive(self, var_label, date=-1):
+    def receive(self, var_label, date=0):
         """
         Request a variable reception from earth-system
         
@@ -125,12 +139,17 @@ class Tunnel:
         Returns:
             rcv_fld (numpy.ndarray): array sent by earth-system, None if date does not match frequency exchange
         """
-        if (date == -1):
-            logs.info(f'\n-!- Static receive of {var_label} through tunnel {self.label}')
-            date = 0
-
         rcv_fld = None
         var = self._variables['rcv'][var_label]
+        
+        # static treatment
+        if var_label in self._static_used and not self._static_used[var_label]:
+            logs.info(f'\n-!- Static receive of {var_label} through tunnel {self.label}')
+            self._static_used[var_label] = True
+        elif var_label in self._static_used and self._static_used[var_label]:
+            logs.warning(f'Static receive of {var_label} through tunnel {self.label} already done, skipped')
+            return
+        
         if (date % var.cpl_freqs[0]) == 0:
             loclon, loclat = [ self.local_grids[ex['grd']] for ex in self.exchs if var_label in ex['in'] ][0]
             rcv_fld = pyoasis.asarray( np.zeros( (loclon,loclat,var.bundle_size) ) )

@@ -2,7 +2,7 @@
 namcouple.py - contains tools to create and manipulate OASIS namelist sections in right format
 """
 # eophis modules
-from .namelist import raw_content, find, replace, find_and_replace, write
+from .namelist import raw_content, find, replace_line, find_and_replace_line, find_and_replace_char, write
 from .tunnel import init_oasis, Tunnel
 from ..utils.paral import RANK, COMM
 from ..utils import logs
@@ -59,7 +59,7 @@ class Namcouple:
     def _add_tunnel(self,label,grids,exchs,es_aliases={},im_aliases={}):
         logs.abort('OASIS environment set, impossible to create new tunnels') if self._activated else None
             
-        replace(self._lines, '# ======= Tunnel '+label+' =======', len(self._lines)-2)
+        replace_line(self._lines, '# ======= Tunnel '+label+' =======', len(self._lines)-2)
         for ex in exchs:
             for varin in ex['in']:
                 im_aliases.update({ varin : 'M_IN_'+str(self._Nin) }) if varin not in im_aliases.keys() else None
@@ -84,9 +84,12 @@ class Namcouple:
         # Update Nbfield and Runtime
         nfield = int(self._lines[ find(self._lines,'$NFIELDS') + 1 ]) + self._Nin + self._Nout
         runtime = int(self._lines[ find(self._lines,'$RUNTIME') + 1 ])
-        find_and_replace(self._lines,'$NFIELDS',str(nfield),offset=1)
+        find_and_replace_line(self._lines,'$NFIELDS',str(nfield),offset=1)
         if total_time > runtime:
-            find_and_replace(self._lines,'$RUNTIME',str(total_time),offset=1)
+            find_and_replace_line(self._lines,'$RUNTIME',str(total_time),offset=1)
+
+        # Update static frequencies
+        find_and_replace_char(self._lines,'-1'.str(total_time))
 
         # Write namcouple
         write(self._lines,self.outfile,add_header=True) if RANK == 0 else None
@@ -112,7 +115,7 @@ def _create_bloc(name_snd,name_rcv,freq,grd,nlon,nlat,overlap_x,overlap_y):
         bnd = 'R 0 R 0'
     else:
         bnd = 'P '+str(abs(overlap_x))+' P '+str(abs(overlap_y))
-    bloc = name_snd+' '+name_rcv+' 1 '+str(abs(int(freq)))+' 0 rst.nc EXPORTED\n'+ \
+    bloc = name_snd+' '+name_rcv+' 1 '+str(int(freq))+' 0 rst.nc EXPORTED\n'+ \
            str(nlon)+' '+str(nlat)+' '+str(nlon)+' '+str(nlat)+' '+str(grd)+' '+ \
            str(grd)+' LAG=0\n'+bnd
     return bloc

@@ -74,7 +74,7 @@ def raw_content(file_path):
         
 def find(lines,target):
     """
-    Find text inside of a read file list of lines
+    Find first text occurence inside of a read file list of lines
     
     Args:
         lines (list): list of lines
@@ -85,9 +85,9 @@ def find(lines,target):
     return [i for i,txt in enumerate(lines) if target in txt][0]
         
         
-def replace(lines,content,pos):
+def replace_line(lines,content,pos):
     """
-    Replace a specified line of a read file list of lines by another
+    Replace a specified line of a read file list of lines by another complete line
     
     Args:
         lines (list): list of lines
@@ -98,9 +98,9 @@ def replace(lines,content,pos):
     lines.insert(pos,content)
         
         
-def find_and_replace(lines,old_txt,new_txt,offset=0):
+def find_and_replace_line(lines,old_txt,new_txt,offset=0):
     """
-    Apply find and replace functions to a read file list of lines
+    Apply find and replace_line functions to a read file list of lines
     
     Args:
         lines (list): list of lines
@@ -110,7 +110,18 @@ def find_and_replace(lines,old_txt,new_txt,offset=0):
     """
     pos = [i for i,txt in enumerate(lines) if old_txt in txt][0]
     replace(lines,new_txt,pos+offset)
-        
+
+def find_and_replace_char(lines,old_char,new_char):
+    """
+    Replace every character chain occurence in a read file lines by another character chaine, lines are saved
+    
+    Args:
+        lines (list): list of lines
+        old_char (str)"
+    """
+    for i,txt in enumerate(lines):
+        if old_char in txt:
+        lines[i] = txt.replace(old_char,new_char)
         
 def write(lines,outfile,add_header=False):
     """

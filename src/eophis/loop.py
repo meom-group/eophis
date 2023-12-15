@@ -48,10 +48,15 @@ def all_in_all_out(earth_system,step,niter):
             logs.info(f'Time step : {step}s -- {step_date}')
             logs.info(f'Total Time : {niter*step}s -- {final_date} \n')
 
+            # check modeling routine
             if callable(modeling_routine):
                 logs.info('Modeling routine: ...TO BE COMPLETED...\n')
             else:
                 logs.abort('No modeling routine defined for coupled run')
+
+            # check static variables status
+            if not earth_system.ready():
+                logs.abort('Static variables of tunnel {earth_system.label} must be exchanged before loop start')
 
             for it in range(niter):
                 it_sec = int(step * it)
