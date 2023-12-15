@@ -7,7 +7,9 @@ import os
 from mpi4py import MPI
 
 def earth_info():
-    # coupling config (STATIC: ignored in time loops, send/receive performed ONCE manually)
+    # coupling config 
+    # STATIC: send/receive may be done manually ONCE and are ignored in time loops
+    # NON-STATIC : manual send/receive won't work outside of time loops
     tunnel_config = { 'label' : 'TO_EARTH', \
                       'grids' : { 'eORCA05' : Grids.eORCA05, \
                                   'lmdz' : (180,151,0,0)  }, \

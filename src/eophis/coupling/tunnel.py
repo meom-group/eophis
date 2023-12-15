@@ -101,7 +101,7 @@ class Tunnel:
         """ Return list of non-static sendable variables """
         return list( ex['out'][0] for ex in self.exchs if ex['freq'] > 0 )
 
-    def send(self, var_label, values, date=0):
+    def send(self, var_label, values, date=86579):
         """
         Send variable value to earth-system if date does match frequency exchange, nothing otherwise
         
@@ -110,24 +110,26 @@ class Tunnel:
             date (int): current simulation time
             values (numpy.ndarray): array to send via OASIS under var_label
         """
+        var = self._variables['snd'][var_label]
+ 
         # static treatment
         if var_label in self._static_used and not self._static_used[var_label]:
             logs.info(f'\n-!- Static sending of {var_label} through tunnel {self.label}')
             self._static_used[var_label] = True
+            date = 0
         elif var_label in self._static_used and self._static_used[var_label]:
             logs.warning(f'Static sending of {var_label} through tunnel {self.label} already done, skipped')
             return
         
-        if values is not None:
+        if values is not None and (date % var.cpl_freqs[0] == 0):
             snd_fld = pyoasis.asarray(values)
-            var = self._variables['snd'][var_label]
             if len(snd_fld.shape) != 3:
                 logs.abort('  Shape of sending array for {var_label} must be equal to 3')
             if (snd_fld.shape[0] * snd_fld.shape[1], snd_fld.shape[2]) != (var._partition_local_size, var.bundle_size):
                 logs.abort('  Size of sending array for {var_label} does not match partition')
             var.put(date, snd_fld)
 
-    def receive(self, var_label, date=0):
+    def receive(self, var_label, date=86579):
         """
         Request a variable reception from earth-system
         
@@ -144,11 +146,12 @@ class Tunnel:
         if var_label in self._static_used and not self._static_used[var_label]:
             logs.info(f'\n-!- Static receive of {var_label} through tunnel {self.label}')
             self._static_used[var_label] = True
+            date = 0
         elif var_label in self._static_used and self._static_used[var_label]:
             logs.warning(f'Static receive of {var_label} through tunnel {self.label} already done, skipped')
             return
         
-        if (date % var.cpl_freqs[0]) == 0:
+        if (date % var.cpl_freqs[0] == 0):
             loclon, loclat = [ self.local_grids[ex['grd']] for ex in self.exchs if var_label in ex['in'] ][0]
             rcv_fld = pyoasis.asarray( np.zeros( (loclon,loclat,var.bundle_size) ) )
             var.get(date, rcv_fld)
