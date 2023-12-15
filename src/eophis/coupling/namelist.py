@@ -109,7 +109,8 @@ def find_and_replace_line(lines,old_txt,new_txt,offset=0):
         offset (int): line number offset for replacement
     """
     pos = [i for i,txt in enumerate(lines) if old_txt in txt][0]
-    replace(lines,new_txt,pos+offset)
+    replace_line(lines,new_txt,pos+offset)
+
 
 def find_and_replace_char(lines,old_char,new_char):
     """
@@ -121,8 +122,9 @@ def find_and_replace_char(lines,old_char,new_char):
     """
     for i,txt in enumerate(lines):
         if old_char in txt:
-        lines[i] = txt.replace(old_char,new_char)
+            lines[i] = txt.replace(old_char,new_char)
         
+
 def write(lines,outfile,add_header=False):
     """
     Write list of lines in an output file

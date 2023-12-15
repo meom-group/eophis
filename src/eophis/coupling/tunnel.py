@@ -86,10 +86,12 @@ class Tunnel:
         for ex in self.exchs:
             for varin in ex['in']:
                 self._variables['rcv'][varin] = pyoasis.Var(self.im_aliases[varin], self._partitions[ex['grd']], OASIS.IN, bundle_size=ex['lvl'])
-                self._static_used[varin] = False if ex['freq'] == Freqs.STATIC
+                if ex['freq'] == Freqs.STATIC:
+                    self._static_used[varin] = False
             for varout in ex['out']:
                 self._variables['snd'][varout] = pyoasis.Var(self.im_aliases[varout], self._partitions[ex['grd']], OASIS.OUT, bundle_size=ex['lvl'])
-                self._static_used[varout] = False if ex['freq'] == Freqs.STATIC
+                if ex['freq'] == Freqs.STATIC:
+                    self._static_used[varout] = False
 
     def arriving_list(self):
         """ Return list of non-static receiveable variables """

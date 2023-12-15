@@ -89,7 +89,7 @@ class Namcouple:
             find_and_replace_line(self._lines,'$RUNTIME',str(total_time),offset=1)
 
         # Update static frequencies
-        find_and_replace_char(self._lines,'-1'.str(total_time))
+        find_and_replace_char(self._lines,'-1',str(total_time))
 
         # Write namcouple
         write(self._lines,self.outfile,add_header=True) if RANK == 0 else None
