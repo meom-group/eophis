@@ -7,7 +7,7 @@ import os
 from mpi4py import MPI
 
 def earth_info():
-    # coupling config (STATIC: ignored in time loops, manual send/receive only)
+    # coupling config (STATIC: ignored in time loops, send/receive performed ONCE manually)
     tunnel_config = { 'label' : 'TO_EARTH', \
                       'grids' : { 'eORCA05' : Grids.eORCA05, \
                                   'lmdz' : (180,151,0,0)  }, \
@@ -60,8 +60,10 @@ def production():
     # ++++++++
     from models import add_100
 
-    # static receive
+    # static send/receive
     mask = earth.receive('msk')
+    if ( mask[-1:,-1:,0] != (720*603-1) ):
+        eophis.abort('  Mask wrongly received') 
 
     #  Assemble
     # ++++++++++

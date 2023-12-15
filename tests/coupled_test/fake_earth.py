@@ -94,12 +94,13 @@ def main():
 
     sst = pyoasis.asarray( numpy.zeros((local_size,1)) )
     svt = pyoasis.asarray( numpy.zeros((local_size,nlvl)) )
-    msk = pyoasis.asarray( numpy.arange(local_size,1) )
+    msk = pyoasis.asarray( numpy.arange(local_size).reshape(local_size,1) )
     var_sst = pyoasis.asarray( numpy.zeros((local_size,1)) )
     var_svt = pyoasis.asarray( numpy.zeros((local_size,nlvl)) )
 
     # send mask once
-    mask.put(0,mask)
+    logging.info('  -!- Static sending of %s' % (dat_msk._name))
+    dat_msk.put(0,msk)
 
     for it in range(niter):
         it_sec = int(time_step * it)

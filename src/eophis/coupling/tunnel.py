@@ -3,7 +3,7 @@ tunnel.py - this module is a wrapper for python OASIS API
 """
 # eophis modules
 from ..utils import logs
-from ..utils.params import COMM
+from ..utils.paral import COMM
 # external modules
 import pyoasis
 from pyoasis import OASIS
@@ -94,7 +94,7 @@ class Tunnel:
         """ Returns list of non-static sendable variables """
         return list( ex['out'][0] for ex in self.exchs if ex['freq'] > 0 )
     
-    def send(self, var_label, values, date=0):
+    def send(self, var_label, values, date=-1):
         """
         Send variable value to earth-system if date does match frequency exchange, nothing otherwise
         
@@ -110,9 +110,12 @@ class Tunnel:
                 logs.abort('  Shape of sending array for {var_label} must be equal to 3')
             if (snd_fld.shape[0] * snd_fld.shape[1], snd_fld.shape[2]) != (var._partition_local_size, var.bundle_size):
                 logs.abort('  Size of sending array for {var_label} does not match partition')
+            if (date == -1):
+                logs.info(f'\n-!- Static sending of {var_label} through tunnel {self.label}')
+                date = 0
             var.put(date, snd_fld)
 
-    def receive(self, var_label, date=86573):
+    def receive(self, var_label, date=-1):
         """
         Request a variable reception from earth-system
         
@@ -122,6 +125,10 @@ class Tunnel:
         Returns:
             rcv_fld (numpy.ndarray): array sent by earth-system, None if date does not match frequency exchange
         """
+        if (date == -1):
+            logs.info(f'\n-!- Static receive of {var_label} through tunnel {self.label}')
+            date = 0
+
         rcv_fld = None
         var = self._variables['rcv'][var_label]
         if (date % var.cpl_freqs[0]) == 0:

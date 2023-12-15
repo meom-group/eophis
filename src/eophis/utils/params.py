@@ -1,17 +1,7 @@
 """
-params.py - This module contains:
-               - MPI variables commonly used in Eophis packages
-               - constants
+params.py - This module contains useful constants
 """
 
-# external modules
-from mpi4py import MPI
-
-# MPI tools
-COMM = MPI.COMM_WORLD
-RANK = COMM.Get_rank()
-
-# constants
 class Freqs:
     """
     This class contains pre-defined commonly used exchange frequencies for coupled run
@@ -31,6 +21,7 @@ class Freqs:
     WEEKLY = 7 * DAILY
     MONTHLY = 31 * DAILY
     YEARLY = 365 * DAILY
+
 
 class Grids:
     """

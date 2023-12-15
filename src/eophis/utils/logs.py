@@ -3,7 +3,7 @@ logs.py - This module creates and configures eophis log files
 """
 
 # eophis modules
-from .params import RANK
+from .paral import RANK, quit_eophis
 # external modules
 import logging
 import inspect
@@ -41,11 +41,12 @@ def abort(message='Error not described'):
     Args:
         message (str): error message to be logged
     """
+    global normal_exit
     if RANK == 0 :
         caller = inspect.stack()[1]
         _logger_info.info('RUN ABORTED, see error log for details')
         _logger_err.error('from '+caller.filename+' at line '+str(caller.lineno)+': '+message)
-    quit()
+    quit_eophis()
 
 def _setup_logger(name, log_file, formatter, level=logging.INFO):
     """

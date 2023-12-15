@@ -4,7 +4,7 @@ namcouple.py - contains tools to create and manipulate OASIS namelist sections i
 # eophis modules
 from .namelist import raw_content, find, replace, find_and_replace, write
 from .tunnel import init_oasis, Tunnel
-from ..utils.params import RANK, COMM
+from ..utils.paral import RANK, COMM
 from ..utils import logs
 
 __all__ = ['init_namcouple','register_tunnels','write_coupling_namelist','open_tunnels','close_tunnels']
