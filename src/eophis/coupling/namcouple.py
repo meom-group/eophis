@@ -7,7 +7,7 @@ from .tunnel import init_oasis, Tunnel
 from ..utils.paral import RANK, COMM
 from ..utils import logs
 
-__all__ = ['init_namcouple','register_tunnels','write_coupling_namelist','open_tunnels','close_tunnels']
+__all__ = ['init_namcouple','register_tunnels','write_coupling_namelist','open_tunnels','tunnels_ready','close_tunnels']
 
 class Namcouple:
     """
@@ -156,6 +156,12 @@ def open_tunnels():
     """ Namcouple API: start coupling environment, create OASIS objects in Tunnels """
     Namcouple()._activate()
 
+def tunnels_ready():
+    """ Namcouple API: check if tunnels are ready to start time loop """
+    for tnl in Namcouple().tunnels:
+        if not all( done for done in tnl._static_used.values() ):
+            return False
+    return True
 
 def close_tunnels():
     """ Namcouple API: terminate coupling environement """

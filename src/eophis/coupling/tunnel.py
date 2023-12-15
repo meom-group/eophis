@@ -101,10 +101,6 @@ class Tunnel:
         """ Return list of non-static sendable variables """
         return list( ex['out'][0] for ex in self.exchs if ex['freq'] > 0 )
 
-    def ready(self):
-        """ Return True if every static variables have been exchanged """
-        return all( done for done in self._static_used.values() )
-
     def send(self, var_label, values, date=0):
         """
         Send variable value to earth-system if date does match frequency exchange, nothing otherwise

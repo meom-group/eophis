@@ -3,7 +3,7 @@ loop.py - This module contains time loop structures to synchronize connexions be
 """
 # eophis modules
 from .utils import logs
-from .coupling import Tunnel
+from .coupling import Tunnel, tunnels_ready
 # external modules
 import datetime
 
@@ -55,8 +55,8 @@ def all_in_all_out(earth_system,step,niter):
                 logs.abort('No modeling routine defined for coupled run')
 
             # check static variables status
-            if not earth_system.ready():
-                logs.abort('Static variables of tunnel {earth_system.label} must be exchanged before loop start')
+            if not tunnels_ready():
+                logs.abort('Static variables must be exchanged before starting any loop')
 
             for it in range(niter):
                 it_sec = int(step * it)
