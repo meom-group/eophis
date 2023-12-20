@@ -95,11 +95,11 @@ class Tunnel:
 
     def arriving_list(self):
         """ Return list of non-static receiveable variables """
-        return list( ex['in'][0] for ex in self.exchs if ex['freq'] > 0 )
+        return [ lbl for ex in self.exchs for lbl in ex['in'] if ex['freq'] > 0 ]
     
     def departure_list(self):
         """ Return list of non-static sendable variables """
-        return list( ex['out'][0] for ex in self.exchs if ex['freq'] > 0 )
+        return [ lbl for ex in self.exchs for lbl in ex['out'] if ex['freq'] > 0 ]
 
     def send(self, var_label, values, date=86579):
         """
