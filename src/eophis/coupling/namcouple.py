@@ -135,12 +135,12 @@ def init_namcouple(cpl_nml_tmp,cpl_nml):
     Namcouple(cpl_nml_tmp,cpl_nml)
 
 
-def register_tunnels(*configs):
+def register_tunnels(configs):
     """
     Namcouple API: update namcouple content and init Tunnel
     
     Args:
-        config (dict): input metadata to create Tunnel
+        config (list): input metadata to create Tunnel
     Returns:
         List of created Tunnel objects
     """
@@ -156,12 +156,14 @@ def open_tunnels():
     """ Namcouple API: start coupling environment, create OASIS objects in Tunnels """
     Namcouple()._activate()
 
+
 def tunnels_ready():
     """ Namcouple API: check if tunnels are ready to start time loop """
     for tnl in Namcouple().tunnels:
         if not all( done for done in tnl._static_used.values() ):
             return False
     return True
+
 
 def close_tunnels():
     """ Namcouple API: terminate coupling environement """
