@@ -98,9 +98,6 @@ def main():
     var_sst = pyoasis.asarray( numpy.zeros((local_size,1)) )
     var_svt = pyoasis.asarray( numpy.zeros((local_size,nlvl)) )
 
-    # send mask once
-    logging.info('  -!- Static sending of %s' % (dat_msk._name))
-    dat_msk.put(0,msk)
 
     for it in range(niter):
         it_sec = int(time_step * it)
@@ -115,8 +112,12 @@ def main():
         if it_sec%dat_svt.cpl_freqs[0] == 0.0 and comm_rank == 0:
             logging.info('    Sending %s' % (dat_svt._name))
 
+        if it_sec%dat_msk.cpl_freqs[0] == 0.0 and comm_rank == 0:
+            logging.info('    Static (once) sending of %s' % (dat_msk._name))
+
         dat_sst.put(it_sec,sst)
         dat_svt.put(it_sec,svt)
+        dat_msk.put(it_sec,msk)
 
         # receive modified field
         if it_sec%inf_sst.cpl_freqs[0] == 0.0 and comm_rank == 0:
