@@ -3,7 +3,7 @@ tunnel.py - this module is a wrapper for python OASIS API
 """
 # eophis modules
 from ..utils import logs
-from ..utils.paral import COMM
+from ..utils.paral import COMM, make_subdomain
 from ..utils.params import Freqs
 # external modules
 import pyoasis
@@ -63,23 +63,24 @@ class Tunnel:
         self._define_partitions(comp.localcomm.rank,comp.localcomm.size)
         self._define_variables()
     
-    def _define_partitions(self,rank,size):
+    def _define_partitions(self,myrank,size):
         """
         Create OASIS Partition from attributes
         
         Args:
-            rank (int): local process rank
+            myrank (int): local process rank
             size (int): local process size
         """
         for grd_lbl, (nlon, nlat, _, _) in self.grids.items():
-            local_size = int(nlon * nlat / size)
-            offset = rank * local_size
-        
-            if rank == size - 1:
-                local_size = nlon * nlat - offset
-
-            self.local_grids[grd_lbl] = [ int(nlon/size**0.5 ),int(nlat/size**0.5) ] 
-            self._partitions[grd_lbl] = pyoasis.ApplePartition(offset, local_size)
+               
+            sub_lon, sub_lat = make_subdomain(nlon,nlat,size)
+            isub = myrank % len(sub_lon)
+            jsub = myrank // len(sub_lon)
+            
+            global_offset = jsub * nlon * sub_lat[jsub-1] + sum( sub_lon[0:isub] )
+            self.local_grids[grd_lbl] = ( sub_lon[isub], sub_lat[jsub] )
+            
+            self._partitions[grd_lbl] = pyoasis.BoxPartition(global_offset, sub_lon[isub], sub_lat[jsub], nlon)
 
     def _define_variables(self):
         """ Create OASIS Variable from attributes and initialise status of static variables """
