@@ -3,7 +3,7 @@ logs.py - This module creates and configures eophis log files
 """
 
 # eophis modules
-from .paral import RANK, quit_eophis
+from .paral import RANK, MASTER, quit_eophis
 # external modules
 import logging
 import inspect
@@ -17,7 +17,7 @@ def info(message=''):
     Args:
         message (str): message to be logged
     """
-    _logger_info.info(message) if RANK == 0 else None
+    _logger_info.info(message) if RANK == MASTER else None
 
 def warning(message='Warning not described'):
     """
@@ -27,7 +27,7 @@ def warning(message='Warning not described'):
     Args:
         message (str): warning message to be logged
     """
-    if RANK == 0:
+    if RANK == MASTER:
         caller = inspect.stack()[1]
         _logger_err.warning('from '+caller.filename+' at line '+str(caller.lineno)+': '+message)
         _logger_info.info(f'Warning raised ! See error log for details\n')
@@ -42,7 +42,7 @@ def abort(message='Error not described'):
         message (str): error message to be logged
     """
     global normal_exit
-    if RANK == 0 :
+    if MYRANK == MASTER:
         caller = inspect.stack()[1]
         _logger_info.info('RUN ABORTED, see error log for details')
         _logger_err.error('from '+caller.filename+' at line '+str(caller.lineno)+': '+message)

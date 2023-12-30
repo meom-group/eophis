@@ -4,7 +4,7 @@ namcouple.py - contains tools to create and manipulate OASIS namelist sections i
 # eophis modules
 from .namelist import raw_content, find, replace_line, find_and_replace_line, find_and_replace_char, write
 from .tunnel import init_oasis, Tunnel
-from ..utils.paral import RANK, COMM
+from ..utils.paral import RANK, MASTER, COMM
 from ..utils import logs
 
 __all__ = ['init_namcouple','register_tunnels','write_coupling_namelist','open_tunnels','tunnels_ready','close_tunnels']
@@ -92,14 +92,19 @@ class Namcouple:
         find_and_replace_char(self._lines,'-1',str(total_time))
 
         # Write namcouple
-        write(self._lines,self.outfile,add_header=True) if RANK == 0 else None
+        write(self._lines,self.outfile,add_header=True) if RANK == MASTER else None
         COMM.Barrier()
 
     def _activate(self):
         logs.abort('OASIS environment already set') if self._activated else None
     
-        # Init all OASIS commands in tunnels
+        # set OASIS environment
         self.comp = init_oasis()
+        
+        # reset RANK with OASIS communicator
+        RANK = self.comp.localcomm.rank
+        
+        # init OASIS commands in tunnels
         for tnl in self.tunnels:
             tnl._configure(self.comp)
 
@@ -149,7 +154,7 @@ def register_tunnels(configs):
 
 def write_coupling_namelist(simulation_time=31536000.0):
     """ Namcouple API: write namcouple at its current state """
-    Namcouple()._finalize( int(simulation_time + simulation_time*0.01) )
+    Namcouple()._finalize( int( simulation_time*1.01) )
 
 
 def open_tunnels():
