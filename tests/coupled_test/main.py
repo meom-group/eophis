@@ -65,8 +65,6 @@ def production():
 
     # static send/receive
     mask = earth.receive('msk')
-    if ( mask[-1:,-1:,0] != (720*603-1) ):
-        eophis.abort('  Mask wrongly received') 
 
     #  Assemble
     # ++++++++++

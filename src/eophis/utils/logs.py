@@ -41,8 +41,7 @@ def abort(message='Error not described'):
     Args:
         message (str): error message to be logged
     """
-    global normal_exit
-    if MYRANK == MASTER:
+    if RANK == MASTER:
         caller = inspect.stack()[1]
         _logger_info.info('RUN ABORTED, see error log for details')
         _logger_err.error('from '+caller.filename+' at line '+str(caller.lineno)+': '+message)
