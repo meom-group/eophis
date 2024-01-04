@@ -3,7 +3,6 @@ namelists.py - tools to manipulate namelist content
 """
 # external modules
 import f90nml
-from ..utils import logs
 
 __all__ = ['FortranNamelist']
 

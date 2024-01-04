@@ -86,6 +86,8 @@ if __name__=='__main__':
     parser.add_argument('--exec', dest='exec', type=str, default='prod', help='Execution type: preprod or prod')
     args = parser.parse_args()
 
+    eophis.set_mode(args.exec)
+    
     if args.exec == 'preprod':
         preproduction()
     elif args.exec == 'prod':

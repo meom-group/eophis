@@ -38,3 +38,32 @@ class Grids:
     """
     eORCA05 = (720,603,2,2)
     eORCA025 = (1442,1207,0,0)
+
+
+class Mode:
+    """
+    This class contains the different eophis modes
+    
+    Attributes:
+        CURRENT (int): Current eophis mode
+        PREPROD (int): Preprodution mode enables namelists writing, disables OASIS initialisation (default mode)
+        PROD (int): Production mode disables namelist writing, enables OASIS initialisation
+    """
+    CURRENT = 1
+    PREPROD = 0
+    PROD = 1
+
+def set_mode(mode_to_set):
+    """
+    This function changes the status of eophis mode
+    
+    Args:
+        mode_to_set (str): 'preprod' or 'prod'
+    """
+    global Mode
+    if mode_to_set == 'preprod':
+        Mode.CURRENT = Mode.PREPROD
+    elif mode_to_set == 'prod':
+        Mode.CURRENT = Mode.PROD
+    else:
+        Mode.CURRENT = -1
