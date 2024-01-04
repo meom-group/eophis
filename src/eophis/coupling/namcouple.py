@@ -146,7 +146,7 @@ def _make_and_check_section(name_snd,name_rcv,freq,grd,nlon,nlat,overlap_x,overl
         ref = re.sub(r'\s','',''.join(nmcpl))
         pos = ref.find(subsec[0])
         refsec = ref[ pos : pos + secsize ]
-        logs.abort(f'Section {' '.join(sct)} required by registered tunnel and namcouple do not match') if not all ( sec in refsec for sec in subsec ) else None
+        logs.abort(f'Section {" ".join(sct)} required by registered tunnel and namcouple do not match') if not all ( sec in refsec for sec in subsec ) else None
     return section
 
 
@@ -177,13 +177,13 @@ def register_tunnels(configs):
 
 def write_coupling_namelist(simulation_time=31536000.0):
     """ Namcouple API: write namcouple at its current state """
-    logs.warning('OASIS namelist can only be written in preproduction mode') if Mode.CURRENT != Mode.PREPROD else None
+    logs.abort('OASIS namelist can only be written in preproduction mode') if Mode.CURRENT != Mode.PREPROD else None
     Namcouple()._finalize( int( simulation_time*1.01) )
 
 
 def open_tunnels():
     """ Namcouple API: start coupling environment, create OASIS objects in Tunnels """
-    logs.abort('OASIS environment can only be set in production mode') if Mode.CURRENT != Mode.PROD else None
+    logs.abort('Tunnels opening can only be done in production mode') if Mode.CURRENT != Mode.PROD else None
     Namcouple()._activate()
 
 
