@@ -37,14 +37,12 @@ class Tunnel:
         _define_variables: create OASIS Vars from exchs and aliases
     """
     def __init__(self, label, grids, exchs, es_aliases, im_aliases):
-        # public
         self.label = label
         self.grids = grids
         self.exchs = exchs
         self.es_aliases = es_aliases
         self.im_aliases = im_aliases
         self.local_grids = {}
-        # private
         self._partitions = {}
         self._variables = { 'rcv': {}, 'snd': {} }
         self._static_used = {}
@@ -63,17 +61,17 @@ class Tunnel:
         self._define_partitions(comp.localcomm.rank,comp.localcomm.size)
         self._define_variables()
     
-    def _define_partitions(self,myrank,size):
+    def _define_partitions(self,myrank,oursize):
         """
         Create OASIS Partition from attributes
         
         Args:
             myrank (int): local process rank
-            size (int): local process size
+            oursize (int): local communicator size
         """
         for grd_lbl, (nlon, nlat, _, _) in self.grids.items():
                
-            sub_lon, sub_lat = make_subdomain(nlon,nlat,size)
+            sub_lon, sub_lat = make_subdomain(nlon,nlat,oursize)
             isub = myrank % len(sub_lon)
             jsub = myrank // len(sub_lon)
             
