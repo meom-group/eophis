@@ -38,22 +38,23 @@ def _init_coupling():
     cpl_nml_ref = os.path.join(os.getcwd(), 'namcouple_ref')
     cpl_nml_base = os.path.join(os.path.abspath(tunnel.__file__)[:-26], 'namcouple_eophis')
     
-    if not os.path.isfile(cpl_nml):
-        logs.info(f'    "namcouple" not found, looking for reference file "namcouple_ref"')
-        if not os.path.isfile(cpl_nml_ref):
-            logs.info(f'    "namcouple_ref" not found either, creating it from {cpl_nml_base} \n')
-            shutil.copy(cpl_nml_base, cpl_nml_ref) if Paral.RANK == Paral.MASTER else None
+    if Paral.RANK == Paral.MASTER:
+        if not os.path.isfile(cpl_nml):
+            logs.info(f'    "namcouple" not found, looking for reference file "namcouple_ref"')
+            if not os.path.isfile(cpl_nml_ref):
+                logs.info(f'    "namcouple_ref" not found either, creating it from {cpl_nml_base} \n')
+                shutil.copy(cpl_nml_base, cpl_nml_ref)
+            else:
+                logs.info(f'    "namcouple_ref" found, copied as "namcouple"\n')
+                shutil.copy(cpl_nml_ref,cpl_nml)
         else:
-            logs.info(f'    "namcouple_ref" found, copied as "namcouple"\n')
-            shutil.copy(cpl_nml_ref,cpl_nml) if Paral.RANK == Paral.MASTER else None
-    else:
-        if not os.path.isfile(cpl_nml_ref):
-            logs.info(f'  only "namcouple" found, save copy as {cpl_nml_ref}\n')
-            shutil.copy(cpl_nml, cpl_nml_ref) if Paral.RANK == Paral.MASTER else None
-        else:
-            logs.info(f'  "namcouple" and "namcouple_ref" found, nothing done\n')
-            logs.warning(f'Priority given to "namcouple" for reading if "namcouple_ref" is also present')
-            cpl_nml_ref = cpl_nml
+            if not os.path.isfile(cpl_nml_ref):
+                logs.info(f'  only "namcouple" found, save copy as {cpl_nml_ref}\n')
+                shutil.copy(cpl_nml, cpl_nml_ref)
+            else:
+                logs.info(f'  "namcouple" and "namcouple_ref" found, nothing done\n')
+                logs.warning(f'Priority given to "namcouple" for reading if "namcouple_ref" is also present')
+                cpl_nml_ref = cpl_nml
 
     # Instantiate OASIS namcouple
     init_namcouple(cpl_nml_ref,cpl_nml)

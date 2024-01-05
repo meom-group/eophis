@@ -65,4 +65,4 @@ def make_subdomain(nx,ny,ncpu):
 
 def quit_eophis():
     """ Kill Eophis """
-    MPI.Abort(COMM,0)
+    Paral.GLOBAL_COMM.Abort(0)
