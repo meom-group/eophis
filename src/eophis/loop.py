@@ -7,7 +7,6 @@ from .coupling import Tunnel, tunnels_ready
 # external modules
 import datetime
 
-__all__ = ['starter']
 
 def starter(assembled_loop):
     """

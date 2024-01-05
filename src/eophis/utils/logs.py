@@ -3,7 +3,7 @@ log.py - This module creates and configures eophis log files
 """
 
 # eophis modules
-from .mpi_tools import RANK, Paral, quit_eophis
+from .worker import Paral, quit_eophis
 # external modules
 import logging
 import inspect
