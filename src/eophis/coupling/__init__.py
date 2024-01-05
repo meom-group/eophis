@@ -14,7 +14,8 @@ from .namelist import *
 from .namcouple import *
 
 # eophis modules
-from ..utils import logs, paral
+from ..utils import logs
+from ..utils.worker import Paral
 # external modules
 import os
 import shutil
@@ -41,14 +42,14 @@ def _init_coupling():
         logs.info(f'    "namcouple" not found, looking for reference file "namcouple_ref"')
         if not os.path.isfile(cpl_nml_ref):
             logs.info(f'    "namcouple_ref" not found either, creating it from {cpl_nml_base} \n')
-            shutil.copy(cpl_nml_base, cpl_nml_ref) if paral.RANK == paral.MASTER else None
+            shutil.copy(cpl_nml_base, cpl_nml_ref) if Paral.RANK == Paral.MASTER else None
         else:
             logs.info(f'    "namcouple_ref" found, copied as "namcouple"\n')
-            shutil.copy(cpl_nml_ref,cpl_nml) if paral.RANK == paral.MASTER else None
+            shutil.copy(cpl_nml_ref,cpl_nml) if Paral.RANK == Paral.MASTER else None
     else:
         if not os.path.isfile(cpl_nml_ref):
             logs.info(f'  only "namcouple" found, save copy as {cpl_nml_ref}\n')
-            shutil.copy(cpl_nml, cpl_nml_ref) if paral.RANK == paral.MASTER else None
+            shutil.copy(cpl_nml, cpl_nml_ref) if Paral.RANK == Paral.MASTER else None
         else:
             logs.info(f'  "namcouple" and "namcouple_ref" found, nothing done\n')
             logs.warning(f'Priority given to "namcouple" for reading if "namcouple_ref" is also present')

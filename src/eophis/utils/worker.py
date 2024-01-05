@@ -1,13 +1,36 @@
 """
-paral.py - This module contains MPI variables commonly used in Eophis and tools for parallel decomposition
+worker.py - This module contains tools for parallel execution
 """
 # external modules
 from mpi4py import MPI
 
-# MPI tools
-COMM = MPI.COMM_WORLD
-RANK = COMM.Get_rank()
-MASTER = 0
+__all__ = []
+
+# global MPI infos
+class Paral:
+    """
+    This class contains MPI variables commonly used in eophis
+    
+    Attributes:
+        GLOBAL_COMM: Communicator of all coupled cpus
+        GLOBAL_RANK: Rank number of cpus in GLOBAL_COMM
+        EOPHIS_COMM: Communicator of eophis cpus
+        RANK: Rank numbering of cpus in EOPHIS_COMM
+        MASTER: Output rank
+    Methods:
+        set_local_communicator:
+    """
+    GLOBAL_COMM = MPI.COMM_WORLD
+    GLOBAL_RANK = GLOBAL_COMM.Get_rank()
+    EOPHIS_COMM = GLOBAL_COMM
+    RANK = GLOBAL_RANK
+    MASTER = 0
+
+
+def set_local_communicator(new_comm):
+    """ Change eophis communicator and rank with new_comm (mpi4py.MPI.Intracomm) """
+    Paral.EOPHIS_COMM = new_comm
+    Paral.RANK = Paral.EOPHIS_COMM.Get_rank()
 
 
 def make_subdomain(nx,ny,ncpu):
@@ -37,7 +60,6 @@ def make_subdomain(nx,ny,ncpu):
     # decompose grid size over subdomains
     rankx = tuple( 1 + nx // px if i < nx % px else nx // px for i in range(px) )
     ranky = tuple( 1 + ny // py if i < ny % py else ny // py for i in range(py) )
-    
     return rankx, ranky
 
 

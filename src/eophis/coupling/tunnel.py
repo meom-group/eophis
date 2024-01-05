@@ -3,7 +3,7 @@ tunnel.py - this module is a wrapper for python OASIS API
 """
 # eophis modules
 from ..utils import logs
-from ..utils.paral import COMM, make_subdomain
+from ..utils.worker import Paral, make_subdomain
 from ..utils.params import Freqs
 # external modules
 import pyoasis
@@ -70,7 +70,6 @@ class Tunnel:
             oursize (int): local communicator size
         """
         for grd_lbl, (nlon, nlat, _, _) in self.grids.items():
-               
             sub_lon, sub_lat = make_subdomain(nlon,nlat,oursize)
             isub = myrank % len(sub_lon)
             jsub = myrank // len(sub_lon)
@@ -166,4 +165,4 @@ def init_oasis(comp_name='eophis'):
     Returns:
         comp(pyoasis.Component): created OASIS component
     """
-    return pyoasis.Component(comp_name, True, COMM)
+    return pyoasis.Component(comp_name, True, Paral.GLOBAL_COMM)

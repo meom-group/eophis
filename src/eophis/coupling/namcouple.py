@@ -4,7 +4,7 @@ namcouple.py - contains tools to create and manipulate OASIS namelist sections i
 # eophis modules
 from .namelist import raw_content, find, replace_line, find_and_replace_line, find_and_replace_char, write
 from .tunnel import init_oasis, Tunnel
-from ..utils.paral import RANK, MASTER, COMM
+from ..utils.worker import Paral, set_local_communicator
 from ..utils.params import Mode
 from ..utils import logs
 # external module
@@ -100,17 +100,15 @@ class Namcouple:
         find_and_replace_char(self._lines,'-1',str(total_time))
 
         # Write namcouple
-        write(self._lines,self.outfile,add_header=True) if RANK == MASTER else None
-        COMM.Barrier()
+        write(self._lines,self.outfile,add_header=True) if Paral.RANK == Paral.MASTER else None
+        Paral.EOPHIS_COMM.Barrier()
 
     def _activate(self):
         logs.abort('OASIS environment already set') if self._activated else None
 
         # set OASIS environment
         self.comp = init_oasis()
-        
-        # reset RANK with OASIS communicator
-        RANK = self.comp.localcomm.rank
+        set_local_communicator(self.comp.localcomm)
         
         # init OASIS commands in tunnels
         for tnl in self.tunnels:
@@ -130,7 +128,7 @@ def _make_and_check_section(name_snd,name_rcv,freq,grd,nlon,nlat,overlap_x,overl
     section += str(nlon)+' '+str(nlat)+' '+str(nlon)+' '+str(nlat)+' '+str(grd)+' '+ str(grd)+' LAG=0\n'
     section += 'R 0 R 0' if overlap_x == 0 and overlap_y == 0 else 'P ' + str(abs(overlap_x)) + ' P ' + str(abs(overlap_y))
            
-    if Mode.CURRENT == Mode.PROD:
+    if Mode.PROD:
         # split section in fundamental subsections
         sct = section.split()
         secsize = len(''.join(sct))
@@ -177,13 +175,13 @@ def register_tunnels(configs):
 
 def write_coupling_namelist(simulation_time=31536000.0):
     """ Namcouple API: write namcouple at its current state """
-    logs.abort('OASIS namelist can only be written in preproduction mode') if Mode.CURRENT != Mode.PREPROD else None
+    logs.abort('OASIS namelist can only be written in preproduction mode') if not Mode.PREPROD else None
     Namcouple()._finalize( int( simulation_time*1.01) )
 
 
 def open_tunnels():
     """ Namcouple API: start coupling environment, create OASIS objects in Tunnels """
-    logs.abort('Tunnels opening can only be done in production mode') if Mode.CURRENT != Mode.PROD else None
+    logs.abort('Tunnels opening can only be done in production mode') if not Mode.PROD else None
     Namcouple()._activate()
 
 

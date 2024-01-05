@@ -1,9 +1,9 @@
 """
-logs.py - This module creates and configures eophis log files
+log.py - This module creates and configures eophis log files
 """
 
 # eophis modules
-from .paral import RANK, MASTER, quit_eophis
+from .mpi_tools import RANK, Paral, quit_eophis
 # external modules
 import logging
 import inspect
@@ -17,7 +17,7 @@ def info(message=''):
     Args:
         message (str): message to be logged
     """
-    _logger_info.info(message) if RANK == MASTER else None
+    _logger_info.info(message) if Paral.RANK == Paral.MASTER else None
 
 def warning(message='Warning not described'):
     """
@@ -27,7 +27,7 @@ def warning(message='Warning not described'):
     Args:
         message (str): warning message to be logged
     """
-    if RANK == MASTER:
+    if Paral.RANK == Paral.MASTER:
         caller = inspect.stack()[1]
         _logger_err.warning('from '+caller.filename+' at line '+str(caller.lineno)+': '+message)
         _logger_info.info(f'Warning raised ! See error log for details\n')
@@ -41,7 +41,7 @@ def abort(message='Error not described'):
     Args:
         message (str): error message to be logged
     """
-    if RANK == MASTER:
+    if Paral.RANK == Paral.MASTER:
         caller = inspect.stack()[1]
         _logger_info.info('RUN ABORTED, see error log for details')
         _logger_err.error('from '+caller.filename+' at line '+str(caller.lineno)+': '+message)
