@@ -48,7 +48,7 @@ class Tunnel:
         self._static_used = {}
 
         # print some infos
-        logs.info(f'-------- Tunnel {label} created --------')
+        logs.info(f'-------- Tunnel {label} registered --------')
         logs.info(f'  namcouple variable names')
         logs.info(f'    Earth side:')
         for var,oas_var in es_aliases.items():

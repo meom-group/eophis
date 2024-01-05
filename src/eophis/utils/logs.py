@@ -28,8 +28,8 @@ def warning(message='Warning not described'):
         message (str): warning message to be logged
     """
     caller = inspect.stack()[1]
-    _logger_err.warning('from '+caller.filename+' at line '+str(caller.lineno)+': '+message)
-    _logger_info.info('Warning raised from rank ',Paral.RANK,' ! See error log for details\n')
+    _logger_err.warning('[RANK:'+str(Paral.RANK)+'] from '+caller.filename+' at line '+str(caller.lineno)+': '+message)
+    _logger_info.info('Warning raised by rank '+str(Paral.RANK)+' ! See error log for details\n')
 
 def abort(message='Error not described'):
     """
@@ -41,8 +41,8 @@ def abort(message='Error not described'):
         message (str): error message to be logged
     """
     caller = inspect.stack()[1]
-    _logger_info.info('RUN ABORTED by rank ',Paral.RANK,' see error log for details')
-    _logger_err.error('from '+caller.filename+' at line '+str(caller.lineno)+': '+message)
+    _logger_info.info('RUN ABORTED by rank '+str(Paral.RANK)+' see error log for details')
+    _logger_err.error('[RANK:'+str(Paral.RANK)+'] from '+caller.filename+' at line '+str(caller.lineno)+': '+message)
     quit_eophis()
 
 def _setup_logger(name, log_file, formatter, level=logging.INFO):
@@ -58,7 +58,12 @@ def _setup_logger(name, log_file, formatter, level=logging.INFO):
     Returns:
         logger (logging.Logger): The logger object for writing messages
     """
-    handler = logging.FileHandler(log_file,mode='w')
+    if Paral.RANK == Paral.MASTER: 
+        mode='w'
+    else:
+        mode='a'
+
+    handler = logging.FileHandler(log_file,mode=mode)
     handler.setFormatter(formatter)
     
     logger = logging.getLogger(name)
@@ -69,7 +74,7 @@ def _setup_logger(name, log_file, formatter, level=logging.INFO):
 
 
 _format = logging.Formatter('%(message)s')
-_format_err = logging.Formatter('[RANK:%(Paral.RANK)s] %(levelname)s %(message)s')
+_format_err = logging.Formatter('%(levelname)s %(message)s')
 
 _logger_info = _setup_logger('logger_info','eophis.out',_format)
 _logger_err = _setup_logger('logger_err','eophis.err',_format_err,logging.WARNING)

@@ -175,6 +175,7 @@ def register_tunnels(configs):
 
 def write_coupling_namelist(simulation_time=31536000.0):
     """ Namcouple API: write namcouple at its current state """
+    logs.info(f'\n  Writing namcouple with registered tunnels')
     logs.abort('OASIS namelist can only be written in preproduction mode') if not Mode.PREPROD else None
     Namcouple()._finalize( int( simulation_time*1.01) )
 
