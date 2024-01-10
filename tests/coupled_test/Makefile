@@ -1,6 +1,6 @@
 #!/bin/bash
 n1=1  ## number of processor for fake earth script
-n2=3  ## number of processors for eophis script
+n2=1  ## number of processors for eophis script
 
 default: clean preprod prod
 	@echo 'END OF COUPLED TEST'
