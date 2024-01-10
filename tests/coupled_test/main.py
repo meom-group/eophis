@@ -4,7 +4,6 @@ from eophis import Freqs, Grids
 # other modules
 import argparse
 import os
-from mpi4py import MPI
 
 def earth_info():
     # coupling config 
