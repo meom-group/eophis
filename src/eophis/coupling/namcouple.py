@@ -61,8 +61,10 @@ class Namcouple:
         self.initialized = False
         self.__init__(self.infile,self.outfile)
 
-    def _add_tunnel(self,label,grids,exchs,es_aliases={},im_aliases={}):
+    def _add_tunnel(self,label,grids,exchs,es_aliases=None,im_aliases=None):
         logs.abort('OASIS environment set, impossible to create new tunnels') if self._activated else None
+        es_aliases = es_aliases or {}
+        im_aliases = im_aliases or {}
             
         # content to add in namcouple, if production mode: check consistency
         replace_line(self._lines, '# ======= Tunnel '+label+' =======', len(self._lines)-2)
@@ -82,7 +84,7 @@ class Namcouple:
                 self._lines.insert( len(self._lines)-1, section)
                 self._Nout += 1
         self._lines.insert(len(self._lines)-1, '#')
-            
+
         self.tunnels.append( Tunnel(label,grids,exchs,es_aliases,im_aliases) )
         return self.tunnels[-1:][0]
     
