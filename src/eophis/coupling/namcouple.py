@@ -109,6 +109,7 @@ class Namcouple:
         # set OASIS environment
         self.comp = init_oasis()
         set_local_communicator(self.comp.localcomm)
+        logs.flush_buffer(Paral.MASTER)
         
         # init OASIS commands in tunnels
         for tnl in self.tunnels:
