@@ -26,7 +26,7 @@ def flush_buffer(writer=Paral.RANK):
     if Logbuffer.store:
         Logbuffer.store = False
         for message in Logbuffer.content:
-            _logger_info.info(message,writer)
+            info(message,writer)
 
 
 def info(message='',writer=Paral.MASTER):
