@@ -1,9 +1,9 @@
 #!/bin/bash
-n1=1  ## number of processor for eophis script
-n2=1  ## number of processors for fake earth script
+n1=1  ## number of processor for fake earth script
+n2=1  ## number of processors for eophis script
 
 default: clean preprod prod
-	@echo 'END OF COUPLED TEST'
+	@echo 'END OF WRITE AND COUPLE TEST'
 
 # create coupling namelist
 preprod:
@@ -12,7 +12,7 @@ preprod:
 
 # run coupled test
 prod:
-	mpirun -np $(n1) python3 ./main.py --exec prod : -np $(n2) python3 ./fake_earth.py
+	mpirun -np $(n1) python3 ./fake_earth.py : -np $(n2) python3 ./main.py --exec prod
 
 # remove working file
 clean:

@@ -16,11 +16,6 @@ def Is_None(*inputs):
     """ Test presence of at least one None in inputs """
     return any(item is None for item in inputs)
 
-def format_out(*outputs):
-    """ Transform the values in outputs into numpy arrays """
-    return [np.array(out) for out in outputs]
-
-
 # ============================ #
 #          Add Hundred         #
 # ============================ #

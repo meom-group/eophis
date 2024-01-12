@@ -3,7 +3,6 @@ namelists.py - tools to manipulate namelist content
 """
 # external modules
 import f90nml
-from ..utils import logs
 
 __all__ = ['FortranNamelist']
 
@@ -59,6 +58,8 @@ def raw_content(file_path):
     
     Args:
         file_path (str): path to file
+    Raises:
+        FileNotFoundError: if file at file_path does not exist
     Returns:
         lines (list): file lines (str)
     """
@@ -114,7 +115,7 @@ def find_and_replace_line(lines,old_txt,new_txt,offset=0):
 
 def find_and_replace_char(lines,old_char,new_char):
     """
-    Replace every character chain occurence in a read file lines by another character chaine, lines are saved
+    Replace every character chain occurence in a read file list of lines by another character chain, lines are saved
     
     Args:
         lines (list): list of lines
@@ -131,7 +132,7 @@ def write(lines,outfile,add_header=False):
     
     Args:
         lines (list): list of lines
-        outfile (str): content to replace
+        outfile (str): output file path
         add_header (bool): add "MODIFIED BY EOPHIS" to output file if True
     """
     header = '############# MODIFIED BY EOPHIS ###############'

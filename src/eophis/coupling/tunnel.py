@@ -3,7 +3,7 @@ tunnel.py - this module is a wrapper for python OASIS API
 """
 # eophis modules
 from ..utils import logs
-from ..utils.paral import COMM
+from ..utils.worker import Paral, make_subdomain
 from ..utils.params import Freqs
 # external modules
 import pyoasis
@@ -21,36 +21,34 @@ class Tunnel:
         label: Tunnel name
         grids: Tunnel user-defined grids
         exchs: Tunnel user-defined exchanges
-        es_aliases: Correspondence between exchange variables and namcouple names from earth-system side
+        es_aliases: Correspondence between exchange and namcouple variables names from earth-system side
         im_aliases: Same from inference models side
-        local_grids: sliced grids dimensions for parallel execution
+        local_grids: local grid dimensions for parallel execution
         _partitions: list of OASIS Partition objects
         _variables: list of OASIS Var objects
         _static_used: status of static variables (exchanged or not)
     Methods:
         arriving_list: return non-static variable names that can be received
         departure_list: return non-static variable names that can be sent
-        send: wrapp OASIS steps for sending
-        receive: wrapp OASIS steps for reception
+        send: wrap OASIS steps for sending
+        receive: wrap OASIS steps for reception
         _configure: orchestrates OASIS definition methods
         _define_partitions: create OASIS Partitions from grids
         _define_variables: create OASIS Vars from exchs and aliases
     """
     def __init__(self, label, grids, exchs, es_aliases, im_aliases):
-        # public
         self.label = label
         self.grids = grids
         self.exchs = exchs
         self.es_aliases = es_aliases
         self.im_aliases = im_aliases
         self.local_grids = {}
-        # private
         self._partitions = {}
         self._variables = { 'rcv': {}, 'snd': {} }
         self._static_used = {}
 
         # print some infos
-        logs.info(f'-------- Tunnel {label} created --------')
+        logs.info(f'-------- Tunnel {label} registered --------')
         logs.info(f'  namcouple variable names')
         logs.info(f'    Earth side:')
         for var,oas_var in es_aliases.items():
@@ -63,23 +61,23 @@ class Tunnel:
         self._define_partitions(comp.localcomm.rank,comp.localcomm.size)
         self._define_variables()
     
-    def _define_partitions(self,rank,size):
+    def _define_partitions(self,myrank,oursize):
         """
         Create OASIS Partition from attributes
         
         Args:
-            rank (int): local process rank
-            size (int): local process size
+            myrank (int): local process rank
+            oursize (int): local communicator size
         """
         for grd_lbl, (nlon, nlat, _, _) in self.grids.items():
-            local_size = int(nlon * nlat / size)
-            offset = rank * local_size
-        
-            if rank == size - 1:
-                local_size = nlon * nlat - offset
-
-            self.local_grids[grd_lbl] = [ int(nlon/size**0.5 ),int(nlat/size**0.5) ] 
-            self._partitions[grd_lbl] = pyoasis.ApplePartition(offset, local_size)
+            sub_lon, sub_lat = make_subdomain(nlon,nlat,oursize)
+            isub = myrank % len(sub_lon)
+            jsub = myrank // len(sub_lon)
+            
+            global_offset = jsub * nlon * sub_lat[jsub-1] + sum( sub_lon[0:isub] )
+            self.local_grids[grd_lbl] = ( sub_lon[isub], sub_lat[jsub] )
+            
+            self._partitions[grd_lbl] = pyoasis.BoxPartition(global_offset, sub_lon[isub], sub_lat[jsub], nlon)
 
     def _define_variables(self):
         """ Create OASIS Variable from attributes and initialise status of static variables """
@@ -109,6 +107,9 @@ class Tunnel:
             var_label (str): variable name to send
             date (int): current simulation time
             values (numpy.ndarray): array to send via OASIS under var_label
+        Raises:
+            Warning if try to send an already sent static variable, then skip
+            Abortion if values does not match sending format
         """
         var = self._variables['snd'][var_label]
  
@@ -136,6 +137,8 @@ class Tunnel:
         Args:
             var_label (str): variable name to receive
             date (int): current simulation time
+        Raises:
+            Warning if try to receive an already received variable, then skip
         Returns:
             rcv_fld (numpy.ndarray): array sent by earth-system, None if date does not match frequency exchange
         """
@@ -167,4 +170,4 @@ def init_oasis(comp_name='eophis'):
     Returns:
         comp(pyoasis.Component): created OASIS component
     """
-    return pyoasis.Component(comp_name, True, COMM)
+    return pyoasis.Component(comp_name, True, Paral.GLOBAL_COMM)

@@ -1,6 +1,8 @@
 """
-params.py - This module contains useful constants
+param.py - This module contains useful constants
 """
+
+__all__ = ['Freqs','Grids','set_mode']
 
 class Freqs:
     """
@@ -38,3 +40,28 @@ class Grids:
     """
     eORCA05 = (720,603,2,2)
     eORCA025 = (1442,1207,0,0)
+
+
+class Mode:
+    """
+    This class contains the different eophis modes
+    
+    Attributes:
+        PREPROD (bool): Preprodution mode ; enables namelists writing, disables OASIS initialization
+        PROD (bool): Production mode ; disables namelist writing, enables OASIS initialization and namelist consistency checking (default mode)
+    """
+    PREPROD = False
+    PROD = True
+
+
+def set_mode(mode_to_set):
+    """ Change eophis Mode to mode_to_set (str): 'preprod' or 'prod' """
+    if mode_to_set == 'preprod':
+        Mode.PREPROD = True
+        Mode.PROD = False
+    elif mode_to_set == 'prod':
+        Mode.PREPROD = False
+        Mode.PROD = True
+    else:
+        Mode.PREPROD = False
+        Mode.PROD = False

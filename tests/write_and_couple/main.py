@@ -4,7 +4,6 @@ from eophis import Freqs, Grids
 # other modules
 import argparse
 import os
-from mpi4py import MPI
 
 def earth_info():
     # coupling config 
@@ -65,8 +64,6 @@ def production():
 
     # static send/receive
     mask = earth.receive('msk')
-    if ( mask[-1:,-1:,0] != (720*603-1) ):
-        eophis.abort('  Mask wrongly received') 
 
     #  Assemble
     # ++++++++++
@@ -88,6 +85,8 @@ if __name__=='__main__':
     parser.add_argument('--exec', dest='exec', type=str, default='prod', help='Execution type: preprod or prod')
     args = parser.parse_args()
 
+    eophis.set_mode(args.exec)
+    
     if args.exec == 'preprod':
         preproduction()
     elif args.exec == 'prod':

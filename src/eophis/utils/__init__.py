@@ -3,5 +3,5 @@ Miscellaneous tools
 """
 # package export
 from .params import *
-from .paral import *
+from .worker import *
 from .logs import *

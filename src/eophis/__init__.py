@@ -3,7 +3,7 @@ EOPHIS
 ======
 
 Eophis is a collection of tools to deploy Python written pre-trained machine learning components (Inference Models)
-for coupled runs with Fortran written Earth-System (ES) simulations.
+for coupled execution with Python/C/Fortran written Earth-System (ES) models.
 
 Available subpackages
 ---------------------
@@ -20,6 +20,7 @@ from .utils import *
 
 # eophis modules
 from .utils import logs
+from .utils.worker import Paral
 from .coupling import _init_coupling
 # external modules
 from watermark import watermark
@@ -50,6 +51,6 @@ def _finish_eophis():
     """ Execute cleaning processes at end of Eophis use """
     close_tunnels()
     logs.info('\nEOPHIS run finished')
-
+    logs.flush_buffer(Paral.MASTER)
 
 _init_eophis()

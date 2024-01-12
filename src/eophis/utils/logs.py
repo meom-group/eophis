@@ -1,23 +1,47 @@
 """
-logs.py - This module creates and configures eophis log files
+log.py - This module creates and configures eophis log files
 """
-
 # eophis modules
-from .paral import RANK, quit_eophis
+from .worker import Paral, quit_eophis
 # external modules
 import logging
 import inspect
 
 __all__ = ['info','warning','abort']
 
-def info(message=''):
+class _Logbuffer:
+    """
+    This class contains the log buffer. It is used to store output messages until the Master process is identified,
+    which is not possible while coupling environement is not set.
+    
+    Attributes:
+        content (list): list of stored output messages
+        store (bool): store output messages in log buffer if True, does not otherwise
+    """
+    content = []
+    store = True
+
+def flush_buffer(writer=Paral.RANK):
+    """ Calling process writes content of log buffer in log files """
+    if _Logbuffer.store:
+        _Logbuffer.store = False
+        for message in _Logbuffer.content:
+            info(message,writer)
+
+
+def info(message='',writer=Paral.MASTER):
     """
     Write informational message in 'eophis.out' log file
     
     Args:
         message (str): message to be logged
+        writer (int): optional, rank of process that shall write
     """
-    _logger_info.info(message) if RANK == 0 else None
+    if Logbuffer.store:
+        Logbuffer.content.append(message)
+    else:
+        _logger_info.info(message) if Paral.RANK == writer else None
+
 
 def warning(message='Warning not described'):
     """
@@ -27,26 +51,26 @@ def warning(message='Warning not described'):
     Args:
         message (str): warning message to be logged
     """
-    if RANK == 0:
-        caller = inspect.stack()[1]
-        _logger_err.warning('from '+caller.filename+' at line '+str(caller.lineno)+': '+message)
-        _logger_info.info(f'Warning raised ! See error log for details\n')
+    caller = inspect.stack()[1]
+    _logger_err.warning('[RANK:'+str(Paral.RANK)+'] from '+caller.filename+' at line '+str(caller.lineno)+': '+message)
+    info('Warning raised by rank '+str(Paral.RANK)+' ! See error log for details\n',Paral.RANK)
+
 
 def abort(message='Error not described'):
     """
     Write an error message in 'eophis.err' log file
-    Write that a warning occured in 'eophis.out' log file
+    Write that a error occured in 'eophis.out' log file
     Stop execution
     
     Args:
         message (str): error message to be logged
     """
-    global normal_exit
-    if RANK == 0 :
-        caller = inspect.stack()[1]
-        _logger_info.info('RUN ABORTED, see error log for details')
-        _logger_err.error('from '+caller.filename+' at line '+str(caller.lineno)+': '+message)
+    caller = inspect.stack()[1]
+    _logger_err.error('[RANK:'+str(Paral.RANK)+'] from '+caller.filename+' at line '+str(caller.lineno)+': '+message)
+    info('RUN ABORTED by rank '+str(Paral.RANK)+' see error log for details',Paral.RANK)
+    flush_buffer()
     quit_eophis()
+
 
 def _setup_logger(name, log_file, formatter, level=logging.INFO):
     """
@@ -59,9 +83,14 @@ def _setup_logger(name, log_file, formatter, level=logging.INFO):
        level (int): logger output level
     
     Returns:
-        logger (logging.Logger): The logger object for writing messages
+        logger (logging.Logger): The logger object to write messages
     """
-    handler = logging.FileHandler(log_file,mode='w')
+    if Paral.RANK == Paral.MASTER: 
+        mode='w'
+    else:
+        mode='a'
+
+    handler = logging.FileHandler(log_file,mode=mode)
     handler.setFormatter(formatter)
     
     logger = logging.getLogger(name)
@@ -69,7 +98,7 @@ def _setup_logger(name, log_file, formatter, level=logging.INFO):
     logger.addHandler(handler)
 
     return logger
-
+    
 
 _format = logging.Formatter('%(message)s')
 _format_err = logging.Formatter('%(levelname)s %(message)s')
