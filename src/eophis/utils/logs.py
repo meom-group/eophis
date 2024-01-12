@@ -9,23 +9,23 @@ import inspect
 
 __all__ = ['info','warning','abort']
 
-class Logbuffer:
+class _Logbuffer:
     """
-    This class contains the log buffer. It is used to store outputs message until the Master process is identified,
+    This class contains the log buffer. It is used to store output messages until the Master process is identified,
     which is not possible while coupling environement is not set.
     
     Attributes:
-        content (list): list of output messages
-        fill (bool): use buffer if True, nothing otherwise
+        content (list): list of stored output messages
+        store (bool): store output messages in log buffer if True, does not otherwise
     """
     content = []
     store = True
 
 def flush_buffer(writer=Paral.RANK):
-    """ Write content of log buffer in the log files """
-    if Logbuffer.store:
-        Logbuffer.store = False
-        for message in Logbuffer.content:
+    """ Calling process writes content of log buffer in log files """
+    if _Logbuffer.store:
+        _Logbuffer.store = False
+        for message in _Logbuffer.content:
             info(message,writer)
 
 
@@ -35,6 +35,7 @@ def info(message='',writer=Paral.MASTER):
     
     Args:
         message (str): message to be logged
+        writer (int): optional, rank of process that shall write
     """
     if Logbuffer.store:
         Logbuffer.content.append(message)
@@ -82,7 +83,7 @@ def _setup_logger(name, log_file, formatter, level=logging.INFO):
        level (int): logger output level
     
     Returns:
-        logger (logging.Logger): The logger object for writing messages
+        logger (logging.Logger): The logger object to write messages
     """
     if Paral.RANK == Paral.MASTER: 
         mode='w'

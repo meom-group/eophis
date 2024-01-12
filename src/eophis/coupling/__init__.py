@@ -1,11 +1,11 @@
 """
 coupling subpackage
 -------------------
-OASIS is a Fortran coupling library that performs field exchanges between two coupled executables.
-Last release provided C and Python APIs, which enables coupling between non-homogeneously written codes.
+OASIS is a Fortran coupling library that performs field exchanges between coupled executables.
+Last releases provided C and Python APIs, which enable coupling between non-homogeneously written codes.
 
 This subpackage is built on this librabry and provides:
-    1. an OASIS interface wrapper to exchange data with Earth-System
+    1. an OASIS interface wrapper to exchange data with coupled Earth-System
     2. tools to create and manipulate OASIS and Fortran namelists
 """
 # package export
@@ -45,7 +45,6 @@ def _init_coupling():
             logs.info(f'      copy namcouple_ref as namcouple')
             shutil.copy(cpl_nml_base, cpl_nml_ref)
         else:
-            print('copy ref')
             logs.info(f'      namcouple_ref found, copied as namcouple')
             shutil.copy(cpl_nml_ref,cpl_nml)
     else:

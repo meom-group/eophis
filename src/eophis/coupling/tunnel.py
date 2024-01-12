@@ -21,17 +21,17 @@ class Tunnel:
         label: Tunnel name
         grids: Tunnel user-defined grids
         exchs: Tunnel user-defined exchanges
-        es_aliases: Correspondence between exchange variables and namcouple names from earth-system side
+        es_aliases: Correspondence between exchange and namcouple variables names from earth-system side
         im_aliases: Same from inference models side
-        local_grids: sliced grids dimensions for parallel execution
+        local_grids: local grid dimensions for parallel execution
         _partitions: list of OASIS Partition objects
         _variables: list of OASIS Var objects
         _static_used: status of static variables (exchanged or not)
     Methods:
         arriving_list: return non-static variable names that can be received
         departure_list: return non-static variable names that can be sent
-        send: wrapp OASIS steps for sending
-        receive: wrapp OASIS steps for reception
+        send: wrap OASIS steps for sending
+        receive: wrap OASIS steps for reception
         _configure: orchestrates OASIS definition methods
         _define_partitions: create OASIS Partitions from grids
         _define_variables: create OASIS Vars from exchs and aliases
@@ -107,6 +107,9 @@ class Tunnel:
             var_label (str): variable name to send
             date (int): current simulation time
             values (numpy.ndarray): array to send via OASIS under var_label
+        Raises:
+            Warning if try to send an already sent static variable, then skip
+            Abortion if values does not match sending format
         """
         var = self._variables['snd'][var_label]
  
@@ -134,6 +137,8 @@ class Tunnel:
         Args:
             var_label (str): variable name to receive
             date (int): current simulation time
+        Raises:
+            Warning if try to receive an already received variable, then skip
         Returns:
             rcv_fld (numpy.ndarray): array sent by earth-system, None if date does not match frequency exchange
         """

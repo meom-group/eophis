@@ -1,12 +1,11 @@
 """
-loop.py - This module contains time loop structures to synchronize connexions between coupled Earth-System and inferences models
+loop.py - This module contains time loop structures to synchronize connexions between coupled Earth-System and Inferences Models
 """
 # eophis modules
 from .utils import logs
 from .coupling import Tunnel, tunnels_ready
 # external modules
 import datetime
-
 
 def starter(assembled_loop):
     """
@@ -20,14 +19,14 @@ def starter(assembled_loop):
 
 def all_in_all_out(earth_system,step,niter):
     """
-    Build a custom time loop on All In All Out (AIAO) structure: receive all data from earth - transfert data to models - send back all results.
-    Customization is in the data-to-models transfert instructions that are provided from user-defined 'modeling_routine()' function.
+    Build a custom time loop on All In All Out (AIAO) structure: (i) receive all data from earth, (ii) transfert data to models, (iii) send back all results.
+    Customization is in the (ii) data-to-models transfert instructions that are provided from user-defined 'modeling_routine()' function.
     'assembler()' function inserts 'modeling_routine()' inside 'base_loop()' in which receivings and sendings steps are pre-defined.
     
     Args:
         earth_system (eophis.Tunnel): coupling Tunnel to perform exchanges with earth
         step (int): loop time step, in seconds
-        niter(int): number of loop iteration
+        niter (int): number of loop iteration
     Returns:
         base_loop (function): AIAO loop completed with modeling routine
     Raises:

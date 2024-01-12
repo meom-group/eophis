@@ -3,7 +3,7 @@ EOPHIS
 ======
 
 Eophis is a collection of tools to deploy Python written pre-trained machine learning components (Inference Models)
-for coupled runs with Fortran written Earth-System (ES) simulations.
+for coupled execution with Python/C/Fortran written Earth-System (ES) models.
 
 Available subpackages
 ---------------------

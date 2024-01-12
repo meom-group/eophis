@@ -21,7 +21,7 @@ class Namcouple:
     For all these reasons, object Namcouple is a protected singleton that can only be handled from its API defined in this module.
 
     Attributes:
-        infile/ (str): name of input/output namcouple file
+        infile,outfile (str): names of input/output namcouple file
         tunnels (eophis.Tunnel): registered Tunnel objects
         comp (pyoasis.Comp): main OASIS Component
         _lines (list) : namcouple file content
@@ -62,9 +62,14 @@ class Namcouple:
         self.__init__(self.infile,self.outfile)
 
     def _add_tunnel(self,label,grids,exchs,es_aliases=None,im_aliases=None):
-        logs.abort('OASIS environment set, impossible to create new tunnels') if self._activated else None
+        # Default values
         es_aliases = es_aliases or {}
         im_aliases = im_aliases or {}
+        
+        # Skip if coupled
+        if self._activated:
+            logs.warning(f'Tunnels are opened, cannot register new tunnel {label}')
+            return
             
         # content to add in namcouple, if production mode: check consistency
         replace_line(self._lines, '# ======= Tunnel '+label+' =======', len(self._lines)-2)
@@ -89,7 +94,10 @@ class Namcouple:
         return self.tunnels[-1:][0]
     
     def _finalize(self,total_time):
-        logs.abort('OASIS environment set, impossible to write namcouple') if self._activated else None
+        # Skip if coupled
+        if self._activated:
+            logs.warning('Tunnels are opened, cannot write coupling namelist')
+            return
     
         # Update Nbfield and Runtime
         nfield = int(self._lines[ find(self._lines,'$NFIELDS') + 1 ]) + self._Nin + self._Nout
@@ -106,7 +114,10 @@ class Namcouple:
         Paral.EOPHIS_COMM.Barrier()
 
     def _activate(self):
-        logs.abort('OASIS environment already set') if self._activated else None
+        # Skip if coupled
+        if self._activated:
+            logs.warning('Ignore tunnels opening, already done')
+            return
 
         # set OASIS environment
         self.comp = init_oasis()
@@ -147,7 +158,9 @@ def _make_and_check_section(name_snd,name_rcv,freq,grd,nlon,nlat,overlap_x,overl
         ref = re.sub(r'\s','',''.join(nmcpl))
         pos = ref.find(subsec[0])
         refsec = ref[ pos : pos + secsize ]
-        logs.abort(f'Section {" ".join(sct)} required by registered tunnel and namcouple do not match') if not all ( sec in refsec for sec in subsec ) else None
+        # compare section and namcouple, stop if they do not match
+        if not all ( sec in refsec for sec in subsec ):
+            logs.abort(f'Section {" ".join(sct)} required by registered tunnel and namcouple do not match')
     return section
 
 
@@ -185,12 +198,13 @@ def write_coupling_namelist(simulation_time=31536000.0):
 
 def open_tunnels():
     """ Namcouple API: start coupling environment, create OASIS objects in Tunnels """
+    logs.info(f'\n  Starting coupling environment and tunnels opening')
     logs.abort('Tunnels opening can only be done in production mode') if not Mode.PROD else None
     Namcouple()._activate()
 
 
 def tunnels_ready():
-    """ Namcouple API: check if tunnels are ready to start time loop """
+    """ Namcouple API: check if Tunnels are ready to start time loop """
     for tnl in Namcouple().tunnels:
         if not all( done for done in tnl._static_used.values() ):
             return False
@@ -199,4 +213,5 @@ def tunnels_ready():
 
 def close_tunnels():
     """ Namcouple API: terminate coupling environement """
+    logs.info(f'\n  Closing tunnels')
     Namcouple()._reset()

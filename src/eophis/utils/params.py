@@ -47,15 +47,15 @@ class Mode:
     This class contains the different eophis modes
     
     Attributes:
-        PREPROD (bool): Preprodution mode ; enables namelists writing, disables OASIS initialisation (default mode)
-        PROD (bool): Production mode ; disables namelist writing, enables OASIS initialisation and namelist consistency checking
+        PREPROD (bool): Preprodution mode ; enables namelists writing, disables OASIS initialization
+        PROD (bool): Production mode ; disables namelist writing, enables OASIS initialization and namelist consistency checking (default mode)
     """
     PREPROD = False
     PROD = True
 
 
 def set_mode(mode_to_set):
-    """ Changes eophis Mode to mode_to_set (str): 'preprod' or 'prod' """
+    """ Change eophis Mode to mode_to_set (str): 'preprod' or 'prod' """
     if mode_to_set == 'preprod':
         Mode.PREPROD = True
         Mode.PROD = False
