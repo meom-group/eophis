@@ -2,23 +2,21 @@
 
 **E**... **O**... **P**... **H**... **I**... **S**...
 
-Eophis is a collection of tools to deploy Python written pre-trained machine learning components (Inference Models) for coupled runs with Fortran written Earth-System (ES) simulations.
+Eophis is a collection of tools to deploy Python written pre-trained Machine Learning components (Inference Models) within Fortran/C/Python written Earth-System (ES) models via OASIS.
 > _Also it is the currently oldest known snake ancestra (2023)_
 
 ## Overview
 
 **Strategy**
 
-[OASIS](https://oasis.cerfacs.fr/en/) is a Fortran coupling library that performs field exchanges between two coupled executables. Last release provided C and Python APIs, which enables coupling between non-homogeneously written codes. Basically, Eophis does: (i) wrapp an OASIS interface to exchange data with ES, (ii) wrapp inference models into a simple in/out interface, and (iii) emulates time evolution to synchronize connexions between ES and models.
+[OASIS](https://oasis.cerfacs.fr/en/) is a Fortran coupling library that performs field exchanges between coupled executables. Last releases provided C and Python APIs, which enable coupling between non-homogeneously written codes. Basically, Eophis allows to: (i) wrap an OASIS interface to exchange data with a coupled ES code, (ii) wrap inference models into a simple in/out interface, and (iii) emulate time evolution to synchronize connexions between ES and models.
 
-**Short term development objectives**
-   - debug and assess beta version
-   - write unit tests and testing routine
+**Current development objectives**
+   - write unit tests and testing routines
    - write detailed documentation
-   - optimize parallel data management
-
-**Long term development objectives:**
-   - keep the architecture generic enough to be used by the different climate science and machine learning communities.
+   - automatic creation of grid halos during parallel execution
+   - support GPU computing
+   - tools to write coupling info in ES namelists
 
 ## Repository Content
 
@@ -29,13 +27,13 @@ Detailed documentation about installation and use of Eophis.
 - ...
 
 ### tests 
-Unit tests and testing routines. 
+- Unit tests
+- Operating examples
 
-_...WORK IN PROGRESS..._
 
 ### src
 Package sources: 
-- _namcoupe_base_ : default OASIS namelist for coupling instruction
+- _namcoupe_eophis_ : default OASIS namelist for coupling instruction
 - **coupling :** ES and OASIS namelists manipulation tools, coupling environment manager
 - **inference :** models wrappers (empty for now)
 - **loop :** time emulators
@@ -57,8 +55,8 @@ pip install eophis
 ```
 - Be sure to have OASIS installed on your local machine beforehand to use Eophis package (see docs).
 
-## Examples
+## Demonstration cases
 
-Here is a list of repositories containing demonstrations of coupled runs between different ES codes and inferences models deployed by Eophis:
+Here is a list of repositories containing realizations of coupled runs between different ES models and inferences models deployed by Eophis:
 - [Morays](https://github.com/alexis-barge/morays/) : coupled runs with ocean modelling code [NEMO](https://www.nemo-ocean.eu/) 
 
