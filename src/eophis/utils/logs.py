@@ -37,8 +37,8 @@ def info(message='',writer=Paral.MASTER):
         message (str): message to be logged
         writer (int): optional, rank of process that shall write
     """
-    if Logbuffer.store:
-        Logbuffer.content.append(message)
+    if _Logbuffer.store:
+        _Logbuffer.content.append(message)
     else:
         _logger_info.info(message) if Paral.RANK == writer else None
 
