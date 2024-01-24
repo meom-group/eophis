@@ -9,6 +9,7 @@ This subpackage is built on this librabry and provides:
     2. tools to create and manipulate OASIS and Fortran namelists
 """
 # package export
+from .grid import *
 from .tunnel import *
 from .namelist import *
 from .namcouple import *
