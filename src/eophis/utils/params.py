@@ -2,7 +2,7 @@
 param.py - This module contains useful constants
 """
 
-__all__ = ['Freqs','Grids','set_mode']
+__all__ = ['Freqs','set_mode']
 
 class Freqs:
     """
@@ -25,23 +25,6 @@ class Freqs:
     YEARLY = 365 * DAILY
 
 
-class Grids:
-    """
-    This class contains pre-defined commonly used earth grids for coupled run.
-    Grid is a tuple containing:
-        nlon (int): number of longitude points
-        nlat (int): number of latitude points
-        lon_overlap (int): number of overlapping longitude points if periodic (0 otherwise)
-        lat_overlap (int): number of overlapping latitude points if periodic (0 otherwise)
-    
-    Attributes:
-        eORCA05 (tuple): (nlon = 720, nlat = 603, lon_overlap = 2, lat_overlap = 2)
-        eORCA025 (tuple): (nlon = 1440, nlat = 1206, lon_overlap = 2, lat_overlap = 2)
-    """
-    eORCA05 = (720,603,2,2)
-    eORCA025 = (1442,1207,0,0)
-
-
 class Mode:
     """
     This class contains the different eophis modes
@@ -52,7 +35,6 @@ class Mode:
     """
     PREPROD = False
     PROD = True
-
 
 def set_mode(mode_to_set):
     """ Change eophis Mode to mode_to_set (str): 'preprod' or 'prod' """
