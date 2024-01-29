@@ -133,14 +133,14 @@ class Namcouple:
         self._activated = True
 
 
-def _make_and_check_section(name_snd,name_rcv,freq,grd,nlon,nlat,overlap_x,overlap_y,nmcpl=''):
+def _make_and_check_section(name_snd,name_rcv,freq,grd,nlon,nlat,halo,region,nmcpl=''):
     """
     Assemble tunnel infos to create a complete namcouple section.
     Check consistency with namcouple in production mode.
     """
     section  = name_snd+' '+name_rcv+' 1 '+str(int(freq))+' 0 rst.nc EXPORTED\n'
     section += str(nlon)+' '+str(nlat)+' '+str(nlon)+' '+str(nlat)+' '+str(grd)+' '+ str(grd)+' LAG=0\n'
-    section += 'R 0 R 0' if overlap_x == 0 and overlap_y == 0 else 'P ' + str(abs(overlap_x)) + ' P ' + str(abs(overlap_y))
+    section += 'R 0 R 0' if region == 1 else 'P 0 P 0'
            
     if Mode.PROD:
         # split section in fundamental subsections
