@@ -77,19 +77,17 @@ class Tunnel:
         for grd_lbl, (nlon, nlat, halos, _) in self.grids.items():
             # output grid (without halos) dimensions
             sub_lon, sub_lat = make_subdomains(nlon,nlat,oursize)
-            isub = myrank % len(sub_lon)
+            isub = myrank % len(sub_lon) 
             jsub = myrank // len(sub_lon)
+            global_offset = sum(sub_lat[0:jsub]) * nlon + sum( sub_lon[0:isub] )
             # --> OASIS Box
-            global_offset = jsub * nlon * sub_lat[jsub-1] + sum( sub_lon[0:isub] )
             self._outpartitions[grd_lbl] = pyoasis.BoxPartition(global_offset, sub_lon[isub], sub_lat[jsub], nlon)
 
             # input grid (with halos) dimensions
-            shiftlon = ( (jsub == 0) - (jsub == (len(sub_lat)-1)) ) * (1 - sub_lat[jsub] == nlat)
-            shiftlat = ( (isub == 0) - (isub == (len(sub_lon)-1)) ) * (1 - sub_lon[isub] == nlon)
-            self.local_grids[grd_lbl] = ( sub_lon[isub] + 2*halos, sub_lat[jsub] + 2*halos, shiftlon, shiftlat )
+            offsets, sizes, shifts, full_dim = make_segments(nlon, nlat, halos, sub_lon, sub_lat, myrank)
+            self.local_grids[grd_lbl] = ( sub_lon[isub] + 2*halos, sub_lat[jsub] + 2*halos, shifts, full_dim )
             # --> OASIS Orange
-            offsets, sizes = make_segments(global_offset, halos, sub_lon[isub], nlon, sub_lat[jsub], nlat)
-            self._inpartition[grd_lbl] = pyoasis.OrangePartition(offsets, sizes, nlon)
+            self._inpartitions[grd_lbl] = pyoasis.OrangePartition(list(offsets), list(sizes), nlon*nlat)
 
     def _define_variables(self):
         """ Create OASIS Variable from attributes and initialise status of static variables """
@@ -100,7 +98,7 @@ class Tunnel:
                 if ex['freq'] == Freqs.STATIC:
                     self._static_used[varin] = False
             for varout in ex['out']:
-                self._var2grid[varin] = ex['grd']
+                self._var2grid[varout] = ex['grd']
                 self._variables['snd'][varout] = pyoasis.Var(self.im_aliases[varout], self._outpartitions[ex['grd']], OASIS.OUT, bundle_size=ex['lvl'])
                 if ex['freq'] == Freqs.STATIC:
                     self._static_used[varout] = False
@@ -137,16 +135,16 @@ class Tunnel:
             return
         
         if values is not None and (date % var.cpl_freqs[0] == 0):
-            # format sending array, check dimensions
-            snd_fld = pyoasis.asarray(values)
-            if len(snd_fld.shape) != 3:
+            # check shape
+            if len(values.shape) != 3:
                 logs.abort('  Shape of sending array for {var_label} must be equal to 3')
             # exclude halos, check size
             halos = self.grids[ self._var2grid[var_label] ][2]
-            snd_fld = snd_fld[ halos : snd_fld.shape[0]-halos , halos : snd_fld.shape[1]-halos , : ]
-            if (snd_fld.shape[0] * snd_fld.shape[1], snd_fld.shape[2]) != (var._partition_local_size, var.bundle_size):
-                logs.abort('  Size of sending array for {var_label} does not match partition')
+            values = values[ halos : values.shape[0]-halos , halos : values.shape[1]-halos , : ]
+            if (values.shape[0] * values.shape[1], values.shape[2]) != (var._partition_local_size, var.bundle_size):
+                logs.abort(f'  Size of sending array for {var_label} does not match partition')
             # send field
+            snd_fld = pyoasis.asarray(values)
             var.put( date, snd_fld )
 
     def receive(self, var_label, date=86579):
@@ -176,16 +174,21 @@ class Tunnel:
         if (date % var.cpl_freqs[0] == 0):
             # get grid infos, receive field
             nlon, nlat, halos, region = self.grids[ self._var2grid[var_label] ]
-            loclon, loclat, shiftlon, shiftlat = self.local_grids[ self._var2grid[var_label] ]
-            rcv_fld = pyoasis.asarray( np.zeros( (loclon,loclat,var.bundle_size) ) )
+            loclon, loclat, shifts, full_dim = self.local_grids[ self._var2grid[var_label] ]
+            rcv_fld = pyoasis.asarray( np.zeros( (loclon-2*halos*full_dim[0], loclat-2*halos*full_dim[1], var.bundle_size) ) )
             var.get(date, rcv_fld)
             # rebuild grid
-            rcv_fld = np.roll(rcv_fld,shiftlon*halos,axis=0)
-            rcv_fld = np.roll(rcv_fld,shiftlat*halos,axis=1)
+            rcv_fld = np.roll(rcv_fld,shifts[0],axis=0)
+            rcv_fld = np.roll(rcv_fld,shifts[1],axis=1)
             # build boundary halos if necessary
-            bnd = (region*shiftlon,region*shiftlat)
-            periodic = (rcv_fld.shape[0] == nlon,rcv_fld.shape[1] == nlat)
-            fill_boundary_halos(rcv_fld, halos, periodic, bnd)
+            bnd = ( region*(shifts[0]+full_dim[0]) , region*(shifts[1]+full_dim[1]) )
+            rcv_fld = fill_boundary_halos(rcv_fld, halos, bnd, full_dim)
+            # ----- FOR DEBUGGING ----
+            #rcv_fld = rcv_fld + (Paral.RANK+1)/10.
+            #if var_label == 'sst':
+            #    Paral.EOPHIS_COMM.Barrier()
+            #    logs.info(f'{Paral.RANK} -rcv- {rcv_fld}',Paral.RANK)
+            # ------
         return rcv_fld
 
 
