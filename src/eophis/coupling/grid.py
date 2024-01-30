@@ -11,21 +11,21 @@ __all__ = ['Grids']
 class Grids:
     """
     This class contains pre-defined commonly used earth grids for coupled run.
-    Grid is a tuple containing:
-        nlon (int): number of longitude points
-        nlat (int): number of latitude points
-        halos (int): grid halos size, same in both x and y direction
-        regional (int): regional grid (1) or not (0), needed to fill boundary halos
+    Grids is a dict which keys are and refer to:
+        npts : (int,int):  number of longitude and latitude points, respectively
+        halos : (int): grid halos size, same in both x and y direction
+        bnd : (int,int): boundary conditions in x and y direction, needed to fill boundary halos.
+                         --> close (0), cyclic-periodic (1) or northfold (2)
     
     Attributes:
-        eORCA05 (4 x int): (nlon = 720, nlat = 603, halos = 1, regional = 0)
-        eORCA025 (4 x int): (nlon = 1440, nlat = 1206, halos = 1, regional = 0)
+        eORCA05 (eophis.Grids): size = (720,603), halos = 1, bnd = (2,1)
+        eORCA025 (eophis.Grids): size = (1442,1207), halos = 1, bnd = (2,1)
     """
-    eORCA05 = (720,603,1,0)
-    eORCA025 = (1442,1207,1,0)
+    eORCA05 =  {'npts' : (720,603)   , 'halos' : 1, 'bnd' : (2,1)}
+    eORCA025 = {'npts' : (1442,1207) , 'halos' : 1, 'bnd' : (2,1)}
 
 
-def make_subdomains(nx,ny,ncpu):
+def make_subdomains(nx, ny, ncpu):
     """
     This function finds the best subdomain decomposition from global grid size and number of cpus
     
@@ -155,16 +155,16 @@ def make_segments(global_size_x, global_size_y, halos, loc_sizes_x, loc_sizes_y,
     return seg_offsets, seg_sizes, shifts, full_dim
 
 
-def fill_boundary_halos(field_grid,halos,bnd=(0,0),full_dim=(0,0)):
+def fill_boundary_halos(field_grid, halos=0, shifts=(0,0), full_dim=(0,0), bnd=(0,0)):
     """
-    This function creates periodic halos for a field whose global grid size is contained within the subdomain
-    If asked, set boundary halos to zeros (closing).
-    
+    This function creates periodic halos for a field whose global grid size is contained within the subdomain.
+    Then it sets boundary halos values in accordance with boundary conditions
+
     Args:
         field_grid (numpy.ndarray): input grid on which create halos
         halos (int): halos size to build
-        bnd (int,int): boundary offset in which apply closing in (x,y) directions
         full_dim (int,int): global size is locally contained (1) or not (0) in (x,y) directions
+        bnd (int,int): boundary conditions in x,y directions
     Returns:
         field_grid (numpy.ndarray): modified input grid
     """
@@ -180,13 +180,17 @@ def fill_boundary_halos(field_grid,halos,bnd=(0,0),full_dim=(0,0)):
             bottom = field_grid[-halos:,:,:]
             field_grid = np.vstack( (bottom,field_grid) )
             field_grid = np.vstack( (field_grid,up) )
+            
         # closing
-        if bnd[0] > 0 or full_dim[0] and bnd[0] != 0:
-            field_grid[:bnd[0],:,:] = 0.0
-        if bnd[0] < 0 or full_dim[0] and bnd[0] != 0:
-            field_grid[-abs(bnd[0]):,:,:] = 0.0
-        if bnd[1] > 0 or full_dim[1] and bnd[1] != 0:
-            field_grid[:,:bnd[1],:] = 0.0
-        if bnd[1] < 0 or full_dim[1] and bnd[1] != 0:
-            field_grid[:,-abs(bnd[1]):,:] = 0.0
+        close = ( (1-close[0]) * (shifts[0]+full_dim[0]*halos) , (1-close[1]) * (shifts[1]+full_dim[1]*halos) )
+        
+        if close[0] > 0 or full_dim[0] and close[0] != 0:
+            field_grid[:close[0],:,:] = 0.0
+        if close[0] < 0 or full_dim[0] and close[0] != 0:
+            field_grid[-abs(close[0]):,:,:] = 0.0
+        if close[1] > 0 or full_dim[1] and close[1] != 0:
+            field_grid[:,:close[1],:] = 0.0
+        if close[1] < 0 or full_dim[1] and close[1] != 0:
+            field_grid[:,-abs(close[1]):,:] = 0.0
+            
     return field_grid

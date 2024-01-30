@@ -12,7 +12,7 @@ def earth_info():
     tunnel_config = list()
     tunnel_config.append( { 'label' : 'TO_EARTH', \
                             'grids' : { 'eORCA05' : Grids.eORCA05, \
-                                        'lmdz' : (180,151,0,0)  }, \
+                                        'lmdz' :  {'npts' : (180,151) , 'halos' : 0, 'bnd' : (0,0) } }, \
                             'exchs' : [ {'freq' : Freqs.HOURLY, 'grd' : 'eORCA05', 'lvl' : 1, 'in' : ['sst'], 'out' : ['sst_var'] },  \
                                         {'freq' : Freqs.DAILY,  'grd' : 'eORCA05', 'lvl' : 3, 'in' : ['svt'], 'out' : ['svt_var'] },  \
                                         {'freq' : Freqs.STATIC, 'grd' : 'eORCA05', 'lvl' : 1, 'in' : ['msk'], 'out' : [] } ] }

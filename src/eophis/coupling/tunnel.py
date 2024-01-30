@@ -24,7 +24,7 @@ class Tunnel:
         exchs: Tunnel user-defined exchanges
         es_aliases: Correspondence between exchange and namcouple variables names from earth-system side
         im_aliases: Same from inference models side
-        local_grids: local grid dimensions for parallel execution
+        local_grids: local grid parameters for parallel execution
         _inpartitions: list of OASIS Partitions for receptions
         _outpartitions: list of OASIS Parittions for sendings
         _variables: list of OASIS Var objects
@@ -74,7 +74,10 @@ class Tunnel:
             myrank (int): local process rank
             oursize (int): local communicator size
         """
-        for grd_lbl, (nlon, nlat, halos, _) in self.grids.items():
+        for grd_lbl, grd_params in self.grids.items():
+            # params
+            (nlon, nlat), halos, _ = grd_params.values()
+            
             # output grid (without halos) dimensions
             sub_lon, sub_lat = make_subdomains(nlon,nlat,oursize)
             isub = myrank % len(sub_lon) 
@@ -139,7 +142,7 @@ class Tunnel:
             if len(values.shape) != 3:
                 logs.abort('  Shape of sending array for {var_label} must be equal to 3')
             # exclude halos, check size
-            halos = self.grids[ self._var2grid[var_label] ][2]
+            halos = self.grids[ self._var2grid[var_label] ]['halos']
             values = values[ halos : values.shape[0]-halos , halos : values.shape[1]-halos , : ]
             if (values.shape[0] * values.shape[1], values.shape[2]) != (var._partition_local_size, var.bundle_size):
                 logs.abort(f'  Size of sending array for {var_label} does not match partition')
@@ -173,7 +176,7 @@ class Tunnel:
         
         if (date % var.cpl_freqs[0] == 0):
             # get grid infos, receive field
-            nlon, nlat, halos, close = self.grids[ self._var2grid[var_label] ]
+            (nlon, nlat), halos, bnd = self.grids[ self._var2grid[var_label] ].values()
             loclon, loclat, shifts, full_dim = self.local_grids[ self._var2grid[var_label] ]
             rcv_fld = pyoasis.asarray( np.zeros( (loclon-2*halos*full_dim[0], loclat-2*halos*full_dim[1], var.bundle_size) ) )
             var.get(date, rcv_fld)
@@ -181,8 +184,7 @@ class Tunnel:
             rcv_fld = np.roll(rcv_fld,shifts[0],axis=0)
             rcv_fld = np.roll(rcv_fld,shifts[1],axis=1)
             # build boundary halos if necessary
-            closed_bnd = ( close*(shifts[0]+full_dim[0]*halos) , close*(shifts[1]+full_dim[1]*halos) )
-            rcv_fld = fill_boundary_halos(rcv_fld, halos, closed_bnd, full_dim)
+            rcv_fld = fill_boundary_halos(rcv_fld, halos, shifts, full_dim, bnd)
             # ----- FOR DEBUGGING ----
             #rcv_fld = rcv_fld + (Paral.RANK+1)/10.
             #if var_label == 'sst':
