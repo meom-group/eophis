@@ -184,7 +184,7 @@ def fill_boundary_halos(field_grid, halos=0, shifts=(0,0), full_dim=(0,0), bnd=(
             field_grid = np.vstack( (field_grid,up) )
             
         # closing
-        close = ( (1-close[0]) * (shifts[0]+full_dim[0]*halos) , (1-close[1]) * (shifts[1]+full_dim[1]*halos) )
+        close = ( (1-bnd[1]) * (shifts[0]+full_dim[0]*halos) , (1-bnd[0]) * (shifts[1]+full_dim[1]*halos) )
         
         if close[0] > 0 or full_dim[0] and close[0] != 0:
             field_grid[:close[0],:,:] = 0.0
