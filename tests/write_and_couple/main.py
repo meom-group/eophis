@@ -11,11 +11,11 @@ def earth_info():
     # NON-STATIC : manual send/receive won't work outside of time loops
     tunnel_config = list()
     tunnel_config.append( { 'label' : 'TO_EARTH', \
-                            'grids' : { 'eORCA05' : Grids.eORCA05, \
+                            'grids' : { 'demo' : Grids.demo, \
                                         'lmdz' :  {'npts' : (180,151) , 'halos' : 0, 'bnd' : (0,0) } }, \
-                            'exchs' : [ {'freq' : Freqs.HOURLY, 'grd' : 'eORCA05', 'lvl' : 1, 'in' : ['sst'], 'out' : ['sst_var'] },  \
-                                        {'freq' : Freqs.DAILY,  'grd' : 'eORCA05', 'lvl' : 3, 'in' : ['svt'], 'out' : ['svt_var'] },  \
-                                        {'freq' : Freqs.STATIC, 'grd' : 'eORCA05', 'lvl' : 1, 'in' : ['msk'], 'out' : [] } ] }
+                            'exchs' : [ {'freq' : Freqs.HOURLY, 'grd' : 'demo', 'lvl' : 1, 'in' : ['sst'], 'out' : ['sst_var'] },  \
+                                        {'freq' : Freqs.DAILY,  'grd' : 'demo', 'lvl' : 3, 'in' : ['svt'], 'out' : ['svt_var'] },  \
+                                        {'freq' : Freqs.STATIC, 'grd' : 'demo', 'lvl' : 1, 'in' : ['msk'], 'out' : [] } ] }
             # optional      'es_aliases' : { 'sst' : 'EAR_SST', 'svt' : 'EAR_TEMP', 'sst_var' : 'EAR_SSTV', 'svt_var' : 'EARTEMPV'},  \
             # optional      'im_aliases' : { 'sst' : 'EOP_SST', 'svt' : 'EOP_TEMP', 'sst_var' : 'EOP_SSTV', 'svt_var' : 'EOPTEMPV'}   }
                         )               
