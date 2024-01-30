@@ -138,7 +138,7 @@ def make_segments(global_size_x, global_size_y, halos, loc_sizes_x, loc_sizes_y,
                 side_B = halos - side_A
 
                 if side_A > 0:
-                    seg_offsets += [ offset + global_size_x*(start // global_size_x) , ( offset + global_size_x*(start // global_size_x) - global_size_x + side_A ) ]
+                    seg_offsets += [ offset + global_size_x*(start // global_size_x) , offset + global_size_x*(start // global_size_x - 1) + side_A ]
                     seg_sizes += [ side_A , side_B ]
                 else:
                     seg_offsets += [ offset + global_size_x*(start // global_size_x) ]
@@ -158,12 +158,12 @@ def make_segments(global_size_x, global_size_y, halos, loc_sizes_x, loc_sizes_y,
 def fill_boundary_halos(field_grid,halos,bnd=(0,0),full_dim=(0,0)):
     """
     This function creates periodic halos for a field whose global grid size is contained within the subdomain
-    If asked, copy real boundary values in boundary halos (mirroring).
+    If asked, set boundary halos to zeros (closing).
     
     Args:
         field_grid (numpy.ndarray): input grid on which create halos
         halos (int): halos size to build
-        bnd (int,int): boundary offset in which apply mirroring in (x,y) directions
+        bnd (int,int): boundary offset in which apply closing in (x,y) directions
         full_dim (int,int): global size is locally contained (1) or not (0) in (x,y) directions
     Returns:
         field_grid (numpy.ndarray): modified input grid
@@ -180,14 +180,13 @@ def fill_boundary_halos(field_grid,halos,bnd=(0,0),full_dim=(0,0)):
             bottom = field_grid[-halos:,:,:]
             field_grid = np.vstack( (bottom,field_grid) )
             field_grid = np.vstack( (field_grid,up) )
-        # mirroring /!\ WORK IN PROGRESS /!\
-        #dim = field_grid.shape
-        #if bnd[0] > 0 or full_dim[0] and bnd[0] != 0:
-        #    field_grid[0:bnd[0],:,:] = field_grid[bnd[0]:bnd[0]*2,:,:]
-        #if bnd[0] == -1 or full_dim[0] and bnd[0] != 0:
-        #    field_grid[bnd[0]:,:,:] = field_grid[:dim[0]+bnd[0],:,:]
-        #if bnd[1] == 1 or full_dim[1] and bnd[1] != 0:
-        #    field_grid[:,0:bnd[1],:] = field_grid[:,bnd[1]:bnd[1]*2,:]
-        #if bnd[1] == -1 or full_dim[1] and bnd[1] != 0:
-        #    field_grid[:,bnd[1]:,:] = field_grid[:,:dim[1]+bnd[1],:]
+        # closing
+        if bnd[0] > 0 or full_dim[0] and bnd[0] != 0:
+            field_grid[:bnd[0],:,:] = 0.0
+        if bnd[0] < 0 or full_dim[0] and bnd[0] != 0:
+            field_grid[-abs(bnd[0]):,:,:] = 0.0
+        if bnd[1] > 0 or full_dim[1] and bnd[1] != 0:
+            field_grid[:,:bnd[1],:] = 0.0
+        if bnd[1] < 0 or full_dim[1] and bnd[1] != 0:
+            field_grid[:,-abs(bnd[1]):,:] = 0.0
     return field_grid

@@ -173,7 +173,7 @@ class Tunnel:
         
         if (date % var.cpl_freqs[0] == 0):
             # get grid infos, receive field
-            nlon, nlat, halos, region = self.grids[ self._var2grid[var_label] ]
+            nlon, nlat, halos, close = self.grids[ self._var2grid[var_label] ]
             loclon, loclat, shifts, full_dim = self.local_grids[ self._var2grid[var_label] ]
             rcv_fld = pyoasis.asarray( np.zeros( (loclon-2*halos*full_dim[0], loclat-2*halos*full_dim[1], var.bundle_size) ) )
             var.get(date, rcv_fld)
@@ -181,8 +181,8 @@ class Tunnel:
             rcv_fld = np.roll(rcv_fld,shifts[0],axis=0)
             rcv_fld = np.roll(rcv_fld,shifts[1],axis=1)
             # build boundary halos if necessary
-            bnd = ( region*(shifts[0]+full_dim[0]) , region*(shifts[1]+full_dim[1]) )
-            rcv_fld = fill_boundary_halos(rcv_fld, halos, bnd, full_dim)
+            closed_bnd = ( close*(shifts[0]+full_dim[0]*halos) , close*(shifts[1]+full_dim[1]*halos) )
+            rcv_fld = fill_boundary_halos(rcv_fld, halos, closed_bnd, full_dim)
             # ----- FOR DEBUGGING ----
             #rcv_fld = rcv_fld + (Paral.RANK+1)/10.
             #if var_label == 'sst':
