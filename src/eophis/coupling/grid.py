@@ -18,9 +18,11 @@ class Grids:
                          --> close (0), cyclic-periodic (1) or northfold (2)
     
     Attributes:
+        demo (eophis.Grids): size = (720,603), halos = 0, bnd = (0,0)
         eORCA05 (eophis.Grids): size = (720,603), halos = 1, bnd = (2,1)
         eORCA025 (eophis.Grids): size = (1442,1207), halos = 1, bnd = (2,1)
     """
+    demo    =  {'npts' : (720,603)   , 'halos' : 0, 'bnd' : (0,0)}
     eORCA05 =  {'npts' : (720,603)   , 'halos' : 1, 'bnd' : (2,1)}
     eORCA025 = {'npts' : (1442,1207) , 'halos' : 1, 'bnd' : (2,1)}
 
