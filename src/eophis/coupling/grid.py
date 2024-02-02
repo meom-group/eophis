@@ -13,18 +13,18 @@ class Grids:
     This class contains pre-defined commonly used earth grids for coupled run.
     Grids is a dict which keys are and refer to:
         npts : (int,int):  number of longitude and latitude points, respectively
-        halos : (int): grid halos size, same in both x and y direction
-        bnd : (int,int): boundary conditions in x and y direction, needed to fill boundary halos.
-                         --> close (0), cyclic-periodic (1) or northfold (2)
-    
+        halos : (int): grid halos size, same in both east-west and north-south directions
+        bnd : (int,int): boundary conditions in east-west and north-south directions, needed to fill boundary halos.
+                         --> 0: close (set zero), 1: cyclic-periodic, 2: folded-periodic
+
     Attributes:
-        demo (eophis.Grids): size = (720,603), halos = 0, bnd = (0,0)
-        eORCA05 (eophis.Grids): size = (720,603), halos = 1, bnd = (2,1)
-        eORCA025 (eophis.Grids): size = (1442,1207), halos = 1, bnd = (2,1)
+        demo (eophis.Grids): npts = (720,603), halos = 0, bnd = (0,0)
+        eORCA05 (eophis.Grids): npts = (720,603), halos = 1, bnd = (1,2)
+        eORCA025 (eophis.Grids): npts = (1442,1207), halos = 1, bnd = (1,2)
     """
     demo    =  {'npts' : (720,603)   , 'halos' : 0, 'bnd' : (0,0)}
-    eORCA05 =  {'npts' : (720,603)   , 'halos' : 1, 'bnd' : (2,1)}
-    eORCA025 = {'npts' : (1442,1207) , 'halos' : 1, 'bnd' : (2,1)}
+    eORCA05 =  {'npts' : (720,603)   , 'halos' : 1, 'bnd' : (1,2)}
+    eORCA025 = {'npts' : (1442,1207) , 'halos' : 1, 'bnd' : (1,2)}
 
 
 def make_subdomains(nx, ny, ncpu):
@@ -37,13 +37,9 @@ def make_subdomains(nx, ny, ncpu):
     Raises:
         Abort if global grid size is lower than cpu size
     Returns:
-        rankx (int,...): list of subdomains sizes in x lines
-        ranky (int,...): list of subdomains sizes in y columns
+        rankx (int,...): list of x sub-lines sizes
+        ranky (int,...): list of y sub-columns sizes
     """
-    # size compatibility
-    if nx*ny < ncpu:
-        logs.abort(f'Grid size ({nx,ny}) too small for CPU number {ncpu}')
-    
     # init
     target = max(nx/ny , ny/nx)
     diff0 = float('inf')
@@ -61,6 +57,15 @@ def make_subdomains(nx, ny, ncpu):
     # decompose grid size over subdomains
     rankx = tuple( 1 + nx // px if i < nx % px else nx // px for i in range(px) )
     ranky = tuple( 1 + ny // py if i < ny % py else ny // py for i in range(py) )
+
+    # size compatibility
+    if nx*ny < ncpu:
+        logs.abort(f'Grid size ({nx,ny}) too small to create {ncpu} subdomains')
+    if 0 in rankx:
+        logs.abort(f'Grid longitude size {nx} too small to create {ncpu} subdomains')
+    if 0 in ranky:
+        logs.abort(f'Grid latitude size {ny} too small to create {ncpu} subdomains')
+
     return rankx, ranky
 
 
@@ -72,8 +77,8 @@ def make_segments(global_size_x, global_size_y, halos, loc_sizes_x, loc_sizes_y,
         global_size_x (int): grid global size in x direction
         global_size_y (int): grid global size in y direction
         halos (int): halos size, same in both x and y direction
-        loc_sizes_x (int,...): list of sudomains sizes in x lines
-        loc_sizes_y (int,...): list of sudomains sizes in y columns
+        loc_sizes_x (int,...): list of x sub-line sizes
+        loc_sizes_y (int,...): list of y sub-column sizes
         domid (int): subdomain index to segment
     Raises:
         Abort if halos size is negative
@@ -184,7 +189,7 @@ def fill_boundary_halos(field_grid, halos=0, shifts=(0,0), full_dim=(0,0), bnd=(
             field_grid = np.vstack( (field_grid,up) )
             
         # closing
-        close = ( (1-bnd[1]) * (shifts[0]+full_dim[0]*halos) , (1-bnd[0]) * (shifts[1]+full_dim[1]*halos) )
+        close = ( (1-bnd[0]) * (shifts[0]+full_dim[0]*halos) , (1-bnd[1]) * (shifts[1]+full_dim[1]*halos) )
         
         if close[0] > 0 or full_dim[0] and close[0] != 0:
             field_grid[:close[0],:,:] = 0.0
