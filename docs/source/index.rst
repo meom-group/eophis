@@ -19,7 +19,6 @@ Contents:
    :maxdepth: 2
 
    Overview <overview>
-   Getting started <getting_started>
    Installation <install>
    
    api
