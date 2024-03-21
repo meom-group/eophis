@@ -17,8 +17,8 @@ dependencies = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/alexis-barge/eophis"
-"Bug Tracker" = "https://github.com/alexis-barge/eophis/issues"
+"Homepage" = "https://github.com/meom-group/eophis"
+"Bug Tracker" = "https://github.com/meom-group/eophis/issues"
 
 [tool.setuptools]
 package-dir = {}

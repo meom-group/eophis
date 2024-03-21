@@ -1,8 +1,8 @@
-# PyOASIS
+# Eophis installation
 
-Quick guide to compile OASIS_V5.0 with the Python API.
+OASIS with the Python API must be installed first.
 
-## Install OASIS_V5.0
+## OASIS_V5.0
 
 ### Download OASIS
 
@@ -34,7 +34,9 @@ Quick guide to compile OASIS_V5.0 with the Python API.
 
       libmct.so         libmpeu.so         liboasis.cbind.so         libpsmile.MPI1.so         libscrip.so
 
-## Required Python Environnement
+## PyOASIS
+
+### Required Python Environnement
 
 * Source the following files to initialize the PyOASIS modules. The best is to put those commands in your `.bash_profile`:
 
@@ -52,8 +54,21 @@ Quick guide to compile OASIS_V5.0 with the Python API.
 
     **NB:** A conda environement file `pyoasis.yml` is provided in repository.
 
-## Testing PyOASIS
+### Testing
 
 * Go in directory `../oasis3-mct/pyoasis/tests` and execute `run_pytest.sh` or directly type `pytest` command to run PyOASIS unit tests.
 
 * If successfull, go in `../oasis3-mct/pyoasis/` and type `make test` to execute the OASIS Fortran, C and Python operating tests.
+
+
+## Eophis Package
+
+- Clone a copy of the repository to your local machine.
+```bash
+git clone https://github.com/alexis-barge/eophis.git 
+cd eophis
+```
+- Install Eophis package with pip :
+```bash
+pip install eophis
+```
