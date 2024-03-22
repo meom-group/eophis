@@ -101,4 +101,4 @@ Eophis Package
 
   .. code-block:: bash
 
-     pip install eophis
+     pip install .
