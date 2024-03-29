@@ -15,7 +15,6 @@ utils
 # package export
 from .coupling import *
 from .loop import *
-from .inference import *
 from .utils import *
 
 # eophis modules
@@ -35,7 +34,7 @@ def _init_eophis():
     logs.info(f'===============================')
     logs.info(f'|    CNRS - IGE - MEOM Team   |')
     logs.info(f'|           ------            |')
-    logs.info(f'|     EOPHIS {ver} (2023)     |')
+    logs.info(f'|     EOPHIS {ver} (2024)     |')
     logs.info(f'===============================')
     logs.info(f'Main packages used:')
     
