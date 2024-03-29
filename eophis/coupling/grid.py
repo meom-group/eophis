@@ -24,7 +24,7 @@ class Grids:
     """
     demo    =  {'npts' : (720,603)   , 'halos' : 0, 'bnd' : (0,0)}
     eORCA05 =  {'npts' : (720,603)   , 'halos' : 1, 'bnd' : (1,2)}
-    eORCA025 = {'npts' : (1442,1207) , 'halos' : 1, 'bnd' : (1,2)}
+    eORCA025 = {'npts' : (1440,1206) , 'halos' : 1, 'bnd' : (1,2)}
 
 
 def make_subdomains(nx, ny, ncpu):
