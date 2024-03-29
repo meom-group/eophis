@@ -99,7 +99,7 @@ def _setup_logger(name, log_file, formatter, level=logging.INFO):
 
     return logger
     
-
+# define and create formats and loggers for warning and info logs
 _format = logging.Formatter('%(message)s')
 _format_err = logging.Formatter('%(levelname)s %(message)s')
 
