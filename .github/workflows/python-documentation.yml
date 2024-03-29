@@ -24,4 +24,4 @@ jobs:
           pip install .
       - name: Sphinx build
         run: |
-          sphinx-build docs docs/_build
+          sphinx-build docs/source docs/_build
