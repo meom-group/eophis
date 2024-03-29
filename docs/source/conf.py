@@ -15,7 +15,7 @@ import sys
 sys.path.insert(0, os.path.abspath('../../'))
 
 # this is to tell reathedocs not to try to document numpy which is external.
-autodoc_mock_imports = ['numpy','pyoasis','f90nml','watermark']
+autodoc_mock_imports = ['mpi4py','numpy','pyoasis','f90nml','watermark']
 
 # -- Project information -----------------------------------------------------
 
