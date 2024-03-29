@@ -36,14 +36,11 @@ def _init_coupling():
     
     cpl_nml = os.path.join(os.getcwd(), 'namcouple')
     cpl_nml_ref = os.path.join(os.getcwd(), 'namcouple_ref')
-    cpl_nml_base = os.path.join(os.path.abspath(tunnel.__file__)[:-26], 'namcouple_eophis')
    
     if not os.path.isfile(cpl_nml):
         logs.info(f'      namcouple not found, looking for reference file namcouple_ref')
         if not os.path.isfile(cpl_nml_ref):
-            logs.info(f'      namcouple_ref not found either, creating it from {cpl_nml_base}')
-            logs.info(f'      copy namcouple_ref as namcouple')
-            shutil.copy(cpl_nml_base, cpl_nml_ref)
+            logs.info(f'      namcouple_ref not found either, creating it from scratch')
         else:
             logs.info(f'      namcouple_ref found, copied as namcouple')
             shutil.copy(cpl_nml_ref,cpl_nml)

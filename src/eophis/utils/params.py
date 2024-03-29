@@ -39,7 +39,7 @@ class Grids:
         eORCA025 (tuple): (nlon = 1440, nlat = 1206, lon_overlap = 2, lat_overlap = 2)
     """
     eORCA05 = (720,603,2,2)
-    eORCA025 = (1442,1207,0,0)
+    eORCA025 = (1440,1206,0,0)
 
 
 class Mode:

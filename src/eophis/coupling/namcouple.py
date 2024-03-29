@@ -30,6 +30,7 @@ class Namcouple:
         _Nout (int): number of sending sections
         _activated (bool): indicates if coupling environment is set
     Methods:
+        _read_namcouple: read namcouple file, generate minimal content if empty
         _reset: unset coupling environment, reinit namcouple content
         _add_tunnel: update namcouple file content, create new Tunnel from updates
         _finalize: final namcouple updates, write file
@@ -43,7 +44,7 @@ class Namcouple:
             cls._instance.initialized = False
         return cls._instance
     
-    def __init__(self,file_path='',outfile=''):
+    def __init__(self,file_path,outfile):
         if not self.initialized:
             self.initialized = True
             self.infile = file_path
@@ -52,14 +53,22 @@ class Namcouple:
             self.comp = None
             self._Nin = 0
             self._Nout = 0
-            self._lines = raw_content(file_path)
-            self._reflines = self._lines
+            self._read_namcouple()
             self._activated = False
 
     def _reset(self):
         del self.comp
         self.initialized = False
         self.__init__(self.infile,self.outfile)
+
+    def _read_namcouple(self):
+        self._lines = raw_content(self.infile)
+        if len(self._lines) == 0:
+            self._lines =  [ '$NFIELDS', '0', '$END', '############' ]
+            self._lines += [ '$RUNTIME', '0', '$END', '############' ]
+            self._lines += [ '$NLOGPRT', '1 0', '$END', '############' ]
+            self._lines += [ '$STRINGS', '#', '$END' ]
+        self._reflines = self._lines
 
     def _add_tunnel(self,label,grids,exchs,es_aliases=None,im_aliases=None):
         # Default values
