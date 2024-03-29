@@ -44,7 +44,7 @@ class Namcouple:
             cls._instance.initialized = False
         return cls._instance
     
-    def __init__(self,file_path,outfile):
+    def __init__(self,file_path='',outfile=''):
         if not self.initialized:
             self.initialized = True
             self.infile = file_path
