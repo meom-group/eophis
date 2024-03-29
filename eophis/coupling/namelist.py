@@ -1,5 +1,5 @@
 """
-namelists.py - tools to manipulate namelist content
+Tools to manipulate namelist content.
 """
 # external modules
 import f90nml
@@ -8,16 +8,17 @@ __all__ = ['FortranNamelist']
 
 class FortranNamelist:
     """
-    This class is a wrapper to manipulate formatted Fortran namelists
+    This class is a wrapper to manipulate formatted Fortran namelists.
     
-    Attributes:
-        file_path (str): path to namelist file
-        formatted (f90nml.namelist.Namelist): content of the namelist file in Fortran format
-        raw (list): namelist file lines
-    Methods:
-        _read: read namelist
-        get: access namelist values
-        write: write namelist in an output file
+    Attributes
+    ----------
+    file_path : string
+        path to namelist file
+    formatted : f90nml.namelist.Namelist
+        content of the namelist file in Fortran format
+    raw : list( string )
+        namelist file lines
+
     """
     def __init__(self,file_path):
         self.file_path = file_path
@@ -25,28 +26,36 @@ class FortranNamelist:
         
     def _read(self,file_path):
         """
-        Read namelist content in Fortran and raw format (list of file lines)
+        Read namelist.
         
-        Args:
-            file_path (str): path to namelist
+        Parameters
+        ----------
+        file_path : string
+            path to namelist
+        
         """
         self.formatted = f90nml.read(file_path)
         self.raw = raw_content(file_path)
 
     def get(self,*labels):
         """
-        Access the values of variables labels contained in namelist
+        Access the values of variables labels contained in namelist.
         
-        Args:
-            labels (str): list of labels to find in namelist
-        Returns:
+        Parameters
+        ----------
+        labels : string
+            list of labels to find in namelist
+            
+        Returns
+        -------
+        values : list
             List of values corresponding to labels
         """
         res = { label : gr2 for gr1,gr2 in self.formatted.groups() for label in labels if label.lower() in gr1 }
         return [ res[label] for label in labels ]
 
     def write(self):
-        """ Write namelist under Fortran format """
+        """ Write namelist under Fortran format. """
         outfile = self.file_path
         f90nml.write(self.nml,outfile)
 
@@ -54,14 +63,23 @@ class FortranNamelist:
 
 def raw_content(file_path):
     """
-    Read lines contained in a file
+    Read lines contained in a file.
     
-    Args:
-        file_path (str): path to file
-    Raises:
-        FileNotFoundError: if file at file_path does not exist
-    Returns:
-        lines (list): file lines (str)
+    Parameters
+    ----------
+    file_path : string
+        path to file
+        
+    Raises
+    ------
+    FileNotFoundError
+        if file at file_path does not exist
+        
+    Returns
+    -------
+    lines : list( string )
+        file lines (str), empty list if FileNotFoundError.
+        
     """
     try:
         infile = open(file_path,'r')
@@ -75,25 +93,37 @@ def raw_content(file_path):
         
 def find(lines,target):
     """
-    Find first text occurence inside of a read file list of lines
+    Find first text occurence inside of a read file list of lines.
     
-    Args:
-        lines (list): list of lines
-        target (str): text to find
-    Returns:
-        pos (int): line number containing target
+    Parameter
+    ---------
+    lines : list( string )
+        list of lines
+    target : string
+        text to find
+    
+    Returns
+    -------
+    pos : int
+        line number containing target
+        
     """
     return [i for i,txt in enumerate(lines) if target in txt][0]
         
         
 def replace_line(lines,content,pos):
     """
-    Replace a specified line of a read file list of lines by another complete line
+    Replace a specified line of a read file list of lines by another complete line.
     
-    Args:
-        lines (list): list of lines
-        content (str): replacement line content
-        pos (int): line number to replace
+    Parameters
+    ----------
+    lines : list( string )
+        list of lines
+    content : string
+        replacement line content
+    pos : int
+        line number to replace
+        
     """
     del lines[pos]
     lines.insert(pos,content)
@@ -101,13 +131,19 @@ def replace_line(lines,content,pos):
         
 def find_and_replace_line(lines,old_txt,new_txt,offset=0):
     """
-    Apply find and replace_line functions to a read file list of lines
+    Apply find and replace_line functions to a read file list of lines.
     
-    Args:
-        lines (list): list of lines
-        old_txt (str): content to replace
-        new_txt (str): replacement content
-        offset (int): line number offset for replacement
+    Parameters
+    ----------
+    lines : list( string )
+        list of lines
+    old_txt : string
+        content to replace
+    new_txt string :
+        replacement content
+    offset : int
+        line number offset for replacement
+        
     """
     pos = [i for i,txt in enumerate(lines) if old_txt in txt][0]
     replace_line(lines,new_txt,pos+offset)
@@ -115,11 +151,18 @@ def find_and_replace_line(lines,old_txt,new_txt,offset=0):
 
 def find_and_replace_char(lines,old_char,new_char):
     """
-    Replace every character chain occurence in a read file list of lines by another character chain, lines are saved
+    Replace every character chain occurence in a read file list of lines
+    by another character chain, lines are saved.
     
-    Args:
-        lines (list): list of lines
-        old_char (str)"
+    Parameters
+    ----------
+    lines : list( string )
+        list of lines
+    old_char : string
+        character to replace
+    new_char : string
+        new character for replacement
+        
     """
     for i,txt in enumerate(lines):
         if old_char in txt:
@@ -128,12 +171,17 @@ def find_and_replace_char(lines,old_char,new_char):
 
 def write(lines,outfile,add_header=False):
     """
-    Write list of lines in an output file
+    Write list of lines in an output file.
     
-    Args:
-        lines (list): list of lines
-        outfile (str): output file path
-        add_header (bool): add "MODIFIED BY EOPHIS" to output file if True
+    Parameters
+    ----------
+    lines : list( string )
+        list of lines
+    outfile : string
+        output file path
+    add_header : bool)
+        add "MODIFIED BY EOPHIS" to output file if True
+        
     """
     header = '############# MODIFIED BY EOPHIS ###############'
     lines.insert(0,header) if add_header else None 

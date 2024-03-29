@@ -1,6 +1,6 @@
 # Eophis
 
-Eophis is a collection of tools to deploy Python written pre-trained Machine Learning components (Inference Models) within Fortran/C/Python written Earth-System (ES) models via OASIS.
+**_Eophis_** is a collection of tools to ease the deployment of Python written pre-trained Machine Learning components (Inference Models) within Fortran/C/Python written Earth-System (ES) models via OASIS.
 > _Also it is the currently oldest known snake ancestra (2023)_
 
 **Strategy**

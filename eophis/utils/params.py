@@ -1,20 +1,18 @@
 """
-param.py - This module contains useful constants
+This module contains useful constants.
 """
 
 __all__ = ['Freqs','Grids','set_mode']
 
 class Freqs:
     """
-    This class contains pre-defined commonly used exchange frequencies for coupled run
+    This class contains pre-defined exchange frequencies for coupled run.
     
-    Attributes:
-        STATIC (int): dummy integer for OASIS
-        HOURLY (int): 3600 seconds
-        DAILY (int): 24 x HOURLY
-        WEEKLY (int): 7 x DAILY
-        MONTHLY (int): 31 x DAILY
-        YEARLY (int): 365 x DAILY
+    Notes
+    -----
+    STATIC is equal -1 to be identified by Namcouple. It is replaced by the total
+    simulation time value during writing of OASIS namelist.
+    
     """
     STATIC = -1
     MINUTLY = 60
@@ -28,34 +26,49 @@ class Freqs:
 class Grids:
     """
     This class contains pre-defined commonly used earth grids for coupled run.
-    Grid is a tuple containing:
-        nlon (int): number of longitude points
-        nlat (int): number of latitude points
-        lon_overlap (int): number of overlapping longitude points if periodic (0 otherwise)
-        lat_overlap (int): number of overlapping latitude points if periodic (0 otherwise)
     
-    Attributes:
-        eORCA05 (tuple): (nlon = 720, nlat = 603, lon_overlap = 2, lat_overlap = 2)
-        eORCA025 (tuple): (nlon = 1440, nlat = 1206, lon_overlap = 2, lat_overlap = 2)
+    Notes
+    -----
+    Grids is a tuple containing:
+        - nlon (int): number of longitude points
+        - nlat (int): number of latitude points
+        - lon_overlap (int): number of overlapping longitude points if periodic (0 otherwise)
+        - lat_overlap (int): number of overlapping latitude points if periodic (0 otherwise)
+        
     """
-    eORCA05 = (720,603,2,2)
+    eORCA05 = (720,603,0,0)
     eORCA025 = (1440,1206,0,0)
 
 
 class Mode:
     """
-    This class contains the different eophis modes
+    This class contains the status of eophis modes
     
-    Attributes:
-        PREPROD (bool): Preprodution mode ; enables namelists writing, disables OASIS initialization
-        PROD (bool): Production mode ; disables namelist writing, enables OASIS initialization and namelist consistency checking (default mode)
+    PREPROD : bool
+        Preprodution mode : enables namelists writing, disables OASIS initialization
+    PROD : bool
+        Production mode : disables namelist writing, enables OASIS initialization and namelist consistency checking (default mode)
+        
     """
     PREPROD = False
     PROD = True
 
 
 def set_mode(mode_to_set):
-    """ Change eophis Mode to mode_to_set (str): 'preprod' or 'prod' """
+    """
+    Change eophis Mode
+    
+    Parameters
+    ----------
+    mode_to_set : str
+        'preprod' or 'prod'
+        
+    Notes
+    -----
+    - preprod : Preprodution mode enables namelists writing and disables OASIS initialization
+    - prod : Production mode disables namelist writing and enables OASIS initialization and namelist consistency checking (default mode)
+        
+    """
     if mode_to_set == 'preprod':
         Mode.PREPROD = True
         Mode.PROD = False

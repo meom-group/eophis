@@ -7,6 +7,7 @@ Last releases provided C and Python APIs, which enable coupling between non-homo
 This subpackage is built on this librabry and provides:
     1. an OASIS interface wrapper to exchange data with coupled Earth-System
     2. tools to create and manipulate OASIS and Fortran namelists
+    
 """
 # package export
 from .tunnel import *
@@ -22,12 +23,16 @@ import shutil
 
 def _init_coupling():
     """
-    Run the coupling subpackage initialization:
-        - Inquire coupling namelists 'namcouple' and 'namcouple_ref'
-        - Create 'namcouple' from 'namcouple_ref' if exists, from Eophis otherwise
-        - Save copy of 'namcouple' as 'namcouple_ref' if exists alone
-        - If both exist, does nothing
-        - instantiate Namcouple singleton with 'namcouple'
+    Run the coupling subpackage initialization
+    
+    Notes
+    -----
+    - Inquire coupling namelists 'namcouple' and 'namcouple_ref'
+    - Create 'namcouple' from 'namcouple_ref' if exists, from scratch otherwise
+    - Save copy of 'namcouple' as 'namcouple_ref' if exists alone
+    - If both exist, does nothing
+    - instantiate Namcouple singleton with 'namcouple'
+    
     """
     logs.info('---------------------------')
     logs.info('  Coupling Initialization  ')

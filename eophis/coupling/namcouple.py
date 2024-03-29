@@ -1,5 +1,5 @@
 """
-namcouple.py - contains tools to create and manipulate OASIS namelist sections in right format
+Contains tools to create and manipulate OASIS namelist sections in right format.
 """
 # eophis modules
 from .namelist import raw_content, find, replace_line, find_and_replace_line, find_and_replace_char, write
@@ -20,21 +20,27 @@ class Namcouple:
     
     For all these reasons, object Namcouple is a protected singleton that can only be handled from its API defined in this module.
 
-    Attributes:
-        infile,outfile (str): names of input/output namcouple file
-        tunnels (eophis.Tunnel): registered Tunnel objects
-        comp (pyoasis.Comp): main OASIS Component
-        _lines (list) : namcouple file content
-        _reflines (list) : unmodified namcouple file content
-        _Nin (int): number of reception sections
-        _Nout (int): number of sending sections
-        _activated (bool): indicates if coupling environment is set
-    Methods:
-        _read_namcouple: read namcouple file, generate minimal content if empty
-        _reset: unset coupling environment, reinit namcouple content
-        _add_tunnel: update namcouple file content, create new Tunnel from updates
-        _finalize: final namcouple updates, write file
-        _activate: set OASIS environment, configure Tunnels
+    Attributes
+    ----------
+        infile : string
+            name of input namcouple file
+        outfile : string
+            name of output namcouple file
+        tunnels : eophis.Tunnel)
+            registered Tunnel objects
+        comp : pyoasis.Comp
+            main OASIS Component
+        _lines : list( string )
+            namcouple file content
+        _reflines : list( string )
+            unmodified namcouple file content
+        _Nin : int
+            number of reception sections
+        _Nout : int
+            number of sending sections
+        _activated : bool)
+            indicates if coupling environment is set
+            
     """
     _instance = None
     
@@ -57,11 +63,13 @@ class Namcouple:
             self._activated = False
 
     def _reset(self):
+        """ unset coupling environment, reinit namcouple content. """
         del self.comp
         self.initialized = False
         self.__init__(self.infile,self.outfile)
 
     def _read_namcouple(self):
+        """ read namcouple file from ``infile`` attribute, generate minimal content if empty. """
         self._lines = raw_content(self.infile)
         if len(self._lines) == 0:
             self._lines =  [ '$NFIELDS', '0', '$END', '############' ]
@@ -71,6 +79,7 @@ class Namcouple:
         self._reflines = self._lines
 
     def _add_tunnel(self,label,grids,exchs,es_aliases=None,im_aliases=None):
+        """ update namcouple file content, create new Tunnel from updates. """
         # Default values
         es_aliases = es_aliases or {}
         im_aliases = im_aliases or {}
@@ -103,6 +112,15 @@ class Namcouple:
         return self.tunnels[-1:][0]
     
     def _finalize(self,total_time):
+        """
+        Final namcouple updates before writing, then write file.
+        
+        Parameters
+        ----------
+        total_time : int
+            Simulation time to write in namcouple header section.
+        
+        """
         # Skip if coupled
         if self._activated:
             logs.warning('Tunnels are opened, cannot write coupling namelist')
@@ -123,6 +141,7 @@ class Namcouple:
         Paral.EOPHIS_COMM.Barrier()
 
     def _activate(self):
+        """ set OASIS environment, configure Tunnels. """
         # Skip if coupled
         if self._activated:
             logs.warning('Ignore tunnels opening, already done')
@@ -146,6 +165,17 @@ def _make_and_check_section(name_snd,name_rcv,freq,grd,nlon,nlat,overlap_x,overl
     """
     Assemble tunnel infos to create a complete namcouple section.
     Check consistency with namcouple in production mode.
+    
+    Returns
+    -------
+    section : string
+        section to write in OASIS namelist corresponding to given parameters
+    
+    Raises
+    ------
+    eophis.abort()
+        if sections in read namcouple does not match sections required by registered tunnels, (production mode only)
+    
     """
     section  = name_snd+' '+name_rcv+' 1 '+str(int(freq))+' 0 rst.nc EXPORTED\n'
     section += str(nlon)+' '+str(nlat)+' '+str(nlon)+' '+str(nlat)+' '+str(grd)+' '+ str(grd)+' LAG=0\n'
@@ -175,45 +205,83 @@ def _make_and_check_section(name_snd,name_rcv,freq,grd,nlon,nlat,overlap_x,overl
 
 def init_namcouple(cpl_nml_tmp,cpl_nml):
     """
-    read and init namcouple file
+    Namcouple API: read and init namcouple file.
+    Automatically done when importing eophis package.
     
-    Args:
-        cpl_nml_tmp (str): input namcouple file
-        cpl_nml (str): output namcouple file name
+    Parameters
+    ----------
+    cpl_nml_tmp : string
+        input namcouple file name
+    cpl_nml : string
+        output namcouple file name
+        
+    Raises
+    ------
+    eophis.warning()
+        if Namcouple is already initialized
+        
     """
     if Namcouple._instance is not None:
-        logs.abort('Namcouple is not supposed to be instantiated before initialization routines')
-    Namcouple(cpl_nml_tmp,cpl_nml)
+        logs.warning('Namcouple is not supposed to be instantiated before initialization routines')
+    else:
+        Namcouple(cpl_nml_tmp,cpl_nml)
 
 
 def register_tunnels(configs):
     """
     Namcouple API: update namcouple content and init Tunnel
     
-    Args:
-        config (list): input metadata to create Tunnel
-    Returns:
+    Parameters
+    ----------
+    config : list
+        list of input metadata to create Tunnels
+        
+    Returns
+    -------
+    tunnels : list( eophis.Tunnel )
         List of created Tunnel objects
+        
     """
     return [ Namcouple()._add_tunnel(**cfg) for cfg in configs ]
 
 
 def write_coupling_namelist(simulation_time=31536000.0):
-    """ Namcouple API: write namcouple at its current state """
+    """
+    Namcouple API: write namcouple at its current state
+    
+    Parameters
+    ----------
+    simulation_time : float
+        Simulation time to write in namcouple header section
+        
+    Raises
+    ------
+    eophis.abort()
+        if called in production mode
+    
+    """
     logs.info(f'\n  Writing namcouple with registered tunnels')
     logs.abort('OASIS namelist can only be written in preproduction mode') if not Mode.PREPROD else None
     Namcouple()._finalize( int( simulation_time*1.01) )
 
 
 def open_tunnels():
-    """ Namcouple API: start coupling environment, create OASIS objects in Tunnels """
+    """
+    Namcouple API: start coupling environment, create OASIS objects in Tunnels
+        
+    Raises
+    ------
+    eophis.abort()
+        if called in preproduction mode
+    
+    """
     logs.info(f'\n  Starting coupling environment and tunnels opening')
     logs.abort('Tunnels opening can only be done in production mode') if not Mode.PROD else None
     Namcouple()._activate()
 
 
 def tunnels_ready():
-    """ Namcouple API: check if Tunnels are ready to start time loop """
+    """ Namcouple API: check if Tunnels are ready to start time loop. A Tunnel is ready if all the static exchanges have been done. """
     for tnl in Namcouple().tunnels:
         if not all( done for done in tnl._static_used.values() ):
             return False

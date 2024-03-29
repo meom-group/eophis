@@ -1,5 +1,5 @@
 """
-Miscellaneous tools
+Miscellaneous tools.
 """
 # package export
 from .params import *

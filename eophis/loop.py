@@ -1,5 +1,5 @@
 """
-loop.py - This module contains time loop structures to synchronize connexions between coupled Earth-System and Inferences Models
+This module contains time loop structures to synchronize connexions between coupled Earth-System and Inferences Models.
 """
 # eophis modules
 from .utils import logs
@@ -9,34 +9,59 @@ import datetime
 
 def starter(assembled_loop):
     """
-    Starter for constructed loops
+    Starter for constructed loops.
     
-    Args:
-        assembled_loop (function): functions to start
+    Parameters
+    ----------
+    assembled_loop : function
+        loop to start
+        
     """
     assembled_loop()
 
 
 def all_in_all_out(earth_system,step,niter):
     """
-    Build a custom time loop on All In All Out (AIAO) structure: (i) receive all data from earth, (ii) transfert data to models, (iii) send back all results.
-    Customization is in the (ii) data-to-models transfert instructions that are provided from user-defined 'modeling_routine()' function.
-    'assembler()' function inserts 'modeling_routine()' inside 'base_loop()' in which receivings and sendings steps are pre-defined.
+    Build a custom time loop on All In All Out (AIAO) structure. ``assembler()`` function inserts ``modeling_routine()``
+    inside ``base_loop()`` in which receivings and sendings steps are pre-defined.
     
-    Args:
-        earth_system (eophis.Tunnel): coupling Tunnel to perform exchanges with earth
-        step (int): loop time step, in seconds
-        niter (int): number of loop iteration
-    Returns:
-        base_loop (function): AIAO loop completed with modeling routine
-    Raises:
-        ValueError: if no modeling_routine defined to construct loop
-    Example:
-        @all_in_all_out(coupledEarth,timeStep,timeIter)
-        def transfert_instructions(**inputs):
-            outputs = {}
-            outputs[varToSendBack] = my_model(inputs[varReceived])
-            return outputs
+    Parameters
+    ----------
+    earth_system : eophis.Tunnel
+        coupling Tunnel to perform exchanges with earth
+    step : int
+        loop time step, in seconds
+    niter : int
+        number of loop iteration
+        
+    Returns
+    -------
+    base_loop : function
+        AIAO loop completed with ``modeling_routine()``
+        
+    Raises
+    ------
+    eophis.abort()
+        if no modeling routine defined to construct loop
+    eophis.abort()
+        if loop starts with tunnels not ready
+        
+    Notes
+    -----
+    An AIAO loop orchestrates the following steps:
+        1. receive all data from earth
+        2. transfert data to models (provided from ``modeling_routine()``)
+        3. send back all results
+    
+    Example
+    -------
+    >>> @all_in_all_out(coupledEarth,timeStep,timeIter)
+    >>> def transfert_instructions(**inputs):
+    >>>     outputs = {}
+    >>>     outputs[varToSendBack] = my_model(inputs[varReceived])
+    >>>     return outputs
+    
+        
     """
     final_date = datetime.timedelta(seconds=niter*step)
     step_date = datetime.timedelta(seconds=step)
