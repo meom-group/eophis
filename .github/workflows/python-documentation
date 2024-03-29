@@ -1,0 +1,27 @@
+name: Docs
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: write
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10.4"
+      - name: Install dependencies
+        run: |
+          pip install sphinx myst_parser sphinx-rtd-theme
+          pip install .
+      - name: Sphinx build
+        run: |
+          sphinx-build docs docs/_build
