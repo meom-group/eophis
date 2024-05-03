@@ -1,38 +1,9 @@
 Concepts
 ========
 
-.. autosummary::
-   :toctree: generated
+.. toctree::
+   :maxdepth: 2
 
-
-
-Tunnel
-------
-
-
-Model
------
-
-Loop
-----
-
-
-Misc
-----
-
-Logs
-~~~~
-::
-
-    eophis.infos()
-    eophis.warning()
-    eophis.abort()
-
-Grids
-~~~~~
-
-Frequencies
-~~~~~~~~~~~
-
-Namelists
-~~~~~~~~~
+   Why Eophis ? <concept_motivation>
+   
+   Objects <concept_object>

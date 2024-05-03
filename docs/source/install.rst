@@ -1,12 +1,15 @@
 Eophis installation
 ===================
 
+.. toctree::
+   :maxdepth: 2
+
 OASIS with its Python API must be installed first. More informations may be found on `CERFACS website <https://oasis.cerfacs.fr/en/>`_.
 
-`Prerequisites:` 
+`Prerequisites:`
    - Fortran / C compilers
    - Python environment
-   - ``netcdf`` library installed
+   - ``netcdf`` library
 
 OASIS_V5.0
 ----------
@@ -44,7 +47,7 @@ Compile Libraries
      LDDYNOPT = -shared -lnetcdff -lnetcdf
 
 
-  **NB:** Arch files for common used HPC centers are provided in `repository <https://github.com/meom-group/eophis/tree/main/docs/machine/arch>`_. 
+  **NB:** Arch files for common used HPC centers are provided in `repository <https://github.com/meom-group/eophis/tree/main/docs/machine/arch>`_.
   Do not forget to edit ``COUPLE = /PATH/TO/oasis-mct3``.
 
 
@@ -107,8 +110,11 @@ Testing
 
 
 
-Eophis Package
---------------
+Eophis
+------
+
+Package
+~~~~~~~
 
 - Check or use the conda environment file ``eophis.yml`` provided in `repository <https://github.com/meom-group/eophis/tree/main/docs/machine/envs>`_ to install the required python packages.
 
@@ -127,13 +133,12 @@ Eophis Package
      cd eophis
      pip install .
 
+Testing
+~~~~~~~
 
-- Test Eophis:
+- Run unit tests:
 
-  .. code-block:: bash
+**...WORK IN PROGRESS...**
 
-     cd tests/write_and_couple
-     make
-     # Should print
-     # TEST SUCCESSFUL
-     # END OF WRITE AND COUPLE TEST
+- Checkout **Tests** section of this documentation to run operating tests.
+

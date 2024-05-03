@@ -22,4 +22,5 @@ Contents:
    Installation <install>
    Concepts <concept>
    Usage <usage>
+   Tests <tests>
    API <modules>
