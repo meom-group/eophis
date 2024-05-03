@@ -5,7 +5,7 @@
 
 **Strategy**
 
-[OASIS](https://oasis.cerfacs.fr/en/) is a Fortran coupling library that performs field exchanges between coupled executables. Last releases provided C and Python APIs, which enable coupling between non-homogeneously written codes. 
+[OASIS](https://oasis.cerfacs.fr/en/) is a parallelized Fortran coupling library that performs field exchanges between coupled executables. Last releases provided C and Python APIs, which enable coupling between non-homogeneously written codes. 
 Basically, Eophis allows to: 
    - (i) wrap an OASIS interface to exchange data with a coupled physic-based code
    - (ii) wrap inference models into a simple in/out interface
