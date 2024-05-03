@@ -1,5 +1,5 @@
 """
-This module contains time loop structures to synchronize connexions between coupled Earth-System and Inferences Models.
+This module contains time loop structures to synchronize connexions between coupled scripts.
 """
 # eophis modules
 from .utils import logs
@@ -7,22 +7,22 @@ from .coupling import Tunnel, tunnels_ready
 # external modules
 import datetime
 
-def starter(assembled_loop):
+def starter(loop_router):
     """
-    Starter for constructed loops.
+    Starter for Loop-Router assembly.
     
     Parameters
     ----------
     assembled_loop : function
-        loop to start
+        Loop-Router to start
         
     """
-    assembled_loop()
+    loop_router()
 
 
 def all_in_all_out(earth_system,step,niter):
     """
-    Build a custom time loop on All In All Out (AIAO) structure. ``assembler()`` function inserts ``modeling_routine()``
+    Build a Loop on All In All Out (AIAO) structure. ``assembler()`` function inserts ``router()``
     inside ``base_loop()`` in which receivings and sendings steps are pre-defined.
     
     Parameters
@@ -37,12 +37,12 @@ def all_in_all_out(earth_system,step,niter):
     Returns
     -------
     base_loop : function
-        AIAO loop completed with ``modeling_routine()``
+        AIAO loop completed with ``router()``
         
     Raises
     ------
     eophis.abort()
-        if no modeling routine defined to construct loop
+        if no router defined to construct loop
     eophis.abort()
         if loop starts with tunnels not ready
         
@@ -50,13 +50,13 @@ def all_in_all_out(earth_system,step,niter):
     -----
     An AIAO loop orchestrates the following steps:
         1. receive all data from earth
-        2. transfert data to models (provided from ``modeling_routine()``)
+        2. transfert data to models (provided from ``router()``)
         3. send back all results
     
     Example
     -------
     >>> @all_in_all_out(coupledEarth,timeStep,timeIter)
-    >>> def transfert_instructions(**inputs):
+    >>> def router(**inputs):
     >>>     outputs = {}
     >>>     outputs[varToSendBack] = my_model(inputs[varReceived])
     >>>     return outputs
@@ -66,18 +66,18 @@ def all_in_all_out(earth_system,step,niter):
     final_date = datetime.timedelta(seconds=niter*step)
     step_date = datetime.timedelta(seconds=step)
     
-    def assembler(modeling_routine=None):
+    def assembler(router=None):
         def base_loop(*args, **kwargs):
             logs.info(f'\n-------------------- RUN LOOP ----------------------')
             logs.info(f'Number of iterations : {niter}')
             logs.info(f'Time step : {step}s -- {step_date}')
             logs.info(f'Total Time : {niter*step}s -- {final_date} \n')
 
-            # check modeling routine
-            if callable(modeling_routine):
-                logs.info('Modeling routine: ...TO BE COMPLETED...\n')
+            # check router
+            if callable(router):
+                logs.info('Router: ...TO BE COMPLETED...\n')
             else:
-                logs.abort('No modeling routine defined for coupled run')
+                logs.abort('No Router defined for coupled run')
 
             # check static variables status
             if not tunnels_ready():
@@ -97,7 +97,7 @@ def all_in_all_out(earth_system,step,niter):
                     
                 # Modeling
                 # --------
-                inferences = modeling_routine(**arrays)
+                inferences = router(**arrays)
 
                 # perform all sendings
                 # --------------------

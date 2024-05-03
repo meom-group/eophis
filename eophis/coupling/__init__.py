@@ -1,12 +1,13 @@
 """
 coupling subpackage
 -------------------
-OASIS is a Fortran coupling library that performs field exchanges between coupled executables.
-Last releases provided C and Python APIs, which enable coupling between non-homogeneously written codes.
-
-This subpackage is built on this librabry and provides:
-    1. an OASIS interface wrapper to exchange data with coupled Earth-System
-    2. tools to create and manipulate OASIS and Fortran namelists
+This subpackage contains wrappers for:
+    - OASIS component initialization and termination
+    - partitions and variables definition
+    - steps to perform data exchanges with coupled physical code
+    - tools to create and manipulate OASIS and Fortran namelists
+    
+It also provides tools to read Fortran namelists and obtain informations about simulation executed by the physical code.
     
 """
 # package export
@@ -23,14 +24,14 @@ import shutil
 
 def _init_coupling():
     """
-    Run the coupling subpackage initialization
+    Run the coupling subpackage initialization.
     
     Notes
     -----
     - Inquire coupling namelists 'namcouple' and 'namcouple_ref'
     - Create 'namcouple' from 'namcouple_ref' if exists, from scratch otherwise
     - Save copy of 'namcouple' as 'namcouple_ref' if exists alone
-    - If both exist, does nothing
+    - If both exist, does nothing and read 'namcouple'
     - instantiate Namcouple singleton with 'namcouple'
     
     """

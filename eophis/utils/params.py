@@ -6,7 +6,7 @@ __all__ = ['Freqs','Grids','set_mode']
 
 class Freqs:
     """
-    This class contains pre-defined exchange frequencies for coupled run.
+    This class contains pre-defined exchange frequencies.
     
     Notes
     -----
@@ -25,7 +25,7 @@ class Freqs:
 
 class Grids:
     """
-    This class contains pre-defined commonly used earth grids for coupled run.
+    This class contains pre-defined commonly used grids.
     
     Notes
     -----
@@ -42,7 +42,7 @@ class Grids:
 
 class Mode:
     """
-    This class contains the status of eophis modes
+    This class contains the status of eophis modes.
     
     PREPROD : bool
         Preprodution mode : enables namelists writing, disables OASIS initialization

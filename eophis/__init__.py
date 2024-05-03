@@ -2,8 +2,8 @@
 EOPHIS
 ======
 
-Eophis is a collection of tools to deploy Python written pre-trained machine learning components (Inference Models)
-for coupled execution with Python/C/Fortran written Earth-System (ES) models.
+Eophis is a collection of tools to deploy Python written scripts
+for coupled execution with Fortran/C written physics-based models.
 
 Available subpackages
 ---------------------

@@ -15,7 +15,7 @@ __all__ = ['Tunnel']
 class Tunnel:
     """
     This class gathers a set of OASIS objects created during an Eophis execution under a common entity.
-    This allows to spread OASIS commands between different identified coupled earth-systems.
+    This allows to spread OASIS commands between different identified coupled geoscientific codes
     
     Attributes
     ----------
@@ -25,10 +25,10 @@ class Tunnel:
         Tunnel user-defined grids
     exchs : list
         Tunnel user-defined exchanges
-    es_aliases : dict
-        Correspondence between exchange and namcouple variables names from earth-system side
-    im_aliases : dict
-        Correspondence between exchange and namcouple variables names from models side
+    geo_aliases : dict
+        Correspondence between Tunnel and namcouple fields names from geophysical side
+    py_aliases : dict
+        Correspondence between Tunnel and namcouple fields names from Python side
     local_grids : dict
         local grid dimensions for parallel execution
     _partitions : dict
@@ -39,12 +39,12 @@ class Tunnel:
         status of static variables (exchanged or not)
         
     """
-    def __init__(self, label, grids, exchs, es_aliases, im_aliases):
+    def __init__(self, label, grids, exchs, geo_aliases, py_aliases):
         self.label = label
         self.grids = grids
         self.exchs = exchs
-        self.es_aliases = es_aliases
-        self.im_aliases = im_aliases
+        self.geo_aliases = geo_aliases
+        self.py_aliases = py_aliases
         self.local_grids = {}
         self._partitions = {}
         self._variables = { 'rcv': {}, 'snd': {} }
@@ -54,10 +54,10 @@ class Tunnel:
         logs.info(f'-------- Tunnel {label} registered --------')
         logs.info(f'  namcouple variable names')
         logs.info(f'    Earth side:')
-        for var,oas_var in es_aliases.items():
+        for var,oas_var in geo_aliases.items():
             logs.info(f'      - {var} -> {oas_var}')
         logs.info(f'    Models side:')
-        for var,oas_var in im_aliases.items():
+        for var,oas_var in py_aliases.items():
             logs.info(f'      - {var} -> {oas_var}')
 
     def _configure(self, comp):
@@ -91,11 +91,11 @@ class Tunnel:
         """ Create OASIS Variable from attributes and initialise status of static variables """
         for ex in self.exchs:
             for varin in ex['in']:
-                self._variables['rcv'][varin] = pyoasis.Var(self.im_aliases[varin], self._partitions[ex['grd']], OASIS.IN, bundle_size=ex['lvl'])
+                self._variables['rcv'][varin] = pyoasis.Var(self.py_aliases[varin], self._partitions[ex['grd']], OASIS.IN, bundle_size=ex['lvl'])
                 if ex['freq'] == Freqs.STATIC:
                     self._static_used[varin] = False
             for varout in ex['out']:
-                self._variables['snd'][varout] = pyoasis.Var(self.im_aliases[varout], self._partitions[ex['grd']], OASIS.OUT, bundle_size=ex['lvl'])
+                self._variables['snd'][varout] = pyoasis.Var(self.py_aliases[varout], self._partitions[ex['grd']], OASIS.OUT, bundle_size=ex['lvl'])
                 if ex['freq'] == Freqs.STATIC:
                     self._static_used[varout] = False
 
@@ -109,7 +109,7 @@ class Tunnel:
 
     def send(self, var_label, values, date=86579):
         """
-        Send variable value to earth-system if date does match frequency exchange, nothing otherwise
+        Send variable value to geoscientific code if date does match frequency exchange, nothing otherwise
         
         Parameters
         ----------
@@ -149,7 +149,7 @@ class Tunnel:
 
     def receive(self, var_label, date=86579):
         """
-        Request a variable reception from earth-system
+        Request a variable reception from geoscientific code
         
         Parameters
         ----------
@@ -166,7 +166,7 @@ class Tunnel:
         Returns
         -------
         rcv_fld : numpy.ndarray
-            array sent by earth-system, None if date does not match frequency exchange
+            array sent by geoscientific code, None if date does not match frequency exchange
             
         """
         rcv_fld = None

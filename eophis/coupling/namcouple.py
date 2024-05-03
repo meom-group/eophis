@@ -78,11 +78,11 @@ class Namcouple:
             self._lines += [ '$STRINGS', '#', '$END' ]
         self._reflines = self._lines
 
-    def _add_tunnel(self,label,grids,exchs,es_aliases=None,im_aliases=None):
+    def _add_tunnel(self,label,grids,exchs,geo_aliases=None,py_aliases=None):
         """ update namcouple file content, create new Tunnel from updates. """
         # Default values
-        es_aliases = es_aliases or {}
-        im_aliases = im_aliases or {}
+        geo_aliases = geo_aliases or {}
+        py_aliases = py_aliases or {}
         
         # Skip if coupled
         if self._activated:
@@ -93,22 +93,22 @@ class Namcouple:
         replace_line(self._lines, '# ======= Tunnel '+label+' =======', len(self._lines)-2)
         for ex in exchs:
             for varin in ex['in']:
-                im_aliases.update({ varin : 'M_IN_'+str(self._Nin) }) if varin not in im_aliases.keys() else None
-                es_aliases.update({ varin : 'E_OUT_'+str(self._Nin) }) if varin not in es_aliases.keys() else None
-                section = _make_and_check_section( es_aliases[varin],im_aliases[varin],ex['freq'],ex['grd'],*grids[ex['grd']], nmcpl=self._reflines )
+                py_aliases.update({ varin : 'M_IN_'+str(self._Nin) }) if varin not in py_aliases.keys() else None
+                geo_aliases.update({ varin : 'E_OUT_'+str(self._Nin) }) if varin not in geo_aliases.keys() else None
+                section = _make_and_check_section( geo_aliases[varin],py_aliases[varin],ex['freq'],ex['grd'],*grids[ex['grd']], nmcpl=self._reflines )
                 self._lines.insert( len(self._lines)-1, '# Earth -- '+varin+' --> Models')
                 self._lines.insert( len(self._lines)-1, section)
                 self._Nin += 1
             for varout in ex['out']:
-                im_aliases.update({ varout : 'M_OUT_'+str(self._Nout) }) if varout not in im_aliases.keys() else None
-                es_aliases.update({ varout : 'E_IN_'+str(self._Nout) }) if varout not in es_aliases.keys() else None
-                section = _make_and_check_section( im_aliases[varout],es_aliases[varout],ex['freq'],ex['grd'],*grids[ex['grd']], nmcpl=self._reflines )
+                py_aliases.update({ varout : 'M_OUT_'+str(self._Nout) }) if varout not in py_aliases.keys() else None
+                geo_aliases.update({ varout : 'E_IN_'+str(self._Nout) }) if varout not in geo_aliases.keys() else None
+                section = _make_and_check_section( py_aliases[varout],geo_aliases[varout],ex['freq'],ex['grd'],*grids[ex['grd']], nmcpl=self._reflines )
                 self._lines.insert( len(self._lines)-1, '# Earth <-- '+varout+' -- Models')
                 self._lines.insert( len(self._lines)-1, section)
                 self._Nout += 1
         self._lines.insert(len(self._lines)-1, '#')
 
-        self.tunnels.append( Tunnel(label,grids,exchs,es_aliases,im_aliases) )
+        self.tunnels.append( Tunnel(label,grids,exchs,geo_aliases,py_aliases) )
         return self.tunnels[-1:][0]
     
     def _finalize(self,total_time):
@@ -205,9 +205,9 @@ def _make_and_check_section(name_snd,name_rcv,freq,grd,nlon,nlat,overlap_x,overl
 
 def init_namcouple(cpl_nml_tmp,cpl_nml):
     """
-    Namcouple API: read and init namcouple file.
-    Automatically done when importing eophis package.
+    Namcouple API: init and read namcouple file. Completely reinit Namcouple if it is already instantiated.
     
+
     Parameters
     ----------
     cpl_nml_tmp : string
@@ -219,10 +219,16 @@ def init_namcouple(cpl_nml_tmp,cpl_nml):
     ------
     eophis.warning()
         if Namcouple is already initialized
-        
+
+    Notes
+    -----
+    This function is automatically called when importing eophis package.
+
     """
     if Namcouple._instance is not None:
-        logs.warning('Namcouple is not supposed to be instantiated before initialization routines')
+        logs.warning('Namcouple is already initialized and will be erased with a new instantiation')
+        Namcouple._instance = None
+        Namcouple(cpl_nml_tmp,cpl_nml)
     else:
         Namcouple(cpl_nml_tmp,cpl_nml)
 
@@ -289,6 +295,6 @@ def tunnels_ready():
 
 
 def close_tunnels():
-    """ Namcouple API: terminate coupling environement """
+    """ Namcouple API: terminate coupling environement if set up. Reset Namcouple with same initialization attributes. """
     logs.info(f'\n  Closing tunnels')
     Namcouple()._reset()
