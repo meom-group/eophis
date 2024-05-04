@@ -1,6 +1,6 @@
 # Eophis
 
-**_Eophis_** is a collection of tools to ease the deployment of Python scripts as pre-trained Machine Learning components within Fortran/C geoscientific models through OASIS.
+**_Eophis_** is a collection of tools to ease the deployment of Python scripts (as pre-trained Machine Learning components) within Fortran/C geoscientific models through OASIS.
 > _Also it is the currently oldest known snake ancestra (2023)_
 
 **Strategy**
@@ -12,10 +12,9 @@ Basically, Eophis allows to:
    - (iii) emulate time evolution to synchronize connexions between scripts.
 
 **Current development objectives**
-   - write unit tests and testing routines
    - automatic creation of grid halos during parallel execution
    - support GPU computing
-   - tools to write coupling info in ES namelists
+   - tools to write coupling info in geoscientific codes namelists
 
 ## Usage, installation and test cases
 
@@ -24,6 +23,6 @@ Check out corresponding sections in [Eophis documentation](https://eophis.readth
 
 ## Demonstration cases
 
-Here is a list of repositories containing realizations of coupled runs between different ES models and inferences models deployed by Eophis:
+Here is a list of repositories containing realizations of coupled runs between different geophysical models and ML models deployed by Eophis:
 - [Morays](https://github.com/morays-community) : coupled runs with ocean codes
 

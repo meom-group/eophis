@@ -138,7 +138,11 @@ Testing
 
 - Run unit tests:
 
-**...WORK IN PROGRESS...**
+.. code-block:: bash
+        
+        cd tests
+        pytest
+
 
 - Checkout **Tests** section of this documentation to run operating tests.
 
