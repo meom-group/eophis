@@ -53,7 +53,8 @@ jobs:
       run: |
         cd /home/runner/work/eophis/eophis/oasis3-mct/util/make_dir/
         echo "include /home/runner/work/eophis/eophis/docs/machine/arch/make.jeanzay" > make.inc
-        sed -i '13s/.*/COUPLE       = \/home\/runner\/work\/eophis\/eophis\/oasis3-mct/' /home/runner/work/eophis/eophis/docs/machine/arch/make.jeanzay        make -f TopMakefileOasis3 pyoasis
+        sed -i '13s/.*/COUPLE       = \/home\/runner\/work\/eophis\/eophis\/oasis3-mct/' /home/runner/work/eophis/eophis/docs/machine/arch/make.jeanzay        
+        make -f TopMakefileOasis3 pyoasis
 
     - name: Install pyOASIS
       run: |
