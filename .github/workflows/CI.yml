@@ -20,7 +20,7 @@ jobs:
     - name: Checkout OASIS
       uses: actions/checkout@v2
       with:
-        repository: https://gitlab.com/cerfacs/oasis3-mct.git
+        repository: git@gitlab.com:cerfacs/oasis3-mct.git
         path: /home/oasis3-mct
 
     - name: Install MPI implementation
