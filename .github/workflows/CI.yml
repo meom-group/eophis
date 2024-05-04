@@ -22,20 +22,15 @@ jobs:
       with:
         repository: https://gitlab.com/cerfacs/oasis3-mct.git
         path: /home/oasis3-mct
-    
-    - name: Set up Fortran Compiler and MPI
-      uses: actions/setup-fortran@v1
-      with:
-        fortran-version: 'latest'
-        
-    - name: Set up C/C++ Compiler
-      uses: actions/setup-cpp@v2
-      with:
-        compiler-version: 'latest'
 
     - name: Install MPI implementation
       run: |
         sudo apt-get install -y libopenmpi-dev openmpi-bin
+
+    - name: Verify OpenMPI Installation
+      run: |
+        mpifort --version
+        mpicc --version
 
     - name: Install NetCDF Library for C
       run: |
