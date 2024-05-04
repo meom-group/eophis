@@ -20,6 +20,7 @@ jobs:
     - name: Checkout OASIS
       run: |
         git clone https://gitlab.com/cerfacs/oasis3-mct.git
+        echo "::set-output name=repository_path::$(pwd)/oasis3-mct"
 
     - name: Install MPI implementation
       run: |
@@ -51,7 +52,7 @@ jobs:
         
     - name: Install OASIS
       run: |
-        cd /home/oasis3-mct/util/make_dir/
+        cd ${{ steps.checkout_oasis.outputs.repository_path }}/util/make_dir/
         echo "include /home/eophis/docs/machine/arch/make.jeanzay" > make.inc
         sed -i '13s/.*/COUPLE       = \/home\/runner\/oasis3-mct\//' /home/eophis/docs/machine/arch/make.jeanzay
 
@@ -59,8 +60,8 @@ jobs:
 
     - name: Install pyOASIS
       run: |
-        source /home/oasis3-mct/BLD/python/init.sh
-        source /home/oasis3-mct/BLD/python/init.csh
+        source ${{ steps.checkout_oasis.outputs.repository_path }}/BLD/python/init.sh
+        source ${{ steps.checkout_oasis.outputs.repository_path }}/BLD/python/init.csh
 
     - name: Install eophis
       run: |
