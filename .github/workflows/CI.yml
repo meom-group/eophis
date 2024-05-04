@@ -19,7 +19,7 @@ jobs:
     
     - name: Checkout OASIS
       run: |
-        git clone git@gitlab.com:cerfacs/oasis3-mct.git
+        git clone https://gitlab.com/cerfacs/oasis3-mct.git
 
     - name: Install MPI implementation
       run: |
