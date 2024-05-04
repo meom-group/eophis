@@ -22,7 +22,7 @@ jobs:
       with:
         repository: https://gitlab.com/cerfacs/oasis3-mct.git
         path: /home/oasis3-mct
-        cd oasis-mct
+        cd /home/oasis3-mct
     
     - name: Set up Fortran Compiler and MPI
       uses: actions/setup-fortran@v1
