@@ -18,9 +18,8 @@ jobs:
       uses: actions/checkout@v2
     
     - name: Checkout OASIS
-      uses: actions/checkout@v2
-      with:
-        repository: git@gitlab.com:cerfacs/oasis3-mct.git
+      run: |
+        git clone git@gitlab.com:cerfacs/oasis3-mct.git
 
     - name: Install MPI implementation
       run: |
