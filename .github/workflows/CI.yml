@@ -32,11 +32,11 @@ jobs:
 
     - name: Install NetCDF Library for C
       run: |
-        sudo apt-get install -y libnetcdf
+        sudo apt-get install -y libnetcdf-dev
 
     - name: Install NetCDF Library for Fortran
       run: |
-        sudo apt-get install -y libnetcdf-fortran
+        sudo apt-get install -y libnetcdff-dev
         
     - name: Set up Python
       uses: actions/setup-python@v4
