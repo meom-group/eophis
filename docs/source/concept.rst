@@ -1,16 +1,9 @@
 Concepts
 ========
 
-.. autosummary::
-   :toctree: generated
+.. toctree::
+   :maxdepth: 2
 
-
-
-Tunnel
-------
-
-Model
------
-
-Loop
-----
+   Why Eophis ? <concept_motivation>
+   
+   Objects <concept_object>

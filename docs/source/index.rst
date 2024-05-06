@@ -21,4 +21,6 @@ Contents:
    Overview <overview>
    Installation <install>
    Concepts <concept>
-   api
+   Usage <usage>
+   Tests <tests>
+   API <modules>

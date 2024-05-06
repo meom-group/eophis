@@ -1,5 +1,5 @@
 """
-tunnel.py - this module is a wrapper for python OASIS API
+This module is a wrapper for python OASIS API.
 """
 # eophis modules
 from ..utils import logs
@@ -16,35 +16,36 @@ __all__ = ['Tunnel']
 class Tunnel:
     """
     This class gathers a set of OASIS objects created during an Eophis execution under a common entity.
-    This allows to spread OASIS commands between different identified coupled earth-systems.
+    This allows to spread OASIS commands between different identified coupled geoscientific codes
     
-    Attributes:
-        label: Tunnel name
-        grids: Tunnel user-defined grids
-        exchs: Tunnel user-defined exchanges
-        es_aliases: Correspondence between exchange and namcouple variables names from earth-system side
-        im_aliases: Same from inference models side
-        local_grids: local grid parameters for parallel execution
-        _inpartitions: list of OASIS Partitions for receptions
-        _outpartitions: list of OASIS Parittions for sendings
-        _variables: list of OASIS Var objects
-        _static_used: status of static variables (exchanged or not)
-        _var2grid: shortcut between a variable label and its associated grid
-    Methods:
-        arriving_list: return non-static variable names that can be received
-        departure_list: return non-static variable names that can be sent
-        send: wrap OASIS steps for sending
-        receive: wrap OASIS steps for reception
-        _configure: orchestrates OASIS definition methods
-        _define_partitions: create OASIS Partitions from grids
-        _define_variables: create OASIS Vars from exchs and aliases
+    Attributes
+    ----------
+    label : string
+        Tunnel name
+    grids : dict
+        Tunnel user-defined grids
+    exchs : list
+        Tunnel user-defined exchanges
+    geo_aliases : dict
+        Correspondence between Tunnel and namcouple fields names from geophysical side
+    py_aliases : dict
+        Correspondence between Tunnel and namcouple fields names from Python side
+    local_grids : dict
+        local grid dimensions for parallel execution
+    _partitions : dict
+        list of OASIS Partition objects
+    _variables : dict
+        list of OASIS Var objects to receive ('rcv') and to send ('snd')
+    _static_used : dict
+        status of static variables (exchanged or not)
+        
     """
-    def __init__(self, label, grids, exchs, es_aliases, im_aliases):
+    def __init__(self, label, grids, exchs, geo_aliases, py_aliases):
         self.label = label
         self.grids = grids
         self.exchs = exchs
-        self.es_aliases = es_aliases
-        self.im_aliases = im_aliases
+        self.geo_aliases = geo_aliases
+        self.py_aliases = py_aliases
         self.local_grids = {}
         self._inpartitions = {}
         self._outpartitions = {}
@@ -56,13 +57,14 @@ class Tunnel:
         logs.info(f'-------- Tunnel {label} registered --------')
         logs.info(f'  namcouple variable names')
         logs.info(f'    Earth side:')
-        for var,oas_var in es_aliases.items():
+        for var,oas_var in geo_aliases.items():
             logs.info(f'      - {var} -> {oas_var}')
         logs.info(f'    Models side:')
-        for var,oas_var in im_aliases.items():
+        for var,oas_var in py_aliases.items():
             logs.info(f'      - {var} -> {oas_var}')
 
     def _configure(self, comp):
+        """ Orchestrates OASIS definition methods. """
         self._define_partitions(comp.localcomm.rank,comp.localcomm.size)
         self._define_variables()
     
@@ -70,9 +72,13 @@ class Tunnel:
         """
         Create OASIS Partition from attributes
         
-        Args:
-            myrank (int): local process rank
-            oursize (int): local communicator size
+        Parameters
+        ----------
+        myrank : int
+            local process rank
+        oursize : int
+            local communicator size
+            
         """
         for grd_lbl, grd_params in self.grids.items():
             # params
@@ -96,13 +102,11 @@ class Tunnel:
         """ Create OASIS Variable from attributes and initialise status of static variables """
         for ex in self.exchs:
             for varin in ex['in']:
-                self._var2grid[varin] = ex['grd']
-                self._variables['rcv'][varin] = pyoasis.Var(self.im_aliases[varin], self._inpartitions[ex['grd']], OASIS.IN, bundle_size=ex['lvl'])
+                self._variables['rcv'][varin] = pyoasis.Var(self.py_aliases[varin], self._partitions[ex['grd']], OASIS.IN, bundle_size=ex['lvl'])
                 if ex['freq'] == Freqs.STATIC:
                     self._static_used[varin] = False
             for varout in ex['out']:
-                self._var2grid[varout] = ex['grd']
-                self._variables['snd'][varout] = pyoasis.Var(self.im_aliases[varout], self._outpartitions[ex['grd']], OASIS.OUT, bundle_size=ex['lvl'])
+                self._variables['snd'][varout] = pyoasis.Var(self.py_aliases[varout], self._partitions[ex['grd']], OASIS.OUT, bundle_size=ex['lvl'])
                 if ex['freq'] == Freqs.STATIC:
                     self._static_used[varout] = False
 
@@ -116,15 +120,24 @@ class Tunnel:
 
     def send(self, var_label, values, date=86579):
         """
-        Send variable value to earth-system if date does match frequency exchange, nothing otherwise
+        Send variable value to geoscientific code if date does match frequency exchange, nothing otherwise
         
-        Args:
-            var_label (str): variable name to send
-            date (int): current simulation time
-            values (numpy.ndarray): array to send via OASIS under var_label
-        Raises:
-            Warning if try to send an already sent static variable, then skip
-            Abort if values does not match sending format
+        Parameters
+        ----------
+        var_label : string
+            variable name to send
+        date : int
+            current simulation time
+        values : numpy.ndarray
+            array to send via OASIS under var_label
+            
+        Raises
+        ------
+        eophis.warning()
+            if try to send an already sent static variable, then skip
+        eophis.abort()
+            if values does not match sending format
+            
         """
         var = self._variables['snd'][var_label]
  
@@ -152,15 +165,25 @@ class Tunnel:
 
     def receive(self, var_label, date=86579):
         """
-        Request a variable reception from earth-system
+        Request a variable reception from geoscientific code
         
-        Args:
-            var_label (str): variable name to receive
-            date (int): current simulation time
-        Raises:
-            Warning if try to receive an already received variable, then skip
-        Returns:
-            rcv_fld (numpy.ndarray): array sent by earth-system, None if date does not match frequency exchange
+        Parameters
+        ----------
+        var_label : string
+            variable name to receive
+        date : int
+            current simulation time
+            
+        Raises
+        ------
+        eophis.warning()
+            if try to receive an already received static variable, then skip
+            
+        Returns
+        -------
+        rcv_fld : numpy.ndarray
+            array sent by geoscientific code, None if date does not match frequency exchange
+            
         """
         rcv_fld = None
         var = self._variables['rcv'][var_label]
@@ -198,9 +221,15 @@ def init_oasis(comp_name='eophis'):
     """
     Initialize OASIS environment
     
-    Args:
-        comp_name (str): OASIS component name
-    Returns:
-        comp(pyoasis.Component): created OASIS component
+    Parameters
+    ----------
+    comp_name : string
+        OASIS component name
+        
+    Returns
+    -------
+    comp : pyoasis.Component
+        created OASIS component
+        
     """
     return pyoasis.Component(comp_name, True, Paral.GLOBAL_COMM)

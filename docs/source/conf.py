@@ -10,10 +10,12 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('../../'))
 
+# this is to tell reathedocs not to try to document numpy which is external.
+autodoc_mock_imports = ['mpi4py','numpy','pyoasis','f90nml','watermark']
 
 # -- Project information -----------------------------------------------------
 
@@ -22,7 +24,7 @@ copyright = '2024, Alexis Barge'
 author = 'Alexis Barge'
 
 # The full version, including alpha/beta/rc tags
-release = '0.9.0'
+release = '0.9.1'
 
 
 # -- General configuration ---------------------------------------------------
@@ -40,11 +42,15 @@ extensions = [
     "myst_parser"
 ]
 
+napoleon_google_docstring = False
+
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3/', None),
     'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
 }
 intersphinx_disabled_domains = ['std']
+
+myst_enable_extensions = ["dollarmath", "amsmath"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
