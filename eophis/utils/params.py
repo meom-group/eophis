@@ -23,23 +23,6 @@ class Freqs:
     YEARLY = 365 * DAILY
 
 
-class Grids:
-    """
-    This class contains pre-defined commonly used grids.
-    
-    Notes
-    -----
-    Grids is a tuple containing:
-        - nlon (int): number of longitude points
-        - nlat (int): number of latitude points
-        - lon_overlap (int): number of overlapping longitude points if periodic (0 otherwise)
-        - lat_overlap (int): number of overlapping latitude points if periodic (0 otherwise)
-        
-    """
-    eORCA05 = (720,603,0,0)
-    eORCA025 = (1440,1206,0,0)
-
-
 
 class Mode:
     """
