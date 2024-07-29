@@ -11,7 +11,6 @@ It also provides tools to read Fortran namelists and obtain informations about s
     
 """
 # package export
-from .grid import *
 from .tunnel import *
 from .namelist import *
 from .namcouple import *

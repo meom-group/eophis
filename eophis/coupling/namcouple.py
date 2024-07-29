@@ -38,7 +38,7 @@ class Namcouple:
             number of reception sections
         _Nout : int
             number of sending sections
-        _activated : bool)
+        _activated : bool
             indicates if coupling environment is set
             
     """
