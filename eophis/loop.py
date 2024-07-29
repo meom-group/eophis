@@ -20,14 +20,14 @@ def starter(loop_router):
     loop_router()
 
 
-def all_in_all_out(earth_system,step,niter):
+def all_in_all_out(geo_model,step,niter):
     """
     Build a Loop on All In All Out (AIAO) structure. ``assembler()`` function inserts ``router()``
     inside ``base_loop()`` in which receivings and sendings steps are pre-defined.
     
     Parameters
     ----------
-    earth_system : eophis.Tunnel
+    geo_model : eophis.Tunnel
         coupling Tunnel to perform exchanges with earth
     step : int
         loop time step, in seconds
@@ -90,10 +90,10 @@ def all_in_all_out(earth_system,step,niter):
                 
                 # perform all receptions
                 # ----------------------
-                arrays = { varin : earth_system.receive(varin,it_sec) for varin in earth_system.arriving_list() }
+                arrays = { varin : geo_model.receive(varin,it_sec) for varin in geo_model.arriving_list() }
                 if not all( type(arr) == type(None) for arr in arrays.values() ):
                     requests = ", ".join( [ varin for varin,arr in arrays.items() if type(arr) is not type(None) ] )
-                    logs.info(f'{date_info}   Treating {requests} received through tunnel {earth_system.label}')
+                    logs.info(f'{date_info}   Treating {requests} received through tunnel {geo_model.label}')
                     
                 # Modeling
                 # --------
@@ -101,10 +101,10 @@ def all_in_all_out(earth_system,step,niter):
 
                 # perform all sendings
                 # --------------------
-                [ earth_system.send(varout,inf,it_sec) for varout,inf in inferences.items() ]
+                [ geo_model.send(varout,inf,it_sec) for varout,inf in inferences.items() ]
                 if not all( type(arr) == type(None) for arr in arrays.values()  ):
                     results = ", ".join( [ varout for varout,inf in inferences.items() if type(inf) is not type(None) ] )
-                    logs.info(f'   Sending back {results} through tunnel {earth_system.label}')
+                    logs.info(f'   Sending back {results} through tunnel {geo_model.label}')
 
             logs.info(f'------------------- END OF LOOP -------------------')
         return base_loop
