@@ -28,7 +28,6 @@ class HaloGrid:
         self.local_grid = local_grid
         self.offset = offset
     
-    
     @classmethod
     def select_type(cls, grd, fold, bnd, size, global_grid, local_grid, offset):
         """
@@ -68,8 +67,7 @@ class HaloGrid:
             return CyclicHalo(size, global_grid, local_grid, offset, bnd)
         else:
             return HaloGrid(size, global_grid, local_grid, offset)
-        
-        
+                
     def segment(self):
         """ Decompose non boundary-crossing halos cells into offsets/sizes couple. """
         hls_offsets = []
@@ -90,10 +88,8 @@ class HaloGrid:
                 # right
                 hls_offsets.append( local_offset + self.local_grid[0] )
                 hls_sizes.append( self.size )
-                
         return hls_offsets, hls_sizes
-    
-    
+        
     def segment_side_halos(self,local_start, local_offset):
         local_offset = local_offset % self.global_grid[0]
         side_A = ( self.global_grid[0] - local_offset ) * ( (self.global_grid[0]-local_offset) < self.size )
@@ -105,9 +101,7 @@ class HaloGrid:
         else:
             side_offsets = [ local_offset + self.global_grid[0]*(local_start // self.global_grid[0]) ]
             side_sizes = [ side_B ]
-            
         return side_offsets, side_sizes
-
 
     def rebuild(self, field_grid, full_dim=(0,0)):
         """ Rebuild a received field from OASIS into subdomain with non boundary-crossing halo cells. """

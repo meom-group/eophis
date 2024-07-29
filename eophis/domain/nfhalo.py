@@ -61,7 +61,6 @@ class NFHalo(HaloGrid):
         if ncol > global_grid[0] or self.full_dim[0] and (local_grid[0] + 2*size) > 2*global_grid[0]:
             logs.abort(f'Halo size {size} is too big for y dimension {global_grid[0]}')
         
-        
     def segment(self):
         """ Decompose North Fold boundary-crossing halo cells into offsets/sizes couple. """
         hls_offsets = [[],[]]
@@ -112,7 +111,6 @@ class NFHalo(HaloGrid):
         else:
             return self.rebuild_instructions( hls_offsets, hls_sizes )
     
-    
     def segment_intern_fold(self, local_start):
         avail_size = self.local_grid[0]
         inner_size = self.global_grid[0] - local_start % self.global_grid[0]
@@ -126,7 +124,6 @@ class NFHalo(HaloGrid):
             fold_offsets = [ local_start ]
             fold_sizes = [ side_B ]
         return fold_offsets, fold_sizes
-    
     
     def rebuild_instructions(self, offsets, sizes):
         """ Identify operations required to build the folded halo cells from a received field. """
@@ -159,9 +156,7 @@ class NFHalo(HaloGrid):
         # reduce index list to slices
         self._copies = list_to_slices(cp_idx)
         self._moves = list_to_slices(mv_idx)
-        
         return offsets, sizes
-    
     
     def rebuild(self, field_grid):
         """ Rebuild a received field from OASIS into subdomain with North Fold boundary-crossing halo cells. """
@@ -195,7 +190,6 @@ class NFHalo(HaloGrid):
         # boundary treatment
         field_grid = self.fill_boundary_halos(field_grid)
         return field_grid
-        
     
     def rebuild_halos(self, halos_grid):
         """ Rebuild the North Fold halo cells extracted from received field. """
@@ -205,7 +199,6 @@ class NFHalo(HaloGrid):
         fold_bnd = ( np.min(halos_grid) % self.global_grid[0] == 1 )
         halos_grid = np.roll(halos_grid, (self.shifts[0]+self.fold_param[1])*fold_bnd, axis=0)
         return halos_grid
-    
     
     def fill_boundary_halos(self,field_grid):
         """ Creates received field halo cells if global grid size is contained within the subdomain, apply closing condition. """
@@ -231,5 +224,4 @@ class NFHalo(HaloGrid):
             field_grid[:self.close,:,:] = 0.0
         if self.close < 0 or self.full_dim[0] and self.close != 0:
             field_grid[-abs(self.close):,:,:] = 0.0
-        
         return field_grid

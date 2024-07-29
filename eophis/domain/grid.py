@@ -6,7 +6,7 @@ from ..utils import logs
 # external module
 import numpy as np
 
-__all__ = ['Domains','Grid']
+__all__ = ['Domains']
 
 class Domains:
     """
@@ -54,18 +54,18 @@ class Grid:
     
     Attributes
     ----------
-    label : str
+    label : string
         Grid name
     nx : int
         global grid size for x dimension
     ny : int
         global grid size for y dimension
-    bnd : (str,str)
+    bnd : (string,string)
         grid boundary conditions for x and y dimensions, respectively. Used to set values of boundary-crossing halo cells
         'close' : zero, 'cyclic' : periodic, 'NFold' : North Fold
-    grd : str
+    grd : string
         grid type (T,U,V,F) for Fold boundary condition
-    fold : str
+    fold : string
         folding point (T,F) for Fold boundary condition
     subdom : int
         ID of the subdomain for which the Grid is configured
@@ -90,7 +90,7 @@ class Grid:
         # local grid attributes
         self.subdom = None
         self.loc_size = None
-        self.halos = None
+        self.halos = hls
         self._global_offset = 0
         self._oasis_size = 0
         
@@ -112,7 +112,13 @@ class Grid:
             logs.abort(f'Grid {label}: unrecognized y dimension boundary condition, set to close by default')
             self.bnd[1] = 'close'
         
-        
+        # print some infos
+        logs.info(f'      Grid {label} registered ')
+        logs.info(f'        Global size: {nx,ny}')
+        logs.info(f'        Boundary conditions: {self.bnd[0],self.bnd[1]}')
+        if 'fold' in self.bnd[1]:
+            logs.info(f'      Grid Type, Folding Point: {self.grd,self.fold}')
+                
     def decompose(self,nsub):
         """
         Find the best decomposition of global grid for a given number of subdomains.
@@ -161,7 +167,6 @@ class Grid:
         # return results
         return rankx, ranky
 
-
     def make_local_subdomain(self,domid,nsub,halo_size):
         """
         Decompose the global grid in subdomains. Identify the local subdomain properties. Select the Halo grid corresponding to subdomain.
@@ -189,7 +194,7 @@ class Grid:
             logs.abort(f'Grid {self.label}: Subdomain ID {domid}} should not negative')
         
         # divide grid in subdomains
-        logs.info(f'Configure grid {self.label} for subdomain {domid+1} out of {nsub+1} with {halo_size} halo cells.')
+        logs.info(f'        Configure grid {self.label} for subdomain {domid+1} out of {nsub+1} with {halo_size} halo cells.')
         sub_sizes_x, sub_sizes_y = self.decompose(nsub)
 
         # local grid dimension
@@ -200,13 +205,11 @@ class Grid:
             
         # create halos
         self.halos = HaloGrid.select_type( self.grd, self.fold, self.bnd, halo_size, self.size, self.loc_size, self.global_offset )
-    
-    
+        
     def as_box_partition(self):
         """ Returns subdomain real cells (only) as parameters useable by OASIS to define a sending Box Partition. """
         return self.global_offset, self.loc_size[0], self.loc_size[1], self.size[0]
-    
-    
+        
     def as_orange_partition(self):
         """ Returns subdomain real and halo cells as parameters useable by OASIS to define a receiving Orange Partition. """
         # segment real cells
@@ -229,25 +232,24 @@ class Grid:
         self.orange_size = sum(seg_sizes)
         return seg_offsets, seg_sizes, self.size[0]*self.size[1]
         
-        
     def rebuild(self,oasis_field):
         """ Rebuild a received field from OASIS into subdomain shape with real and halo cells. """
         return self.halos.rebuild(oasis_field)
         
-        
-    def format_sending_array(self,sending_array):
+    def format_sending_array(self,sending_array,var_label=''):
         """ Convert a real and halo cells shaped subdomain field into a sending-compatible shape. """
         # check array
         if not isinstance(sending_array, np.ndarray):
-            logs.abort(f'Grid {self.label}: Sending array must by a numpy array')
+            logs.abort(f'Grid {self.label}: Sending array for {var_label} must by a numpy array')
         if len(sending_array.shape) != 3:
-            logs.abort(f'Grid {self.label}: Shape of sending array for must be equal to 3 and is {len(sending_array.shape)}')
-        
+            logs.abort(f'Grid {self.label}: Shape of sending array for {var_label} must be equal to 3 and is {len(sending_array.shape)}')
+        if ( sending_array.shape[0]*sending_array.shape[1] ) != ( self.loc_size[0]*self.loc_size[1] ):
+            logs.abort(f'Grid {self.label}: Size of sending array for {var_label} does not match partition {self.loc_size[0]*self.loc_size[1]}')
+
         # remove halos
         hls = self.halos.size
         return sending_array[ hls : sending_array.shape[0]-hls , hls : sending_array.shape[1]-hls , : ]
-        
-        
+                
     def generate_receiving_array(self,nlvl=1):
         """ Generate an array whose shape matches OASIS reception raw format.
         

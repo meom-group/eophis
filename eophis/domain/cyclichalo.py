@@ -57,7 +57,6 @@ class CyclicHalo(HaloGrid):
         if ncol > global_grid[0] or self.full_dim[0] and (local_grid[0] + 2*size) > 2*global_grid[0]:
             logs.abort(f'Halo size {size} is too big for y dimension {global_grid[0]}')
     
-    
     def segment(self):
         """ Decompose close/cyclic boundary-crossing halo cells into offsets/sizes couple. """
         hls_offsets = []
@@ -89,9 +88,7 @@ class CyclicHalo(HaloGrid):
                 off, siz = super().segment_side_halos(start,local_offset)
                 hls_offsets += off
                 hls_sizes += siz
-                
         return hls_offsets, hls_sizes
-    
     
     def rebuild(self, field_grid):
         """ Rebuild a received field from OASIS into subdomain with close/cyclic boundary-crossing halo cells. """
@@ -100,7 +97,6 @@ class CyclicHalo(HaloGrid):
         field_grid = np.roll(field_grid,self.shifts[1],axis=1)
         field_grid = self.fill_boundary_halos(field_grid)
         return field_grid
-    
     
     def fill_boundary_halos(self,field_grid):
         """ Creates received field halo cells if global grid size is contained within the subdomain, apply closing condition. """
@@ -125,5 +121,4 @@ class CyclicHalo(HaloGrid):
             field_grid[:,:self.close[1],:] = 0.0
         if self.close[1] < 0 or self.full_dim[1] and self.close[1] != 0:
             field_grid[:,-abs(self.close[1]):,:] = 0.0
-            
         return field_grid
