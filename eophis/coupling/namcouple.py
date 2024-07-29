@@ -26,7 +26,7 @@ class Namcouple:
             name of input namcouple file
         outfile : string
             name of output namcouple file
-        tunnels : eophis.Tunnel)
+        tunnels : eophis.Tunnel
             registered Tunnel objects
         comp : pyoasis.Comp
             main OASIS Component
@@ -95,14 +95,14 @@ class Namcouple:
             for varin in ex['in']:
                 py_aliases.update({ varin : 'M_IN_'+str(self._Nin) }) if varin not in py_aliases.keys() else None
                 geo_aliases.update({ varin : 'E_OUT_'+str(self._Nin) }) if varin not in geo_aliases.keys() else None
-                section = _make_and_check_section( geo_aliases[varin],py_aliases[varin],ex['freq'],ex['grd'],*grids[ex['grd']], nmcpl=self._reflines )
+                section = _make_and_check_section( geo_aliases[varin],py_aliases[varin],ex['freq'],ex['grd'],grids[ex['grd']]['npts'], nmcpl=self._reflines )
                 self._lines.insert( len(self._lines)-1, '# Earth -- '+varin+' --> Models')
                 self._lines.insert( len(self._lines)-1, section)
                 self._Nin += 1
             for varout in ex['out']:
                 py_aliases.update({ varout : 'M_OUT_'+str(self._Nout) }) if varout not in py_aliases.keys() else None
                 geo_aliases.update({ varout : 'E_IN_'+str(self._Nout) }) if varout not in geo_aliases.keys() else None
-                section = _make_and_check_section( py_aliases[varout],geo_aliases[varout],ex['freq'],ex['grd'],*grids[ex['grd']], nmcpl=self._reflines )
+                section = _make_and_check_section( py_aliases[varout],geo_aliases[varout],ex['freq'],ex['grd'],grids[ex['grd']]['npts'], nmcpl=self._reflines )
                 self._lines.insert( len(self._lines)-1, '# Earth <-- '+varout+' -- Models')
                 self._lines.insert( len(self._lines)-1, section)
                 self._Nout += 1
@@ -161,7 +161,7 @@ class Namcouple:
         self._activated = True
 
 
-def _make_and_check_section(name_snd,name_rcv,freq,grd,npts,halos,bnd,nmcpl=''):
+def _make_and_check_section(name_snd,name_rcv,freq,grd,npts,nmcpl=''):
     """
     Assemble tunnel infos to create a complete namcouple section.
     Check consistency with namcouple in production mode.
@@ -179,8 +179,8 @@ def _make_and_check_section(name_snd,name_rcv,freq,grd,npts,halos,bnd,nmcpl=''):
     """
     section  = name_snd+' '+name_rcv+' 1 '+str(int(freq))+' 0 rst.nc EXPORTED\n'
     section += str(npts[0])+' '+str(npts[1])+' '+str(npts[0])+' '+str(npts[1])+' '+str(grd)+' '+ str(grd)+' LAG=0\n'
-    section += 'R 0 ' if bnd[0] == 0 else 'P 0 '
-    section += 'R 0'  if bnd[1] == 0 else 'P 0'
+    section += 'R 0 R 0'
+    section += 'R 0 R 0'
            
     if Mode.PROD:
         # split section in fundamental subsections

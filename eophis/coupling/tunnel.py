@@ -5,7 +5,7 @@ This module is a wrapper for python OASIS API.
 from ..utils import logs
 from ..utils.worker import Paral
 from ..utils.params import Freqs
-from .grid import make_subdomains, make_segments, fill_boundary_halos
+from ..domain import Grid
 # external modules
 import pyoasis
 from pyoasis import OASIS
@@ -30,8 +30,8 @@ class Tunnel:
         Correspondence between Tunnel and namcouple fields names from geophysical side
     py_aliases : dict
         Correspondence between Tunnel and namcouple fields names from Python side
-    local_grids : dict
-        local grid dimensions for parallel execution
+    domains : eophis.Grid
+        registered Grid objects
     _partitions : dict
         list of OASIS Partition objects
     _variables : dict
@@ -46,7 +46,7 @@ class Tunnel:
         self.exchs = exchs
         self.geo_aliases = geo_aliases
         self.py_aliases = py_aliases
-        self.local_grids = {}
+        self.domains = {}
         self._inpartitions = {}
         self._outpartitions = {}
         self._variables = { 'rcv': {}, 'snd': {} }
@@ -65,6 +65,7 @@ class Tunnel:
 
     def _configure(self, comp):
         """ Orchestrates OASIS definition methods. """
+        logs.info(f'    -------- Configure Tunnel {label} --------')
         self._define_partitions(comp.localcomm.rank,comp.localcomm.size)
         self._define_variables()
     
@@ -80,33 +81,34 @@ class Tunnel:
             local communicator size
             
         """
-        for grd_lbl, grd_params in self.grids.items():
-            # params
-            (nlon, nlat), halos, _ = grd_params.values()
-            
-            # output grid (without halos) dimensions
-            sub_lon, sub_lat = make_subdomains(nlon,nlat,oursize)
-            isub = myrank % len(sub_lon) 
-            jsub = myrank // len(sub_lon)
-            global_offset = sum(sub_lat[0:jsub]) * nlon + sum( sub_lon[0:isub] )
-            # --> OASIS Box
-            self._outpartitions[grd_lbl] = pyoasis.BoxPartition(global_offset, sub_lon[isub], sub_lat[jsub], nlon)
+        # create grids
+        for grd_label, grd_info in grids.items():
+            nx, ny = grd_info['npts']
+            grd_type, fold = 'T', 'T' if 'folding' not in grd_info.keys() else grd_info['folding']
+            self.domains[grd_label] = Grid( label=grd_label, nx=nx, ny=ny, bnd=grd_info['bnd'], grd=grd_type, fold=fold )
 
-            # input grid (with halos) dimensions
-            offsets, sizes, shifts, full_dim = make_segments(nlon, nlat, halos, sub_lon, sub_lat, myrank)
-            self.local_grids[grd_lbl] = ( sub_lon[isub] + 2*halos, sub_lat[jsub] + 2*halos, shifts, full_dim )
-            # --> OASIS Orange
-            self._inpartitions[grd_lbl] = pyoasis.OrangePartition(list(offsets), list(sizes), nlon*nlat)
+            # define subdomain
+            self.domains[grd_label].make_local_subdomain(domid=myrank, nsub=oursize, halo_size=grd_info['halos'])
+            
+            # output grid (without halos) --> OASIS Box
+            global_offset, size_x, size_y, nx = self.domains[grd_label].as_box_partition()
+            self._outpartitions[grd_lbl] = pyoasis.BoxPartition(global_offset, size_x, size_y, nx)
+
+            # input grid (with halos) --> OASIS Orange
+            off_seg, siz_seg, ncells = self.domains[grd_label].as_orange_partition()
+            self._inpartitions[grd_lbl] = pyoasis.OrangePartition(off_seg, siz_seg, ncells)
 
     def _define_variables(self):
         """ Create OASIS Variable from attributes and initialise status of static variables """
         for ex in self.exchs:
             for varin in ex['in']:
-                self._variables['rcv'][varin] = pyoasis.Var(self.py_aliases[varin], self._partitions[ex['grd']], OASIS.IN, bundle_size=ex['lvl'])
+                self._var2grid[varin] = ex['grd']
+                self._variables['rcv'][varin] = pyoasis.Var(self.py_aliases[varin], self._inpartitions[ex['grd']], OASIS.IN, bundle_size=ex['lvl'])
                 if ex['freq'] == Freqs.STATIC:
                     self._static_used[varin] = False
             for varout in ex['out']:
-                self._variables['snd'][varout] = pyoasis.Var(self.py_aliases[varout], self._partitions[ex['grd']], OASIS.OUT, bundle_size=ex['lvl'])
+                self._var2grid[varout] = ex['grd']
+                self._variables['snd'][varout] = pyoasis.Var(self.py_aliases[varout], self._outpartitions[ex['grd']], OASIS.OUT, bundle_size=ex['lvl'])
                 if ex['freq'] == Freqs.STATIC:
                     self._static_used[varout] = False
 
@@ -139,7 +141,9 @@ class Tunnel:
             if values does not match sending format
             
         """
+        # variable and grid
         var = self._variables['snd'][var_label]
+        grd = self.domains[self._var2grid[var_label]]
  
         # check static status
         if var_label in self._static_used and not self._static_used[var_label]:
@@ -150,18 +154,11 @@ class Tunnel:
             logs.warning(f'Static sending of {var_label} through tunnel {self.label} already done, skipped')
             return
         
+        # format field and send
         if values is not None and (date % var.cpl_freqs[0] == 0):
-            # check shape
-            if len(values.shape) != 3:
-                logs.abort('  Shape of sending array for {var_label} must be equal to 3')
-            # exclude halos, check size
-            halos = self.grids[ self._var2grid[var_label] ]['halos']
-            values = values[ halos : values.shape[0]-halos , halos : values.shape[1]-halos , : ]
-            if (values.shape[0] * values.shape[1], values.shape[2]) != (var._partition_local_size, var.bundle_size):
-                logs.abort(f'  Size of sending array for {var_label} does not match partition')
-            # send field
-            snd_fld = pyoasis.asarray(values)
-            var.put( date, snd_fld )
+            values = grd.format_sending_array(values,var_label)
+            values = pyoasis.asarray(values)
+            var.put(date,values)
 
     def receive(self, var_label, date=86579):
         """
@@ -185,9 +182,10 @@ class Tunnel:
             array sent by geoscientific code, None if date does not match frequency exchange
             
         """
-        rcv_fld = None
+        # variable and grid
         var = self._variables['rcv'][var_label]
-        
+        grd = self.domains[self._var2grid[var_label]]
+
         # check static status
         if var_label in self._static_used and not self._static_used[var_label]:
             logs.info(f'\n-!- Static receive of {var_label} through tunnel {self.label}')
@@ -197,24 +195,15 @@ class Tunnel:
             logs.warning(f'Static receive of {var_label} through tunnel {self.label} already done, skipped')
             return
         
+        # get field and rebuild
         if (date % var.cpl_freqs[0] == 0):
-            # get grid infos, receive field
-            (nlon, nlat), halos, bnd = self.grids[ self._var2grid[var_label] ].values()
-            loclon, loclat, shifts, full_dim = self.local_grids[ self._var2grid[var_label] ]
-            rcv_fld = pyoasis.asarray( np.zeros( (loclon-2*halos*full_dim[0], loclat-2*halos*full_dim[1], var.bundle_size) ) )
-            var.get(date, rcv_fld)
-            # rebuild grid
-            rcv_fld = np.roll(rcv_fld,shifts[0],axis=0)
-            rcv_fld = np.roll(rcv_fld,shifts[1],axis=1)
-            # build boundary halos if necessary
-            rcv_fld = fill_boundary_halos(rcv_fld, halos, shifts, full_dim, bnd)
-            # ----- FOR DEBUGGING ----
-            #rcv_fld = rcv_fld + (Paral.RANK+1)/10.
-            #if var_label == 'sst':
-            #    Paral.EOPHIS_COMM.Barrier()
-            #    logs.info(f'{Paral.RANK} -rcv- {rcv_fld}',Paral.RANK)
-            # ------
-        return rcv_fld
+            rcv_fld = grd.generate_receiving_array(var.bundle_size)
+            rcv_fld = pyoasis.asarray(rcv_fld)
+            var.get(date,rcv_fld)
+            rcv_fld = grd.rebuild(rcv_fld)
+            return rcv_fld
+        else:
+            return None
 
 
 def init_oasis(comp_name='eophis'):

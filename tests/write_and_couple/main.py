@@ -12,7 +12,7 @@ def earth_info():
     tunnel_config = list()
     tunnel_config.append( { 'label' : 'TO_EARTH', \
                             'grids' : { 'demo' : Grids.demo, \
-                                        'lmdz' :  {'npts' : (180,151) , 'halos' : 0, 'bnd' : (0,0) } }, \
+                                        'lmdz' :  {'npts' : (180,151) , 'halos' : 0, 'bnd' : ('close','close') } }, \
                             'exchs' : [ {'freq' : Freqs.HOURLY, 'grd' : 'demo', 'lvl' : 1, 'in' : ['sst'], 'out' : ['sst_var'] },  \
                                         {'freq' : Freqs.DAILY,  'grd' : 'demo', 'lvl' : 3, 'in' : ['svt'], 'out' : ['svt_var'] },  \
                                         {'freq' : Freqs.STATIC, 'grd' : 'demo', 'lvl' : 1, 'in' : ['msk'], 'out' : [] } ] }
@@ -67,7 +67,7 @@ def production():
 
     #  Assemble
     # ++++++++++
-    @eophis.all_in_all_out(earth_system=earth, step=step, niter=niter)
+    @eophis.all_in_all_out(geo_model=earth, step=step, niter=niter)
     def loop_core(**inputs):
         outputs = {}
         outputs['sst_var'] = add_100(inputs['sst'])
