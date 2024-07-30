@@ -22,16 +22,14 @@ class Tunnel:
     ----------
     label : string
         Tunnel name
-    grids : dict
-        Tunnel user-defined grids
+    grids : eophis.Grid
+        registered Grid objects
     exchs : list
         Tunnel user-defined exchanges
     geo_aliases : dict
         Correspondence between Tunnel and namcouple fields names from geophysical side
     py_aliases : dict
         Correspondence between Tunnel and namcouple fields names from Python side
-    domains : eophis.Grid
-        registered Grid objects
     _partitions : dict
         list of OASIS Partition objects
     _variables : dict
@@ -42,11 +40,10 @@ class Tunnel:
     """
     def __init__(self, label, grids, exchs, geo_aliases, py_aliases):
         self.label = label
-        self.grids = grids
+        self.grids = {}
         self.exchs = exchs
         self.geo_aliases = geo_aliases
         self.py_aliases = py_aliases
-        self.domains = {}
         self._inpartitions = {}
         self._outpartitions = {}
         self._variables = { 'rcv': {}, 'snd': {} }
@@ -62,6 +59,13 @@ class Tunnel:
         logs.info(f'    Models side:')
         for var,oas_var in py_aliases.items():
             logs.info(f'      - {var} -> {oas_var}')
+
+        # Create grids
+        for grd_label, grd_info in grids.items():
+            nx, ny = grd_info['npts']
+            hls = grd_info['halos']
+            grd_type, fold = 'T', 'T' if 'folding' not in grd_info.keys() else grd_info['folding']
+            self.grids[grd_label] = Grid( grd_label, nx, ny, hls, grd_info['bnd'], grd_type, fold )
 
     def _configure(self, comp):
         """ Orchestrates OASIS definition methods. """
@@ -81,21 +85,16 @@ class Tunnel:
             local communicator size
             
         """
-        # create grids
-        for grd_label, grd_info in grids.items():
-            nx, ny = grd_info['npts']
-            grd_type, fold = 'T', 'T' if 'folding' not in grd_info.keys() else grd_info['folding']
-            self.domains[grd_label] = Grid( label=grd_label, nx=nx, ny=ny, bnd=grd_info['bnd'], grd=grd_type, fold=fold )
-
+        for grd_lbl, grd in self.grids.items():
             # define subdomain
-            self.domains[grd_label].make_local_subdomain(domid=myrank, nsub=oursize, halo_size=grd_info['halos'])
+            grd.make_local_subdomain(domid=myrank, nsub=oursize)
             
             # output grid (without halos) --> OASIS Box
-            global_offset, size_x, size_y, nx = self.domains[grd_label].as_box_partition()
+            global_offset, size_x, size_y, nx = grd.as_box_partition()
             self._outpartitions[grd_lbl] = pyoasis.BoxPartition(global_offset, size_x, size_y, nx)
 
             # input grid (with halos) --> OASIS Orange
-            off_seg, siz_seg, ncells = self.domains[grd_label].as_orange_partition()
+            off_seg, siz_seg, ncells = grd.as_orange_partition()
             self._inpartitions[grd_lbl] = pyoasis.OrangePartition(off_seg, siz_seg, ncells)
 
     def _define_variables(self):
@@ -143,7 +142,7 @@ class Tunnel:
         """
         # variable and grid
         var = self._variables['snd'][var_label]
-        grd = self.domains[self._var2grid[var_label]]
+        grd = self.grids[self._var2grid[var_label]]
  
         # check static status
         if var_label in self._static_used and not self._static_used[var_label]:
@@ -184,7 +183,7 @@ class Tunnel:
         """
         # variable and grid
         var = self._variables['rcv'][var_label]
-        grd = self.domains[self._var2grid[var_label]]
+        grd = self.grids[self._var2grid[var_label]]
 
         # check static status
         if var_label in self._static_used and not self._static_used[var_label]:

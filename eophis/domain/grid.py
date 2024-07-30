@@ -60,6 +60,8 @@ class Grid:
         global grid size for x dimension
     ny : int
         global grid size for y dimension
+    halo_size : int
+        number of halo cells in both dimensions
     bnd : (string,string)
         grid boundary conditions for x and y dimensions, respectively. Used to set values of boundary-crossing halo cells
         'close' : zero, 'cyclic' : periodic, 'NFold' : North Fold
@@ -79,10 +81,11 @@ class Grid:
         number of cells received by OASIS for the two first dimensions
         
     """
-    def __init__(self, label, nx, ny, bnd=('close','close'), grd='T', fold='T'):
+    def __init__(self, label, nx, ny, halo_size=0, bnd=('close','close'), grd='T', fold='T'):
         # global grid attributes
         self.label = label
         self.size = (nx,ny)
+        self.halo_size
         self.bnd = [ bnd[0].lower() , bnd[1].lower() ]
         self.fold = fold.upper()
         self.grd = grd.upper()
@@ -100,7 +103,7 @@ class Grid:
         elif 'close' not in self.bnd[0] and 'cyclic' not in self.bnd[0]:
             logs.warning(f'Grid {label}: unrecognized x dimension boundary condition, set to close by default')
             self.bnd[0] = 'close'
-            
+
         if 'fold' in self.bnd[1]:
             if 'fold' in self.bnd[0]:
                 logs.abort(f'Grid {label}: Fold condition on both x,y dimensions impossible')
@@ -167,7 +170,7 @@ class Grid:
         # return results
         return rankx, ranky
 
-    def make_local_subdomain(self,domid,nsub,halo_size):
+    def make_local_subdomain(self,domid,nsub):
         """
         Decompose the global grid in subdomains. Identify the local subdomain properties. Select the Halo grid corresponding to subdomain.
         
@@ -177,8 +180,6 @@ class Grid:
             subdomain index to create
         nsub : int
             number of subdomains to decompose
-        halo_size : int
-            number of halo cells to create in both dimensions
 
         Raises
         ------
@@ -204,7 +205,7 @@ class Grid:
         self.global_offset = sum(sub_sizes_y[0:jsub]) * self.size[0] + sum(sub_sizes_x[0:isub])
             
         # create halos
-        self.halos = HaloGrid.select_type( self.grd, self.fold, self.bnd, halo_size, self.size, self.loc_size, self.global_offset )
+        self.halos = HaloGrid.select_type( self.grd, self.fold, self.bnd, self.halo_size, self.size, self.loc_size, self.global_offset )
         
     def as_box_partition(self):
         """ Returns subdomain real cells (only) as parameters useable by OASIS to define a sending Box Partition. """
