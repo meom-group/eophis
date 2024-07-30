@@ -22,7 +22,7 @@ def clean_files():
 # ==============
 # test offsiz.py
 # ==============
-from eophis.coupling.offsiz import set_fold_grd, list_to_slices, grid_to_offsets_sizes, clean_for_oasis
+from eophis.domain.offsiz import set_fold_trf, list_to_slices, grid_to_offsets_sizes, clean_for_oasis
 
 def test_set_fold_trf():
     assert set_fold_trf('T','T') == [1,1,0]

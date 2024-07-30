@@ -24,6 +24,7 @@ def clean_files():
 # test logs.py
 # ============
 from eophis.utils.logs import info, warning, abort, _Logbuffer, _logger_info, _logger_err
+from eophis.utils.worker import Paral
 
 def test_inquire_log_files():
     assert os.path.exists("eophis.out"), "log file 'eophis.out' does not exist"
@@ -46,7 +47,7 @@ def test_warning():
     with patch('eophis.utils.logs._logger_err', mock_logger_err), \
          patch('eophis.utils.logs.info', mock_info):
         warning("Test warning")
-        mock_logger_err.warning.assert_called_once_with("[RANK:0] from "+caller+" at line 88: Test warning")
+        mock_logger_err.warning.assert_called_once_with("[RANK:0] from "+caller+" at line 49: Test warning")
         mock_info.assert_called_once_with('Warning raised by rank 0 ! See error log for details\n', 0)
 
 def test_abort():
@@ -59,6 +60,6 @@ def test_abort():
          patch('eophis.utils.logs.info', mock_info), \
          patch('eophis.utils.logs.quit_eophis', mock_quit_eophis):
         abort("Test error")
-        mock_logger_err.error.assert_called_once_with("[RANK:0] from "+caller+" at line 101: Test error")
+        mock_logger_err.error.assert_called_once_with("[RANK:0] from "+caller+" at line 62: Test error")
         mock_info.assert_called_once_with('RUN ABORTED by rank 0 see error log for details', 0)
         mock_quit_eophis.assert_called_once()

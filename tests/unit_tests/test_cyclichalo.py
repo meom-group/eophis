@@ -22,7 +22,7 @@ def clean_files():
 # ==================
 # test cyclichalo.py
 # ==================
-from eophis.coupling.cyclichalo import CyclicHalo
+from eophis.domain.cyclichalo import CyclicHalo
 
 # global 9x9
 # -- cross top bnd
@@ -73,7 +73,7 @@ def test_9x9_3x3_1_halo_right():
     assert seg == ([33,32,27,41,36,50,45,59,54,69,68,63], [3,1,1,1,1,1,1,1,1,3,1,1])
     grid = np.array([ 28,33,34,35,36,37,42,43,44,45,46,51,52,53,54,55,60,61,62,63,64,69,70,71,72 ])
     res = hls.rebuild(grid.reshape(25,1,order='F')).transpose()
-    ref = np.array( [ [[33,34,35,36,0],[42,43,44,45,0],[51,52,53,54,0],[60,61,62,63,0],[67,70,71,72,0]] ] )
+    ref = np.array( [ [[33,34,35,36,0],[42,43,44,45,0],[51,52,53,54,0],[60,61,62,63,0],[69,70,71,72,0]] ] )
     assert np.array_equal(res,ref) == True
 
 # ====================
@@ -89,7 +89,7 @@ def test_5x3_2x3_1_halo_lcol():
     assert seg == ([4,2,9,7,14,12], [1,1,1,1,1,1])
     grid = np.array([1,2,3,5,6,7,8,10,11,12,13,15])
     res = hls.rebuild(grid.reshape(12,1,order='F')).transpose()
-    ref = np.array( [ ][[0,11,12,13],[0,1,2,3],[0,6,7,8],[0,11,12,13],[0,1,2,3]] ] )
+    ref = np.array( [ [[0,11,12,13],[0,1,2,3],[0,6,7,8],[0,11,12,13],[0,1,2,3]] ] )
     assert np.array_equal(res,ref) == True
 
 # -- intern column
@@ -107,7 +107,7 @@ def test_5x3_2x3_1_halo_icol():
 
 # -- right column
 def test_5x3_2x3_1_halo_rcol():
-    hls = CyclicHalo(size=1, global_grid=(5,3), local_grid=(2,3), offset=4, bnd=('cyclic','close'))
+    hls = CyclicHalo(size=1, global_grid=(5,3), local_grid=(1,3), offset=4, bnd=('cyclic','close'))
     assert hls.full_dim == (False,True)
     assert hls.shifts == (-1,0)
     assert hls.close == (0,1)
@@ -178,7 +178,7 @@ def test_6x6_2x2_2_halo_upleft():
 # global 4x4
 # -- upper right
 def test_4x4_2x2_1_halo_upright():
-    hls = CyclicHalo(size=2, global_grid=(6,6), local_grid=(2,2), offset=0, bnd=('cyclic','close'))
+    hls = CyclicHalo(size=1, global_grid=(4,4), local_grid=(2,2), offset=2, bnd=('cyclic','close'))
     assert hls.full_dim == (False,False)
     assert hls.shifts == (-1,1)
     assert hls.close == (0,1)
@@ -190,7 +190,7 @@ def test_4x4_2x2_1_halo_upright():
 
 # -- lower left
 def test_4x4_2x2_1_halo_loleft():
-    hls = CyclicHalo(size=2, global_grid=(6,6), local_grid=(2,2), offset=0, bnd=('cyclic','cyclic'))
+    hls = CyclicHalo(size=1, global_grid=(4,4), local_grid=(2,2), offset=8, bnd=('cyclic','cyclic'))
     assert hls.full_dim == (False,False)
     assert hls.shifts == (1,-1)
     assert hls.close == (0,0)
@@ -202,8 +202,8 @@ def test_4x4_2x2_1_halo_loleft():
 
 # -- lower right
 def test_4x4_2x2_1_halo_loright():
-    hls = CyclicHalo(size=2, global_grid=(6,6), local_grid=(2,2), offset=0, bnd=('close','close'))
-    assert hls.full_dim == (True,True)
+    hls = CyclicHalo(size=1, global_grid=(4,4), local_grid=(2,2), offset=10, bnd=('close','close'))
+    assert hls.full_dim == (False,False)
     assert hls.shifts == (-1,-1)
     assert hls.close == (-1,-1)
     seg = hls.segment()
@@ -215,8 +215,8 @@ def test_4x4_2x2_1_halo_loright():
 # global grid 4x4
 # -- total grid
 def test_4x4_4x4_1_halo_total():
-    hls = CyclicHalo(size=2, global_grid=(6,6), local_grid=(2,2), offset=0, bnd=('cyclic','close'))
-    assert hls.full_dim == (True,False)
+    hls = CyclicHalo(size=1, global_grid=(4,4), local_grid=(4,4), offset=0, bnd=('cyclic','close'))
+    assert hls.full_dim == (True,True)
     assert hls.shifts == (0,0)
     assert hls.close == (0,1)
     seg = hls.segment()

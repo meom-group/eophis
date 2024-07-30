@@ -23,7 +23,7 @@ def clean_files():
 # ==============
 # test worker.py
 # ==============
-from eophis.utils.worker import Paral, set_local_communicator, make_subdomain
+from eophis.utils.worker import Paral, set_local_communicator
 
 def test_set_local_communicator():
     new_comm = MagicMock(spec=MPI.Intracomm)

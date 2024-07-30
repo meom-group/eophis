@@ -23,6 +23,8 @@ def clean_files():
 # =================
 from eophis.coupling.namcouple import Namcouple, register_tunnels, init_namcouple, write_coupling_namelist
 from eophis.coupling.tunnel import Tunnel
+from eophis.utils.worker import Paral
+from eophis.utils.params import set_mode
 
 def test_Namcouple():
     # Namcouple attributes protected by singleton

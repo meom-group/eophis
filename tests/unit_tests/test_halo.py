@@ -22,7 +22,7 @@ def clean_files():
 # ============
 # test halo.py
 # ============
-from eophis.coupling.halo import HaloGrid
+from eophis.domain.halo import HaloGrid
 
 # global grid 9x9
 # -- local grid 3x3
@@ -30,9 +30,9 @@ def test_9x9_3x3_no_halo():
     hls = HaloGrid(size=0 , global_grid=(9,9), local_grid=(3,3), offset=12)
     seg = hls.segment()
     assert seg == ([],[])
-    res = np.array([1,2,3,10,11,12,19,20,21]).reshape(9,1,order='F')[:,:,0]
-    res = hls.rebuild( res )
-    ref = np.array( [[7,9],[6,7],[20,21],[12,14],[18,19],[1,5]] )
+    grid = np.array([1,2,3,10,11,12,19,20,21])
+    res = hls.rebuild(grid.reshape(9,1,order='F')).transpose()
+    ref = np.array( [[[1,2,3],[10,11,12],[19,20,21]]] )
     assert np.array_equal(res,ref) == True
 
 def test_9x9_3x3_1_halo():
@@ -50,13 +50,13 @@ def test_9x9_3x3_2_halo():
     seg = hls.segment()
     assert seg == ([0,9,18,23,27,32,36,41,45,54], [7,7,2,2,2,2,2,2,7,7])
     
-def test_9x9_3x3_2_halo_offset
+def test_9x9_3x3_2_halo_offset():
     hls = HaloGrid(size=2 , global_grid=(9,9), local_grid=(3,3), offset=39)
     seg = hls.segment()
     assert seg == ([19,28,37,42,46,51,55,60,64,73], [7,7,2,2,2,2,2,2,7,7])
     
 # -- local grid 4x5
-def test_9x9_4x5_2_halo_local_grid
+def test_9x9_4x5_2_halo_local_grid():
     hls = HaloGrid(size=2 , global_grid=(9,9), local_grid=(4,5), offset=20)
     seg = hls.segment()
     assert seg == ([0,9,18,24,27,33,36,42,45,51,54,60,63,72], [8,8,2,2,2,2,2,2,2,2,2,2,8,8])
@@ -72,7 +72,7 @@ def test_segment_side_halos():
     assert res == ([25],[2])
     res = hls.segment_side_halos(33,35)
     assert res == ([35,27],[1,1])
-    res = hls.segment_side_halos(34,16)
+    res = hls.segment_side_halos(34,36)
     assert res == ([27],[2])
     
 # global grid 6x4
