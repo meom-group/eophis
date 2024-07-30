@@ -85,8 +85,8 @@ class Grid:
         # global grid attributes
         self.label = label
         self.size = (nx,ny)
-        self.halo_size
-        self.bnd = [ bnd[0].lower() , bnd[1].lower() ]
+        self.halo_size = halo_size
+        self.bnd = ( bnd[0].lower() , bnd[1].lower() )
         self.fold = fold.upper()
         self.grd = grd.upper()
         
