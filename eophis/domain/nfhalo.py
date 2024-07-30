@@ -3,6 +3,8 @@ nfhalo.py - This module contains tools to define halo cells that do cross North 
 """
 # eophis modules
 from ..utils import logs
+from .halo import HaloGrid
+from .offsiz import grid_to_offsets_sizes, list_to_slices, set_fold_trf
 # external module
 import numpy as np
 
@@ -161,14 +163,14 @@ class NFHalo(HaloGrid):
     def rebuild(self, field_grid):
         """ Rebuild a received field from OASIS into subdomain with North Fold boundary-crossing halo cells. """
         # make halos grid
-        if len(self.copies) != 0:
+        if len(self._copies) != 0:
             S_cp = self._copies[:,0]
             E_cp = self._copies[:,1]
             folded_grid = np.concatenate([ field_grid[S_cp[i]:E_cp[i],:] for i in range(len(S_cp)) ])
             folded_grid = self.rebuild_halos(folded_grid)
 
         # remove halos to make real grid
-        if len(self.moves) != 0:
+        if len(self._moves) != 0:
             S_rm = self._moves[:,0]
             E_rm = self._moves[:,1]
             mask = np.ones(len(field_grid), dtype=bool)

@@ -1,6 +1,10 @@
 """
 halo.py - This module contains tools to define halo cells that do not cross boundaries.
 """
+# eophis module
+from .cyclichalo import CyclicHalo
+from .nfhalo import NFHalo
+from .offsiz import set_fold_trf
 # external module
 import numpy as np
 

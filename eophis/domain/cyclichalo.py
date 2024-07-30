@@ -3,6 +3,7 @@ cyclichalo.py - This module contains tools to define halo cells that do cross pe
 """
 # eophis modules
 from ..utils import logs
+from .halo import HaloGrid
 # external module
 import numpy as np
 
