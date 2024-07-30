@@ -1,10 +1,6 @@
 """
 halo.py - This module contains tools to define halo cells that do not cross boundaries.
 """
-# eophis module
-from .cyclichalo import CyclicHalo
-from .nfhalo import NFHalo
-from .offsiz import set_fold_trf
 # external module
 import numpy as np
 
@@ -31,46 +27,6 @@ class HaloGrid:
         self.global_grid = global_grid
         self.local_grid = local_grid
         self.offset = offset
-    
-    @classmethod
-    def select_type(cls, grd, fold, bnd, size, global_grid, local_grid, offset):
-        """
-        Returns a halo grid corresponding to local and global grid properties.
-        HaloGrid states in three different types:
-            1. No halo cells or halo cells do not cross global grid boundaries -- HaloGrid
-            2. Halo cells do cross global grid closed/cyclic boundaries -- CyclicHalo
-            3. Halo cells do cross global grid north fold boundary -- NFHalo
-                
-        This method may be called without instantiating a HaloGrid object.
-                
-        Parameters
-        ----------
-            grd, fold, bnd : eophis.Grid
-                same as eophis.Grid attributes
-            size : int
-                number of halo cells in both dimensions
-            global_grid, local_grid, ofset : (int,int)
-                same as eophis.HaloGrid attributes
-        
-        """
-        # Does halo grid cross boundaries ?
-        cross_x0 = size - offset % global_grid[0]
-        cross_x1 = size - global_grid[0] + local_grid[0] + offset % global_grid[0]
-        cross_y0 = size - offset // global_grid[0]
-        cross_y1 = size - global_grid[1] + local_grid[1] + offset // global_grid[0]
-        
-        # Select grid type for halos
-        if 'fold' in bnd[1]:
-            if cross_y0 > 0:
-                return NFHalo(size, global_grid, local_grid, offset, set_fold_trf(grd,fold), bnd)
-            elif cross_x0 > 0 or cross_x1 > 0 or cross_y1 > 0:
-                return CyclicHalo(size, global_grid, local_grid, offset, bnd=(bnd[0],'close'))
-            else:
-                return HaloGrid(size, global_grid, local_grid, offset)
-        elif cross_y0 > 0 or cross_x0 > 0 or cross_x1 > 0 or cross_y1 > 0:
-            return CyclicHalo(size, global_grid, local_grid, offset, bnd)
-        else:
-            return HaloGrid(size, global_grid, local_grid, offset)
                 
     def segment(self):
         """ Decompose non boundary-crossing halos cells into offsets/sizes couple. """
