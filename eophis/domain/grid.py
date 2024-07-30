@@ -106,7 +106,7 @@ class Grid:
             logs.abort(f'Grid {label}: Fold condition not implemented for x dimension')
         elif 'close' not in self.bnd[0] and 'cyclic' not in self.bnd[0]:
             logs.warning(f'Grid {label}: unrecognized x dimension boundary condition, set to close by default')
-            self.bnd[0] = 'close'
+            self.bnd = ('close',self.bnd[1])
 
         if 'fold' in self.bnd[1]:
             if 'fold' in self.bnd[0]:
@@ -117,7 +117,7 @@ class Grid:
                 logs.abort(f'Grid {label}: Grid type {grd} not supported')
         elif 'close' not in self.bnd[1] and 'cyclic' not in self.bnd[1]:
             logs.abort(f'Grid {label}: unrecognized y dimension boundary condition, set to close by default')
-            self.bnd[1] = 'close'
+            self.bnd = (self.bnd[0],'close')
         
         # print some infos
         logs.info(f'      Grid {label} registered ')
@@ -199,7 +199,7 @@ class Grid:
             logs.abort(f'Grid {self.label}: Subdomain ID {domid} should not negative')
         
         # divide grid in subdomains
-        logs.info(f'        Configure grid {self.label} for subdomain {domid+1} out of {nsub+1} with {halo_size} halo cells.')
+        logs.info(f'        Configure grid {self.label} for subdomain {domid+1} out of {nsub+1} with {self.halo_size} halo cells.')
         sub_sizes_x, sub_sizes_y = self.decompose(nsub)
 
         # local grid dimension
@@ -248,11 +248,14 @@ class Grid:
             logs.abort(f'Grid {self.label}: Sending array for {var_label} must by a numpy array')
         if len(sending_array.shape) != 3:
             logs.abort(f'Grid {self.label}: Shape of sending array for {var_label} must be equal to 3 and is {len(sending_array.shape)}')
-        if ( sending_array.shape[0]*sending_array.shape[1] ) != ( self.loc_size[0]*self.loc_size[1] ):
-            logs.abort(f'Grid {self.label}: Size of sending array for {var_label} does not match partition {self.loc_size[0]*self.loc_size[1]}')
+        # check size
+        hls = self.halos.size
+        send_size = (sending_array.shape[0]-2*hls) * (sending_array.shape[1]-2*hls)
+        part_size = self.loc_size[0]*self.loc_size[1]
+        if ( send_size != part_size ):
+            logs.abort(f'Grid {self.label}: Size {send_size} of sending array for {var_label} does not match partition {part_size}')
 
         # remove halos
-        hls = self.halos.size
         return sending_array[ hls : sending_array.shape[0]-hls , hls : sending_array.shape[1]-hls , : ]
                 
     def generate_receiving_array(self,nlvl=1):
@@ -285,20 +288,20 @@ def select_halo_type(grd, fold, bnd, halo_size, global_grid, local_grid, offset)
     
     """
     # Does grid with halo cells cross boundaries ?
-    cross_x0 = size - offset % global_grid[0]
-    cross_x1 = size - global_grid[0] + local_grid[0] + offset % global_grid[0]
-    cross_y0 = size - offset // global_grid[0]
-    cross_y1 = size - global_grid[1] + local_grid[1] + offset // global_grid[0]
+    cross_x0 = halo_size - offset % global_grid[0]
+    cross_x1 = halo_size - global_grid[0] + local_grid[0] + offset % global_grid[0]
+    cross_y0 = halo_size - offset // global_grid[0]
+    cross_y1 = halo_size - global_grid[1] + local_grid[1] + offset // global_grid[0]
         
     # Select grid type for halos
     if 'fold' in bnd[1]:
         if cross_y0 > 0:
-            return NFHalo(size, global_grid, local_grid, offset, set_fold_trf(grd,fold), bnd)
+            return NFHalo(halo_size, global_grid, local_grid, offset, set_fold_trf(grd,fold), bnd)
         elif cross_x0 > 0 or cross_x1 > 0 or cross_y1 > 0:
-            return CyclicHalo(size, global_grid, local_grid, offset, bnd=(bnd[0],'close'))
+            return CyclicHalo(halo_size, global_grid, local_grid, offset, bnd=(bnd[0],'close'))
         else:
-            return HaloGrid(size, global_grid, local_grid, offset)
+            return HaloGrid(halo_size, global_grid, local_grid, offset)
     elif cross_y0 > 0 or cross_x0 > 0 or cross_x1 > 0 or cross_y1 > 0:
-        return CyclicHalo(size, global_grid, local_grid, offset, bnd)
+        return CyclicHalo(halo_size, global_grid, local_grid, offset, bnd)
     else:
-        return HaloGrid(size, global_grid, local_grid, offset)
+        return HaloGrid(halo_size, global_grid, local_grid, offset)
