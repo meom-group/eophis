@@ -5,7 +5,7 @@ This module is a wrapper for python OASIS API.
 from ..utils import logs
 from ..utils.worker import Paral
 from ..utils.params import Freqs
-from ..domain import Grid
+from ..domain.grid import Grid
 # external modules
 import pyoasis
 from pyoasis import OASIS
@@ -64,7 +64,7 @@ class Tunnel:
         for grd_label, grd_info in grids.items():
             nx, ny = grd_info['npts']
             hls = grd_info['halos']
-            grd_type, fold = 'T', 'T' if 'folding' not in grd_info.keys() else grd_info['folding']
+            grd_type, fold = ('T', 'T') if 'folding' not in grd_info.keys() else grd_info['folding']
             self.grids[grd_label] = Grid( grd_label, nx, ny, hls, grd_info['bnd'], grd_type, fold )
 
     def _configure(self, comp):
