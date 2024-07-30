@@ -66,6 +66,5 @@ def test_register_tunnels():
     # namcouple content updated by tunnel registration
     section0 = 'VAR1_GEO VAR1_PY 1 3600 0 rst.nc EXPORTED\n10 10 10 10 grid1 grid1 LAG=0\nR 0 R 0'
     section1 = 'VAR2_PY VAR2_GEO 1 3600 0 rst.nc EXPORTED\n10 10 10 10 grid1 grid1 LAG=0\nR 0 R 0'
-    eophis.info(namcouple._lines)
     assert section0 in namcouple._lines
     assert section1 in namcouple._lines
