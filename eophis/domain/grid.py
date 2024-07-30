@@ -120,9 +120,9 @@ class Grid:
             self.bnd = (self.bnd[0],'close')
         
         # print some infos
-        logs.info(f'      Grid {label} registered ')
-        logs.info(f'        Global size: {nx,ny}')
-        logs.info(f'        Boundary conditions: {self.bnd[0],self.bnd[1]}')
+        logs.info(f'\n  Grid {label} registered ')
+        logs.info(f'      Global size: {nx,ny}')
+        logs.info(f'      Boundary conditions: {self.bnd[0],self.bnd[1]}')
         if 'fold' in self.bnd[1]:
             logs.info(f'      Grid Type, Folding Point: {self.grd,self.fold}')
                 
@@ -199,7 +199,7 @@ class Grid:
             logs.abort(f'Grid {self.label}: Subdomain ID {domid} should not negative')
         
         # divide grid in subdomains
-        logs.info(f'        Configure grid {self.label} for subdomain {domid+1} out of {nsub+1} with {self.halo_size} halo cells.')
+        logs.info(f'            Configure grid {self.label} for subdomain {domid+1} out of {nsub+1} with {self.halo_size} halo cells.')
         sub_sizes_x, sub_sizes_y = self.decompose(nsub)
 
         # local grid dimension

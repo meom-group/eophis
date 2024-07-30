@@ -39,6 +39,7 @@ class Tunnel:
         
     """
     def __init__(self, label, grids, exchs, geo_aliases, py_aliases):
+        print(label)
         self.label = label
         self.grids = {}
         self.exchs = exchs
@@ -66,10 +67,11 @@ class Tunnel:
             hls = grd_info['halos']
             grd_type, fold = ('T', 'T') if 'folding' not in grd_info.keys() else grd_info['folding']
             self.grids[grd_label] = Grid( grd_label, nx, ny, hls, grd_info['bnd'], grd_type, fold )
+        logs.info(f'------------------------------------')
 
     def _configure(self, comp):
         """ Orchestrates OASIS definition methods. """
-        logs.info(f'    -------- Configure Tunnel {label} --------')
+        logs.info(f'     --- Configure Tunnel {self.label}')
         self._define_partitions(comp.localcomm.rank,comp.localcomm.size)
         self._define_variables()
     
