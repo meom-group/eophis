@@ -19,8 +19,8 @@ def clean_files():
             os.remove(file_name)
     if os.path.exists("test_namcouple"):
         os.remove("test_namcouple")
-    shutil.rmtree("__pycache__")
-
+    if os.path.isdir("__pycache__"):
+        shutil.rmtree("__pycache__")
 
 # ==============
 # test tunnel.py
