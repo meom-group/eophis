@@ -3,6 +3,7 @@ grid.py - This module contains tools for grid definition and parallel decomposit
 """
 # eophis modules
 from ..utils import logs
+from .offsiz import clean_for_oasis 
 # external module
 import numpy as np
 
@@ -93,7 +94,7 @@ class Grid:
         # local grid attributes
         self.subdom = None
         self.loc_size = None
-        self.halos = hls
+        self.halos = None
         self._global_offset = 0
         self._oasis_size = 0
         
@@ -192,7 +193,7 @@ class Grid:
         if domid > nsub:
             logs.abort(f'Grid {self.label}: Subdomain ID {domid} is greater than Grid subdomains {nsub}')
         if domid < 0:
-            logs.abort(f'Grid {self.label}: Subdomain ID {domid}} should not negative')
+            logs.abort(f'Grid {self.label}: Subdomain ID {domid} should not negative')
         
         # divide grid in subdomains
         logs.info(f'        Configure grid {self.label} for subdomain {domid+1} out of {nsub+1} with {halo_size} halo cells.')

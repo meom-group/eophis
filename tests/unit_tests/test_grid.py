@@ -22,10 +22,10 @@ def clean_files():
 # ============
 # test grid.py
 # ============
-from eophis.coupling.grid import Grid
-from eophis.coupling.halo import HaloGrid
-from eophis.coupling.cyclichalo import cyclicHalo
-from eophis.coupling.nfhalo import NFHalo
+from eophis.domain.grid import Grid
+from eophis.domain.halo import HaloGrid
+from eophis.domain.cyclichalo import CyclicHalo
+from eophis.domain.nfhalo import NFHalo
 
 # test halo selector
 def test_halo_selector():
