@@ -180,7 +180,6 @@ def _make_and_check_section(name_snd,name_rcv,freq,grd,npts,nmcpl=''):
     section  = name_snd+' '+name_rcv+' 1 '+str(int(freq))+' 0 rst.nc EXPORTED\n'
     section += str(npts[0])+' '+str(npts[1])+' '+str(npts[0])+' '+str(npts[1])+' '+str(grd)+' '+ str(grd)+' LAG=0\n'
     section += 'R 0 R 0'
-    section += 'R 0 R 0'
            
     if Mode.PROD:
         # split section in fundamental subsections

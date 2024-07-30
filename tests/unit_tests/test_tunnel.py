@@ -11,15 +11,15 @@ import eophis
 # ========
 # cleaning
 # ========
-#@pytest.fixture(scope="session",autouse=True)
-#def clean_files():
-    #yield
-    #for file_name in ["eophis.out", "eophis.err"]:
-        #if os.path.exists(file_name):
-            #os.remove(file_name)
-    #if os.path.exists("test_namcouple"):
-    #    os.remove("test_namcouple")
-    #shutil.rmtree("__pycache__")
+@pytest.fixture(scope="session",autouse=True)
+def clean_files():
+    yield
+    for file_name in ["eophis.out", "eophis.err"]:
+        if os.path.exists(file_name):
+            os.remove(file_name)
+    if os.path.exists("test_namcouple"):
+        os.remove("test_namcouple")
+    shutil.rmtree("__pycache__")
 
 
 # ==============
