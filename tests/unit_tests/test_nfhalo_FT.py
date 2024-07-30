@@ -84,7 +84,7 @@ def test_6x4_2x1_F_T_upright():
 
 # -- top line
 def test_6x4_6x1_F_T_tline():
-    hls = NFHalo( size=2, global_grid=(6,4), local_grid=(2,1), offset=6, fold_param=folds_FT, bnd=('close','nfold') )
+    hls = NFHalo( size=2, global_grid=(6,4), local_grid=(6,1), offset=6, fold_param=folds_FT, bnd=('close','nfold') )
     assert hls.full_dim == (True,False)
     assert hls.shifts == (0,1)
     assert hls.close == 2
@@ -128,9 +128,9 @@ def test_6x4_1x4_F_T_rcol():
 
 # -- total grid
 def test_6x4_6x4_F_T_total():
-    hls = NFHalo( size=2, global_grid=(6,4), local_grid=(6,4), offset=0, fold_param=folds_UT, bnd=('cyclic','nfold') )
+    hls = NFHalo( size=2, global_grid=(6,4), local_grid=(6,4), offset=0, fold_param=folds_FT, bnd=('cyclic','nfold') )
     assert hls.full_dim == (True,True)
-    assert hls.shifts == (0,1)
+    assert hls.shifts == (0,2)
     assert hls.close == 0
     # segment
     res = hls.segment()
