@@ -1,6 +1,6 @@
 # eophis API
 import eophis
-from eophis import Freqs, Grids
+from eophis import Freqs, Domains
 # other modules
 import argparse
 import os
@@ -11,7 +11,7 @@ def earth_info():
     # NON-STATIC : manual send/receive won't work outside of time loops
     tunnel_config = list()
     tunnel_config.append( { 'label' : 'TO_EARTH', \
-                            'grids' : { 'demo' : Grids.demo, \
+                            'grids' : { 'demo' : Domains.demo, \
                                         'lmdz' :  {'npts' : (180,151) , 'halos' : 0, 'bnd' : ('close','close') } }, \
                             'exchs' : [ {'freq' : Freqs.HOURLY, 'grd' : 'demo', 'lvl' : 1, 'in' : ['sst'], 'out' : ['sst_var'] },  \
                                         {'freq' : Freqs.DAILY,  'grd' : 'demo', 'lvl' : 3, 'in' : ['svt'], 'out' : ['svt_var'] },  \
