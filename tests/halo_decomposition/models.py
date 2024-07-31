@@ -19,7 +19,7 @@ def Is_None(*inputs):
 # ============================= #
 #      Compute Delta + Cst      #
 # ============================= #
-def detlaxy(fld,cst):
+def deltaxy(fld,cst):
     """  """
     if Is_None(fld):
         return None, None

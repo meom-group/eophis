@@ -55,11 +55,8 @@ def production():
 
     #  Models
     # ++++++++
-    from models import halo_model
+    from models import deltaxy
     from eophis.utils.worker import Paral
-
-    # static send/receive
-    mask = earth.receive('msk')
 
     #  Assemble
     # ++++++++++
@@ -67,7 +64,7 @@ def production():
     def loop_core(**inputs):
         outputs = {}
         outputs['dxpsi'], outputs['dypsi'] = deltaxy(inputs['psi'], (Paral.RANK+1) / 10. )
-        outputs['dxphi'], outputs['dyphi'] = detlaxy(inputs['phi'], (Paral.RANK+1) / 10. )
+        outputs['dxphi'], outputs['dyphi'] = deltaxy(inputs['phi'], (Paral.RANK+1) / 10. )
         return outputs
 
     #  Run

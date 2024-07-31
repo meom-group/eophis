@@ -16,7 +16,7 @@ def make_edge_phi( array , fold=False ):
     edged_array = np.hstack( (folded_halos,array) )
         
     # build south edge
-    up = edged_array[:,:edge,:].copy()
+    up = edged_array[:,:1,:].copy()
     up = up * 0.0
     edged_array = np.hstack( (edged_array,up)  )
 
@@ -29,17 +29,17 @@ def make_edge_phi( array , fold=False ):
 
 def make_edge_psi( array , fold=False ):
     # build north-south edges
-    up = edged_array[1,1:,:].copy() * 0.0
-    bottom = edged_array[:,-1:,:].copy() * 0.0
-    edged_array = np.hstack( (bottom,edged_array)  )
-    edged_array = np.hstack( (edged_array,up) )
+    up = array[:,:1,:].copy() * 0.0
+    bottom = array[:,-1:,:].copy() * 0.0
+    array = np.hstack( (bottom,array)  )
+    array = np.hstack( (array,up) )
 
     # build east-west edges
-    left = edged_array[:1,:,:].copy()
-    right = edged_array[-1:,:,:].copy()
-    edged_array = np.vstack( (right,edged_array)  )
-    edged_array = np.vstack( (edged_array,left) )
-    return edged_array
+    left = array[:1,:,:].copy()
+    right = array[-1:,:,:].copy()
+    array = np.vstack( (right,array)  )
+    array = np.vstack( (array,left) )
+    return array
 
 
 
