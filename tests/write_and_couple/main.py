@@ -12,7 +12,7 @@ def earth_info():
     tunnel_config = list()
     tunnel_config.append( { 'label' : 'TO_EARTH', \
                             'grids' : { 'demo' : Domains.demo, \
-                                        'lmdz' :  {'npts' : (180,151) , 'halos' : 0, 'bnd' : ('close','close') } }, \
+                                        'lmdz' :  {'npts' : (180,151)} }, \
                             'exchs' : [ {'freq' : Freqs.HOURLY, 'grd' : 'demo', 'lvl' : 1, 'in' : ['sst'], 'out' : ['sst_var'] },  \
                                         {'freq' : Freqs.DAILY,  'grd' : 'demo', 'lvl' : 3, 'in' : ['svt'], 'out' : ['svt_var'] },  \
                                         {'freq' : Freqs.STATIC, 'grd' : 'demo', 'lvl' : 1, 'in' : ['msk'], 'out' : [] } ] }

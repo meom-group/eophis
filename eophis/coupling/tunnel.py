@@ -64,9 +64,10 @@ class Tunnel:
         # Create grids
         for grd_label, grd_info in grids.items():
             nx, ny = grd_info['npts']
-            hls = grd_info['halos']
+            hls = 0 if 'halos' not in grd_info.keys() else grd_info['halos']
+            bnd = ('close', 'close') if 'bnd' not in grd_info.keys() else grd_info['bnd']
             grd_type, fold = ('T', 'T') if 'folding' not in grd_info.keys() else grd_info['folding']
-            self.grids[grd_label] = Grid( grd_label, nx, ny, hls, grd_info['bnd'], grd_type, fold )
+            self.grids[grd_label] = Grid( grd_label, nx, ny, hls, bnd, grd_type, fold )
         logs.info(f'------------------------------------')
 
     def _configure(self, comp):
