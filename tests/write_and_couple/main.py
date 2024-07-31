@@ -1,6 +1,6 @@
 # eophis API
 import eophis
-from eophis import Freqs, Grids
+from eophis import Freqs, Domains
 # other modules
 import argparse
 import os
@@ -11,11 +11,11 @@ def earth_info():
     # NON-STATIC : manual send/receive won't work outside of time loops
     tunnel_config = list()
     tunnel_config.append( { 'label' : 'TO_EARTH', \
-                            'grids' : { 'eORCA05' : Grids.eORCA05, \
-                                        'lmdz' : (180,151,0,0)  }, \
-                            'exchs' : [ {'freq' : Freqs.HOURLY, 'grd' : 'eORCA05', 'lvl' : 1, 'in' : ['sst'], 'out' : ['sst_var'] },  \
-                                        {'freq' : Freqs.DAILY,  'grd' : 'eORCA05', 'lvl' : 3, 'in' : ['svt'], 'out' : ['svt_var'] },  \
-                                        {'freq' : Freqs.STATIC, 'grd' : 'eORCA05', 'lvl' : 1, 'in' : ['msk'], 'out' : [] } ] }
+                            'grids' : { 'demo' : Domains.demo, \
+                                        'lmdz' :  {'npts' : (180,151) , 'halos' : 0, 'bnd' : ('close','close') } }, \
+                            'exchs' : [ {'freq' : Freqs.HOURLY, 'grd' : 'demo', 'lvl' : 1, 'in' : ['sst'], 'out' : ['sst_var'] },  \
+                                        {'freq' : Freqs.DAILY,  'grd' : 'demo', 'lvl' : 3, 'in' : ['svt'], 'out' : ['svt_var'] },  \
+                                        {'freq' : Freqs.STATIC, 'grd' : 'demo', 'lvl' : 1, 'in' : ['msk'], 'out' : [] } ] }
             # optional      'geo_aliases' : { 'sst' : 'EAR_SST', 'svt' : 'EAR_TEMP', 'sst_var' : 'EAR_SSTV', 'svt_var' : 'EARTEMPV'},  \
             # optional      'py_aliases'  : { 'sst' : 'EOP_SST', 'svt' : 'EOP_TEMP', 'sst_var' : 'EOP_SSTV', 'svt_var' : 'EOPTEMPV'}   }
                         )               
@@ -67,7 +67,7 @@ def production():
 
     #  Assemble
     # ++++++++++
-    @eophis.all_in_all_out(earth_system=earth, step=step, niter=niter)
+    @eophis.all_in_all_out(geo_model=earth, step=step, niter=niter)
     def loop_core(**inputs):
         outputs = {}
         outputs['sst_var'] = add_100(inputs['sst'])

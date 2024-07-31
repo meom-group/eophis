@@ -15,6 +15,7 @@ utils
 """
 # package export
 from .coupling import *
+from .domain import *
 from .loop import *
 from .utils import *
 

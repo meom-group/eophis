@@ -3,8 +3,9 @@ This module is a wrapper for python OASIS API.
 """
 # eophis modules
 from ..utils import logs
-from ..utils.worker import Paral, make_subdomain
+from ..utils.worker import Paral
 from ..utils.params import Freqs
+from ..domain.grid import Grid
 # external modules
 import pyoasis
 from pyoasis import OASIS
@@ -21,16 +22,14 @@ class Tunnel:
     ----------
     label : string
         Tunnel name
-    grids : dict
-        Tunnel user-defined grids
+    grids : eophis.Grid
+        registered Grid objects
     exchs : list
         Tunnel user-defined exchanges
     geo_aliases : dict
         Correspondence between Tunnel and namcouple fields names from geophysical side
     py_aliases : dict
         Correspondence between Tunnel and namcouple fields names from Python side
-    local_grids : dict
-        local grid dimensions for parallel execution
     _partitions : dict
         list of OASIS Partition objects
     _variables : dict
@@ -40,16 +39,18 @@ class Tunnel:
         
     """
     def __init__(self, label, grids, exchs, geo_aliases, py_aliases):
+        print(label)
         self.label = label
-        self.grids = grids
+        self.grids = {}
         self.exchs = exchs
         self.geo_aliases = geo_aliases
         self.py_aliases = py_aliases
-        self.local_grids = {}
-        self._partitions = {}
+        self._inpartitions = {}
+        self._outpartitions = {}
         self._variables = { 'rcv': {}, 'snd': {} }
         self._static_used = {}
-
+        self._var2grid = {}
+        
         # print some infos
         logs.info(f'-------- Tunnel {label} registered --------')
         logs.info(f'  namcouple variable names')
@@ -60,8 +61,17 @@ class Tunnel:
         for var,oas_var in py_aliases.items():
             logs.info(f'      - {var} -> {oas_var}')
 
+        # Create grids
+        for grd_label, grd_info in grids.items():
+            nx, ny = grd_info['npts']
+            hls = grd_info['halos']
+            grd_type, fold = ('T', 'T') if 'folding' not in grd_info.keys() else grd_info['folding']
+            self.grids[grd_label] = Grid( grd_label, nx, ny, hls, grd_info['bnd'], grd_type, fold )
+        logs.info(f'------------------------------------')
+
     def _configure(self, comp):
         """ Orchestrates OASIS definition methods. """
+        logs.info(f'     --- Configure Tunnel {self.label}')
         self._define_partitions(comp.localcomm.rank,comp.localcomm.size)
         self._define_variables()
     
@@ -77,25 +87,29 @@ class Tunnel:
             local communicator size
             
         """
-        for grd_lbl, (nlon, nlat, _, _) in self.grids.items():
-            sub_lon, sub_lat = make_subdomain(nlon,nlat,oursize)
-            isub = myrank % len(sub_lon)
-            jsub = myrank // len(sub_lon)
+        for grd_lbl, grd in self.grids.items():
+            # define subdomain
+            grd.make_local_subdomain(domid=myrank, nsub=oursize)
             
-            global_offset = jsub * nlon * sub_lat[jsub-1] + sum( sub_lon[0:isub] )
-            self.local_grids[grd_lbl] = ( sub_lon[isub], sub_lat[jsub] )
-            
-            self._partitions[grd_lbl] = pyoasis.BoxPartition(global_offset, sub_lon[isub], sub_lat[jsub], nlon)
+            # output grid (without halos) --> OASIS Box
+            global_offset, size_x, size_y, nx = grd.as_box_partition()
+            self._outpartitions[grd_lbl] = pyoasis.BoxPartition(global_offset, size_x, size_y, nx)
+
+            # input grid (with halos) --> OASIS Orange
+            off_seg, siz_seg, ncells = grd.as_orange_partition()
+            self._inpartitions[grd_lbl] = pyoasis.OrangePartition(off_seg, siz_seg, ncells)
 
     def _define_variables(self):
         """ Create OASIS Variable from attributes and initialise status of static variables """
         for ex in self.exchs:
             for varin in ex['in']:
-                self._variables['rcv'][varin] = pyoasis.Var(self.py_aliases[varin], self._partitions[ex['grd']], OASIS.IN, bundle_size=ex['lvl'])
+                self._var2grid[varin] = ex['grd']
+                self._variables['rcv'][varin] = pyoasis.Var(self.py_aliases[varin], self._inpartitions[ex['grd']], OASIS.IN, bundle_size=ex['lvl'])
                 if ex['freq'] == Freqs.STATIC:
                     self._static_used[varin] = False
             for varout in ex['out']:
-                self._variables['snd'][varout] = pyoasis.Var(self.py_aliases[varout], self._partitions[ex['grd']], OASIS.OUT, bundle_size=ex['lvl'])
+                self._var2grid[varout] = ex['grd']
+                self._variables['snd'][varout] = pyoasis.Var(self.py_aliases[varout], self._outpartitions[ex['grd']], OASIS.OUT, bundle_size=ex['lvl'])
                 if ex['freq'] == Freqs.STATIC:
                     self._static_used[varout] = False
 
@@ -128,9 +142,11 @@ class Tunnel:
             if values does not match sending format
             
         """
+        # variable and grid
         var = self._variables['snd'][var_label]
+        grd = self.grids[self._var2grid[var_label]]
  
-        # static treatment
+        # check static status
         if var_label in self._static_used and not self._static_used[var_label]:
             logs.info(f'\n-!- Static sending of {var_label} through tunnel {self.label}')
             self._static_used[var_label] = True
@@ -139,13 +155,11 @@ class Tunnel:
             logs.warning(f'Static sending of {var_label} through tunnel {self.label} already done, skipped')
             return
         
+        # format field and send
         if values is not None and (date % var.cpl_freqs[0] == 0):
-            snd_fld = pyoasis.asarray(values)
-            if len(snd_fld.shape) != 3:
-                logs.abort('  Shape of sending array for {var_label} must be equal to 3')
-            if (snd_fld.shape[0] * snd_fld.shape[1], snd_fld.shape[2]) != (var._partition_local_size, var.bundle_size):
-                logs.abort('  Size of sending array for {var_label} does not match partition')
-            var.put(date, snd_fld)
+            values = grd.format_sending_array(values,var_label)
+            values = pyoasis.asarray(values)
+            var.put(date,values)
 
     def receive(self, var_label, date=86579):
         """
@@ -169,10 +183,11 @@ class Tunnel:
             array sent by geoscientific code, None if date does not match frequency exchange
             
         """
-        rcv_fld = None
+        # variable and grid
         var = self._variables['rcv'][var_label]
-        
-        # static treatment
+        grd = self.grids[self._var2grid[var_label]]
+
+        # check static status
         if var_label in self._static_used and not self._static_used[var_label]:
             logs.info(f'\n-!- Static receive of {var_label} through tunnel {self.label}')
             self._static_used[var_label] = True
@@ -181,11 +196,15 @@ class Tunnel:
             logs.warning(f'Static receive of {var_label} through tunnel {self.label} already done, skipped')
             return
         
+        # get field and rebuild
         if (date % var.cpl_freqs[0] == 0):
-            loclon, loclat = [ self.local_grids[ex['grd']] for ex in self.exchs if var_label in ex['in'] ][0]
-            rcv_fld = pyoasis.asarray( np.zeros( (loclon,loclat,var.bundle_size) ) )
-            var.get(date, rcv_fld)
-        return rcv_fld
+            rcv_fld = grd.generate_receiving_array(var.bundle_size)
+            rcv_fld = pyoasis.asarray(rcv_fld)
+            var.get(date,rcv_fld)
+            rcv_fld = grd.rebuild(rcv_fld)
+            return rcv_fld
+        else:
+            return None
 
 
 def init_oasis(comp_name='eophis'):
