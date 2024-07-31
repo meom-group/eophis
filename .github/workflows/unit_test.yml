@@ -1,10 +1,10 @@
-name: CI
+name: unit_test
 
 on:
   push:
-    branches: [ "main" , "release" ]
+    branches: [ "main" , "release" , "develop" ]
   pull_request:
-    branches: [ "main" , "release" ]
+    branches: [ "main" , "release" , "develop" ]
 
 permissions:
   contents: write
@@ -17,10 +17,6 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v2
     
-    - name: Checkout OASIS
-      run: |
-        git clone https://gitlab.com/cerfacs/oasis3-mct.git
-
     - name: Install MPI implementation
       run: |
         sudo apt-get install -y libopenmpi-dev openmpi-bin
@@ -48,24 +44,12 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install netcdf4 numpy f90nml pytest watermark
         python -m pip install mpi4py==3.1.5
-        
-    - name: Install OASIS
-      run: |
-        cd /home/runner/work/eophis/eophis/oasis3-mct/util/make_dir/
-        echo "include /home/runner/work/eophis/eophis/docs/machine/arch/make.jeanzay" > make.inc
-        sed -i '13s/.*/COUPLE       = \/home\/runner\/work\/eophis\/eophis\/oasis3-mct/' /home/runner/work/eophis/eophis/docs/machine/arch/make.jeanzay        
-        make -f TopMakefileOasis3 pyoasis
-
-    - name: Install pyOASIS
-      run: |
-        source /home/runner/work/eophis/eophis/oasis3-mct/BLD/python/init.sh
-        source /home/runner/work/eophis/eophis/oasis3-mct/BLD/python/init.csh
 
     - name: Install eophis
       run: |
         cd /home/runner/work/eophis/eophis/
         pip install .
-    - name: Run operating tests
+    - name: Run unit tests
       run: |
-        cd /home/runner/work/eophis/eophis/tests/write_and_couple
-        make
+        cd /home/runner/work/eophis/eophis/tests/unit_tests
+        pytest
