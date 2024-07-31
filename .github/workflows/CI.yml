@@ -65,6 +65,10 @@ jobs:
       run: |
         cd /home/runner/work/eophis/eophis/
         pip install .
+    - name: Run unit tests
+      run: |
+        cd /home/runner/work/eophis/eophis/tests/unit_tests
+        pytest
     - name: Run operating tests
       run: |
         cd /home/runner/work/eophis/eophis/tests/write_and_couple
