@@ -197,7 +197,7 @@ class NFHalo(HaloGrid):
         """ Rebuild the North Fold halo cells extracted from received field. """
         size_z = halos_grid.shape[1]
         halos_grid = halos_grid.reshape( len(halos_grid)//self.shifts[1], self.shifts[1], size_z ,order='F' )
-        halos_grid = np.flip(halos_grid)
+        halos_grid = np.flip(halos_grid , axis=(0,1))
         fold_bnd = ( np.min(halos_grid) % self.global_grid[0] == 1 )
         halos_grid = np.roll(halos_grid, (self.shifts[0]+self.fold_param[1])*fold_bnd, axis=0)
         return halos_grid
@@ -207,7 +207,7 @@ class NFHalo(HaloGrid):
         # build folded halos from whole grid
         if self.full_dim[0] and self.full_dim[1]:
             folded_halos = field_grid[ :, self.fold_param[0] : self.fold_param[0]+self.size , : ].copy()
-            folded_halos = np.flip(folded_halos)
+            folded_halos = np.flip(folded_halos,axis=(0,1))
             folded_halos= np.roll( folded_halos , self.fold_param[1] , 0 )
             field_grid = np.hstack( (folded_halos,field_grid) )
             
