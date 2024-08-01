@@ -56,15 +56,14 @@ def production():
     #  Models
     # ++++++++
     from models import deltaxy
-    from eophis.utils.worker import Paral
 
     #  Assemble
     # ++++++++++
     @eophis.all_in_all_out(geo_model=earth, step=step, niter=niter)
     def loop_core(**inputs):
         outputs = {}
-        outputs['dxpsi'], outputs['dypsi'] = deltaxy(inputs['psi'], (Paral.RANK+1) / 10. )
-        outputs['dxphi'], outputs['dyphi'] = deltaxy(inputs['phi'], (Paral.RANK+1) / 10. )
+        outputs['dxpsi'], outputs['dypsi'] = deltaxy(inputs['psi'])
+        outputs['dxphi'], outputs['dyphi'] = deltaxy(inputs['phi'])
         return outputs
 
     #  Run

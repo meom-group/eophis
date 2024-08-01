@@ -1,6 +1,6 @@
 #!/bin/bash
-n1=2  ## number of processor for fake earth script
-n2=9  ## number of processors for eophis script
+n1=1  ## number of processor for fake earth script
+n2=1  ## number of processors for eophis script
 
 default: clean preprod prod
 	@echo 'END OF HALOS DECOMPOSITION TEST'

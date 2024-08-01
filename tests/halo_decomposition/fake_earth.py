@@ -8,10 +8,13 @@ import numpy as np
 import logging
 import time
 
+# ================= 
+#       Utils
+# =================
 def make_edge_phi( array , fold=False ):
     # build north edge
     folded_halos = array[ :, 1:2 , : ].copy()
-    folded_halos = np.flip( folded_halos )
+    folded_halos = np.flip( folded_halos , axis=(0,1) )
     folded_halos = np.roll( folded_halos , 0 , axis=0 )
     edged_array = np.hstack( (folded_halos,array) )
         
@@ -29,20 +32,22 @@ def make_edge_phi( array , fold=False ):
 
 def make_edge_psi( array , fold=False ):
     # build north-south edges
-    up = array[:,:1,:].copy() * 0.0
-    bottom = array[:,-1:,:].copy() * 0.0
+    up = array[:,:1,:].copy()
+    bottom = array[:,-1:,:].copy() 
     array = np.hstack( (bottom,array)  )
     array = np.hstack( (array,up) )
 
     # build east-west edges
-    left = array[:1,:,:].copy()
-    right = array[-1:,:,:].copy()
+    left = array[:1,:,:].copy() * 0.0
+    right = array[-1:,:,:].copy() * 0.0
     array = np.vstack( (right,array)  )
     array = np.vstack( (array,left) )
     return array
 
 
-
+# ================ 
+#       Main
+# ================
 def main():
     # ++++++++++++++++++
     #   INITIALISATION
@@ -78,7 +83,7 @@ def main():
     # ++++++++++++++++++++++++
     local_size = int(nlon * nlat / comm_size)
     offset = comm_rank * local_size
-    
+
     if comm_rank == comm_size - 1:
         local_size = nlon * nlat - offset
 
@@ -112,6 +117,20 @@ def main():
     if comm_rank == 0:
         logging.info('  End Of Definition')
         
+    # +++++++++++++++
+    #   INIT ARRAYS
+    # +++++++++++++++
+    psi = np.arange(nlon*nlat*nlvl).reshape(nlon*nlat,nlvl,order='F') + 1
+    psi = psi[offset:offset+local_size,:]
+    psi = pyoasis.asarray(psi)
+    phi = np.arange(nlon*nlat*2).reshape(nlon*nlat,2,order='F') + 1
+    phi = phi[offset:offset+local_size,:]
+    phi = pyoasis.asarray(phi)
+    dxpsi = pyoasis.asarray( np.zeros((local_size,nlvl)) )
+    dypsi = pyoasis.asarray( np.zeros((local_size,nlvl)) )
+    dxphi = pyoasis.asarray( np.zeros((local_size,2)) )
+    dyphi = pyoasis.asarray( np.zeros((local_size,2)) )
+
     # +++++++++++++++++
     #   RUN EXCHANGES
     # +++++++++++++++++
@@ -128,13 +147,7 @@ def main():
         logging.info('  Simulation length: %.1i' % total_time)
         logging.info('  -----------------------------------------------------------')
 
-    psi = pyoasis.asarray( np.arange(local_size*nlvl).reshape(local_size,nlvl,order='F')+offset+1 )
-    phi = pyoasis.asarray( np.arange(local_size*2).reshape(local_size,2,order='F')+offset+1 )
-    dxpsi = pyoasis.asarray( np.zeros((local_size,nlvl)) )
-    dypsi = pyoasis.asarray( np.zeros((local_size,nlvl)) )
-    dxphi = pyoasis.asarray( np.zeros((local_size,2)) )
-    dyphi = pyoasis.asarray( np.zeros((local_size,2)) )
-
+    # Loop
     for it in range(niter):
         it_sec = int(time_step * it)
         
@@ -171,11 +184,11 @@ def main():
 
     if comm_rank == 0:
         logging.info('  End Of Loop')
-    
+  
     # ++++++++++++++++++
     #     REFERENCES
     # ++++++++++++++++++
-    ref_psi = np.arange(nlon*nlat*nlvl).reshape(nlon,nlat,nlvl,order='F')
+    ref_psi = np.arange(nlon*nlat*nlvl).reshape(nlon,nlat,nlvl,order='F') + 1
     ref_psi = make_edge_psi(ref_psi)
     ref_dxpsi = np.diff(ref_psi,axis=0,append=ref_psi[0:1,:,:])
     ref_dypsi = np.diff(ref_psi,axis=1,prepend=ref_psi[:,0:1,:])
@@ -183,15 +196,10 @@ def main():
     ref_dypsi = ref_dypsi[1:-1,1:-1,:]
     ref_dxpsi = ref_dxpsi.reshape(nlon*nlat,nlvl,order='F')
     ref_dypsi = ref_dypsi.reshape(nlon*nlat,nlvl,order='F')
-    py_size = int(nlon * nlat / comm_size)
-    for rank in range(comm.Get_size()-comm_size):
-        ref_dxpsi[rank*py_size:(rank+1)*py_size,:] = ref_dxpsi[rank*py_size:(rank+1)*py_size,:] + (rank + 1) / 10.
-        ref_dypsi[rank*py_size:(rank+1)*py_size,:] = ref_dypsi[rank*py_size:(rank+1)*py_size,:] + (rank + 1) / 10.
-    ref_dxpsi = ref_dxpsi[comm_rank*local_size:(comm_rank+1)*local_size,:]
-    ref_dypsi = ref_dypsi[comm_rank*local_size:(comm_rank+1)*local_size,:]
-    
-    
-    ref_phi = np.arange(nlon*nlat*2).reshape(nlon,nlat,2,order='F')
+    ref_dxpsi = ref_dxpsi[offset:offset+local_size,:]
+    ref_dypsi = ref_dypsi[offset:offset+local_size,:]
+   
+    ref_phi = np.arange(nlon*nlat*2).reshape(nlon,nlat,2,order='F') + 1
     ref_phi = make_edge_phi(ref_phi)
     ref_dxphi = np.diff(ref_phi,axis=0,append=ref_phi[0:1,:,:])
     ref_dyphi = np.diff(ref_phi,axis=1,prepend=ref_phi[:,0:1,:])
@@ -199,16 +207,17 @@ def main():
     ref_dyphi = ref_dyphi[1:-1,1:-1,:]
     ref_dxphi = ref_dxphi.reshape(nlon*nlat,2,order='F')
     ref_dyphi = ref_dyphi.reshape(nlon*nlat,2,order='F')
-    for rank in range(comm.Get_size()-comm_size):
-        ref_dxphi[rank*py_size:(rank+1)*py_size,:] = ref_dxphi[rank*py_size:(rank+1)*py_size,:] + (rank + 1) / 10.
-        ref_dyphi[rank*py_size:(rank+1)*py_size,:] = ref_dyphi[rank*py_size:(rank+1)*py_size,:] + (rank + 1) / 10.
-    ref_dxphi = ref_dxphi[comm_rank*local_size:(comm_rank+1)*local_size,:]
-    ref_dyphi = ref_dyphi[comm_rank*local_size:(comm_rank+1)*local_size,:]
+    ref_dxphi = ref_dxphi[offset:offset+local_size,:]
+    ref_dyphi = ref_dyphi[offset:offset+local_size,:]
 
     # +++++++++++++++++++
     #      CHECK RES
     # +++++++++++++++++++
-    if np.array_equal(ref_dxpsi,dxpsi) and np.array_equal(ref_dypsi,dypsi) and np.array_equal(ref_dxphi,dxphi) and np.array_equal(ref_dyphi,dyphi):
+    check_1 = np.array_equal(ref_dxpsi,dxpsi)
+    check_2 = np.array_equal(ref_dypsi,dypsi)
+    check_3 = np.array_equal(ref_dxphi,dxphi)
+    check_4 = np.array_equal(ref_dyphi,dyphi)
+    if check_1 and check_2 and check_3 and check_4:
         if comm_rank == 0:
             logging.info('  TEST SUCCESSFUL')
             print('TEST SUCCESSFUL')

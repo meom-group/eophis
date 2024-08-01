@@ -16,14 +16,14 @@ def Is_None(*inputs):
     """ Test presence of at least one None in inputs """
     return any(item is None for item in inputs)
 
-# ============================= #
-#      Compute Delta + Cst      #
-# ============================= #
-def deltaxy(fld,cst):
+# ======================= #
+#      Compute Delta      #
+# ======================= #
+def deltaxy(fld):
     """  """
     if Is_None(fld):
         return None, None
     else:
         dx = np.diff(fld,axis=0,append=fld[0:1,:,:])
         dy = np.diff(fld,axis=1,prepend=fld[:,0:1,:])
-        return np.add(dx,cst) , np.add(dy,cst)
+        return dx , dy
