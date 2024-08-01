@@ -39,7 +39,6 @@ class Tunnel:
         
     """
     def __init__(self, label, grids, exchs, geo_aliases, py_aliases):
-        print(label)
         self.label = label
         self.grids = {}
         self.exchs = exchs
