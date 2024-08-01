@@ -225,3 +225,23 @@ def test_4x4_4x4_1_halo_total():
     res = hls.rebuild(np.arange(16).reshape(16,1,order='F')+1).transpose()
     ref = np.array( [ [[0,0,0,0,0,0],[4,1,2,3,4,1],[8,5,6,7,8,5],[12,9,10,11,12,9],[16,13,14,15,16,13],[0,0,0,0,0,0]] ] )
     assert np.array_equal(res,ref) == True
+
+# ====================
+# 3D grids
+
+# global grid 5x5x2
+# -- upper right
+def test_5x5x2_2x2x2_1_halo_upright():
+    hls = CyclicHalo(size=1, global_grid=(5,5), local_grid=(2,2), offset=3, bnd=('cyclic','close'))
+    grid = np.array([1,3,4,5,6,8,9,10,11,13,14,15,21,23,24,25,26,28,29,30,31,33,34,35,36,38,39,40,46,48,49,50])
+    res = hls.rebuild(grid.reshape(16,2,order='F')).transpose()
+    ref = np.array( [[[0,0,0,0],[3,4,5,1],[8,9,10,6],[13,14,15,11]],[[0,0,0,0],[28,29,30,26],[33,34,35,31],[38,39,40,36]]] )
+    assert np.array_equal(res,ref) == True
+
+# global grid 4x4x2
+# -- total grid
+def test_4x4x2_4x4x2_1_halo_total():
+    hls = CyclicHalo(size=1, global_grid=(4,4), local_grid=(4,4), offset=0, bnd=('close','cyclic'))
+    res = hls.rebuild(np.arange(32).reshape(16,2,order='F')+1).transpose()
+    ref = np.array( [ [[0,13,14,15,16,0],[0,1,2,3,4,0],[0,5,6,7,8,0],[0,9,10,11,12,0],[0,13,14,15,16,0],[0,1,2,3,4,0]] , [[0,29,30,31,32,0],[0,17,18,19,20,0],[0,21,22,23,24,0],[0,25,26,27,28,0],[0,29,30,31,32,0],[0,17,18,19,20,0]] ] )
+    assert np.array_equal(res,ref) == True

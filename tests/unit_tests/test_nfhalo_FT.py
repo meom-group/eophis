@@ -139,3 +139,32 @@ def test_6x4_6x4_F_T_total():
     res = hls.rebuild(np.arange(24).reshape(24,1,order='F')+1).transpose()
     ref = np.array( [ [[20,19,24,23,22,21,20,19,24,23],[14,13,18,17,16,15,14,13,18,17],[5,6,1,2,3,4,5,6,1,2],[11,12,7,8,9,10,11,12,7,8],[17,18,13,14,15,16,17,18,13,14],[23,24,19,20,21,22,23,24,19,20],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0]] ] )
     assert np.array_equal(ref,res) == True
+
+
+# 3D grid
+# -- top
+def test_6x4x2_1x1x2_F_T_top():
+    hls = NFHalo( size=2, global_grid=(6,4), local_grid=(1,1), offset=9, fold_param=folds, bnd=('cyclic','nfold') )
+    hls.segment()
+    # rebuild grid
+    res = hls.rebuild(np.arange(21).reshape(21,2,order='F')+1).transpose())
+    ref = np.array( [ [[17,16,15,14,13],[2,3,4,5,6],[8,9,10,11,12],[14,15,16,17,18],[20,21,22,23,24]] , [[41,40,39,38,37],[26,27,28,29,30],[32,33,34,35,36],[38,39,40,41,42],[44,45,46,47,48]] ] )
+    assert np.array_equal(ref,res) == True
+
+# -- upper left
+def test_6x4x2_2x1x2_F_T_upleft():
+    hls = NFHalo( size=2, global_grid=(6,4), local_grid=(2,1), offset=0, fold_param=folds, bnd=('close','nfold') )
+    hls.segment()
+    # rebuild grid
+    res = hls.rebuild(np.arange(48).reshape(24,2,order='F')+1).transpose())
+    ref = np.array( [ [[0,0,24,23,22,21],[0,0,18,17,16,15],[0,0,1,2,3,4],[0,0,7,8,9,10],[0,0,13,14,15,16]] , [[0,0,48,47,46,45],[0,0,42,41,40,39],[0,0,25,26,27,28],[0,0,31,32,33,34],[0,0,37,38,39,40]] ] )
+    assert np.array_equal(ref,res) == True
+
+# -- total grid
+def test_6x4x2_6x4x2_F_T_total():
+    hls = NFHalo( size=2, global_grid=(6,4), local_grid=(6,4), offset=0, fold_param=folds, bnd=('cyclic','nfold') )
+    hls.segment()
+    # rebuild grid
+    res = hls.rebuild(np.arange(48).reshape(24,2,order='F')+1).transpose())
+    ref = np.array( [ [[20,19,24,23,22,21,20,19,24,23],[14,13,18,17,16,15,14,13,18,17],[5,6,1,2,3,4,5,6,1,2],[11,12,7,8,9,10,11,12,7,8],[17,18,13,14,15,16,17,18,13,14],[23,24,19,20,21,22,23,24,19,20],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0]] , [[44,43,48,47,46,45,44,43,48,47],[38,37,42,41,40,39,38,37,42,41],[29,30,25,26,27,28,29,30,25,26],[35,36,31,32,33,34,35,36,31,32],[41,42,37,38,39,40,41,42,37,38],[47,48,43,44,45,46,47,48,43,44],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0]] ] )
+    assert np.array_equal(ref,res) == True
