@@ -50,9 +50,10 @@ class NFHalo(HaloGrid):
         # rebuild instructions
         self.shifts = ( max(cross_x0,cross_x1,key=abs) , size - offset // global_grid[0] )
         self.close = (bnd[0] == 'close') * ( self.shifts[0]+self.full_dim[0]*self.size )
+        self._fold_bnd = 0
         self._moves = []
         self._copies = []
-    
+
         # check size compatibility
         nlines = local_grid[1] + 2*size * (1-self.full_dim[1]) + size*(1-self.full_dim[0])*self.full_dim[1]
         ncol = local_grid[0] + 2*size * (1-self.full_dim[0])
@@ -133,6 +134,9 @@ class NFHalo(HaloGrid):
         folded_grid = np.concatenate([np.arange(off, off + size) + 1 for off, size in zip(offsets[1], sizes[1])])
         right_grid = np.concatenate([np.arange(off, off + size) + 1 for off, size in zip(offsets[0], sizes[0])])
 
+        # check if folded halos cross first dimension boundary
+        self._fold_bnd = ( np.min(folded_grid) % self.global_grid[0] == 1 ) and ( np.max(folded_grid) % self.global_grid[0] == 0 )
+
         # build artificial oasis partition
         offsets = np.concatenate(offsets)
         sizes = np.concatenate(sizes)
@@ -198,8 +202,7 @@ class NFHalo(HaloGrid):
         size_z = halos_grid.shape[1]
         halos_grid = halos_grid.reshape( len(halos_grid)//self.shifts[1], self.shifts[1], size_z ,order='F' )
         halos_grid = np.flip(halos_grid , axis=(0,1))
-        fold_bnd = ( np.min(halos_grid) % self.global_grid[0] == 1 )
-        halos_grid = np.roll(halos_grid, (self.shifts[0]+self.fold_param[1])*fold_bnd, axis=0)
+        halos_grid = np.roll(halos_grid, (self.shifts[0]+self.fold_param[1])*self._fold_bnd, axis=0)
         return halos_grid
     
     def fill_boundary_halos(self,field_grid):
