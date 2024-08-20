@@ -120,10 +120,10 @@ def main():
     # +++++++++++++++
     #   INIT ARRAYS
     # +++++++++++++++
-    psi = np.arange(nlon*nlat*nlvl).reshape(nlon*nlat,nlvl,order='F') + 1
+    psi = np.arange(nlon*nlat*nlvl).reshape(nlon*nlat,nlvl,order='F')
     psi = psi[offset:offset+local_size,:]
     psi = pyoasis.asarray(psi)
-    phi = np.arange(nlon*nlat*2).reshape(nlon*nlat,2,order='F') + 1
+    phi = np.arange(nlon*nlat*2).reshape(nlon*nlat,2,order='F')
     phi = phi[offset:offset+local_size,:]
     phi = pyoasis.asarray(phi)
     dxpsi = pyoasis.asarray( np.zeros((local_size,nlvl)) )
@@ -188,7 +188,7 @@ def main():
     # ++++++++++++++++++
     #     REFERENCES
     # ++++++++++++++++++
-    ref_psi = np.arange(nlon*nlat*nlvl).reshape(nlon,nlat,nlvl,order='F') + 1
+    ref_psi = np.arange(nlon*nlat*nlvl).reshape(nlon,nlat,nlvl,order='F')
     ref_psi = make_edge_psi(ref_psi)
     ref_dxpsi = np.diff(ref_psi,axis=0,append=ref_psi[0:1,:,:])
     ref_dypsi = np.diff(ref_psi,axis=1,prepend=ref_psi[:,0:1,:])
@@ -199,7 +199,7 @@ def main():
     ref_dxpsi = ref_dxpsi[offset:offset+local_size,:]
     ref_dypsi = ref_dypsi[offset:offset+local_size,:]
    
-    ref_phi = np.arange(nlon*nlat*2).reshape(nlon,nlat,2,order='F') + 1
+    ref_phi = np.arange(nlon*nlat*2).reshape(nlon,nlat,2,order='F')
     ref_phi = make_edge_phi(ref_phi)
     ref_dxphi = np.diff(ref_phi,axis=0,append=ref_phi[0:1,:,:])
     ref_dyphi = np.diff(ref_phi,axis=1,prepend=ref_phi[:,0:1,:])

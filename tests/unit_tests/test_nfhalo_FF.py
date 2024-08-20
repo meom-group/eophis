@@ -38,8 +38,8 @@ def test_6x4_4x1_F_F_top():
     res = hls.segment()
     assert res == ([0],[12])
     # rebuild halos
-    res = hls.rebuild_halos(np.array([8,9,10,11]).reshape(4,1,order='F')).transpose()
-    ref = np.array( [[[11,10,9,8]]] )
+    res = hls.rebuild_halos(np.array([7,8,9,10,11,12]).reshape(6,1,order='F')).transpose()
+    ref = np.array( [[[11,10,9,8,7,12]]] )
     assert np.array_equal(ref,res) == True
     # rebuild grid
     res = hls.rebuild(np.arange(12).reshape(12,1,order='F')+1).transpose()
@@ -75,8 +75,8 @@ def test_6x4_1x1_F_F_upright():
     res = hls.segment()
     assert res == ([0,3,9,15,21],[2,5,5,5,3])
     # rebuild halos
-    res = hls.rebuild_halos(np.array([8,9,10,11]).reshape(4,1,order='F')).transpose()
-    ref = np.array( [[[11,10,9,8]]] )
+    res = hls.rebuild_halos(np.array([7,8,10,11,12]).reshape(5,1,order='F')).transpose()
+    ref = np.array( [[[8,7,12,11,10]]] )
     assert np.array_equal(ref,res) == True
     # rebuild grid
     grid = np.array([1,2,4,5,6,7,8,10,11,12,13,14,16,17,18,19,20,22,23,24])
