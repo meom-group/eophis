@@ -4,16 +4,39 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "eophis"
-version = "0.9.1"
-description = "Tools to couple Inferences Models with Earth-System simulation codes"
-authors = [
-  { name="Alexis Barge", email="alexis.barge@proton.me" },
-]
+version = "1.0.0"
+description = "Tools to couple Python and Machine Learning models with Geophysical simulation codes through OASIS."
+authors = [ { name="Alexis Barge", email="alexis.barge@proton.me" }, ]
 readme = "README.md"
 license = {file = "LICENSE"}
-requires-python = ">=3.10.4"
 
+keywords = ["machine-learning", "fortran", "python", "coupling", "geoscientific", "earth-system", "OASIS"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+requires-python = ">=3.10.4"
 dependencies = [
+    "netcdf4>=1.5.8",
+    "numpy>=1.21.0",
+    "f90nml>=1.4.4",
+    "watermark>=2.4.3",
+    "mpi4py==3.1.5",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "sphinx", "sphinx-rtd-theme", "myst_parser"]
+
+[external]
+build-requires = [
+  "virtual:compiler/c",
+  "virtual:compiler/fortran",
+]
+host-requires = [
+  "pkg:https://github.com/Unidata/netcdf-c/releases/tag/v4.7.2",
+  "pkg:https://github.com/Unidata/netcdf-fortran/releases/tag/v4.5.2",
 ]
 
 [project.urls]
@@ -22,3 +45,6 @@ dependencies = [
 
 [tool.setuptools]
 package-dir = {}
+
+
+

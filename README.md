@@ -12,9 +12,10 @@ Basically, Eophis allows to:
    - (iii) emulate time evolution to synchronize connexions between scripts.
 
 **Current development objectives**
-   - automatic creation of grid halos during parallel execution
-   - support GPU computing
    - tools to write coupling info in geoscientific codes namelists
+   - tools for time diagnostic
+   - enhance packaging
+   - add more detailed tutorial
 
 ## Usage, installation and test cases
 
@@ -24,5 +25,4 @@ Check out corresponding sections in [Eophis documentation](https://eophis.readth
 ## Demonstration cases
 
 Here is a list of repositories containing realizations of coupled runs between different geophysical models and ML models deployed by Eophis:
-- [Morays](https://github.com/morays-community) : coupled runs with ocean codes
-
+- [Morays](https://github.com/morays-community) : coupled experiments with ocean codes
