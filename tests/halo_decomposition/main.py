@@ -1,3 +1,9 @@
+"""
+This Eophis script manages coupling between fake_earth.py and models.py. OASIS interface is already hard-coded in fake_earth.py.
+Purposes are to write coupling namelist during preproduction mode, configure OASIS interface for models.py, and orchestrate connexions between exchanged data and models.py.
+Checkout docstrings in fake_earth.py and documentation to learn more about what coupling is supposed to achieve.
+
+"""
 # eophis API
 import eophis
 from eophis import Freqs, Domains
@@ -6,6 +12,16 @@ import argparse
 import os
 
 def earth_info():
+    """
+    Return arguments for a Tunnel object that will configure coupling. Return an object from file 'earth_namelist' to manipulate its content.
+    
+    Two grids are associated with Tunnel 'TO_EARTH' :
+        1. grid_fold: global domain has cyclic east-west boundary condition, and NorthFold condition for north-south axis. (sub)grid will be built with 1 extra halo cell. NorthFold condition requires to specify grid type. Here, it represents V points of an Arakawa C-grid and folding is done around F point.
+        2. grid_cycl: global domain has cyclic north-south boundary condition, and no specific condition for east-west axis. (sub)grid will be built with 2 extra halo cells.
+    
+    First exchange is done with fields defined on grid_fold, and manipulated with corresponding grid properties. Same on grid_cycl for second exchange.
+    
+    """
     # earth namelist
     earth_nml = eophis.FortranNamelist(os.path.join(os.getcwd(),'earth_namelist'))
 

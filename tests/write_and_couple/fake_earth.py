@@ -1,3 +1,30 @@
+"""
+Fake Earth (FE) script emulates a surrogate geoscientific code with an hard-coded OASIS interface.
+Purpose of FE is to test Eophis behavior in real conditions, without deploying an entire heavy geoscientific model.
+It is coupled with the Python code contained in models.py in which the coupling interface has been deployed by Eophis.
+Coupling namelist is also written by Eophis
+
+FE initializes the data and sends them first to the coupled model. Returned data may be compared to expected results.
+Coupling, content of FE and models.py may be adapted in order to test different features.
+
+
+WRITE AND COUPLE
+----------------
+FE advances in time with parameters provided in "earth_namelist" and sends:
+    - one 2D field sst, with a hourly frequency on grid (720,603)
+    - one 3D field svt, with a daily frequency on grid (720,603,3)
+    - one fixed metric field msk, only once, on the same sst grid
+
+Coupled model adds 100 to sst and svt and returns them as sst_var and svt_var, respectively. They are then copied in sst and svt.
+In addition, FE adds 0.2 to sst and 0.5 to svt every time step. Given the number of time steps and exchanges, final values are theoretically known.
+Test is successful if final sst and svt correspond to theory.
+
+This test case illustrates a basic coupling. It means that:
+    - Eophis objects correctly set up OASIS interface to perform exchanges of 2D and 3D data
+    - Data stream is correctly orchestrated between exchanges and coupled model
+    - Coupling namelist has been correctly written with right frequencies
+
+"""
 # oasis modules
 import pyoasis
 from pyoasis import OASIS
@@ -9,9 +36,9 @@ import logging
 import time
 
 def main():
-    # ++++++++++++++++++
-    #   INITIALISATION
-    # ++++++++++++++++++
+    # +++++++++++++++++++++++++
+    #   OASIS: INITIALISATION
+    # +++++++++++++++++++++++++
     comm = MPI.COMM_WORLD
     component_name = "fake_earth"
     comp = pyoasis.Component(component_name,True,comm)
@@ -25,9 +52,9 @@ def main():
         logging.info('  Running with %.1i processes' % comm_size)
         logging.info('  -----------------------------------------------------------')
 
-    # +++++++++++++++++++
-    #   GRID DEFINITION
-    # +++++++++++++++++++
+    # ++++++++++++++++++++++++++
+    #   OASIS: GRID DEFINITION
+    # ++++++++++++++++++++++++++
     grd_src = 'torc'
     nlon = 720
     nlat = 603
@@ -38,9 +65,9 @@ def main():
         logging.info('  Grid size: %.1i %.1i %.1i' % (nlon, nlat, nlvl))
         logging.info('  End Of Grid Def')
 
-    # ++++++++++++++++++++++++
-    #   PARTITION DEFINITION
-    # ++++++++++++++++++++++++
+    # +++++++++++++++++++++++++++++++
+    #   OASIS: PARTITION DEFINITION
+    # +++++++++++++++++++++++++++++++
     local_size = int(nlon * nlat / comm_size)
     offset = comm_rank * local_size
     
@@ -52,9 +79,9 @@ def main():
     if comm_rank == 0:
         logging.info('  End Of Part Def')
         
-    # ++++++++++++++++++++++++
-    #   VARIABLES DEFINITION
-    # ++++++++++++++++++++++++
+    # +++++++++++++++++++++++++++++++
+    #   OASIS: VARIABLES DEFINITION
+    # +++++++++++++++++++++++++++++++
     var_out = ['E_OUT_0','E_OUT_1','E_OUT_2']
     var_in = ['E_IN_0','E_IN_1']
 
@@ -68,19 +95,18 @@ def main():
     if comm_rank == 0:
         logging.info('  End Of Var Def')
 
-    # +++++++++++++++++++++
-    #   END OF DEFINITION
-    # +++++++++++++++++++++
+    # ++++++++++++++++++++++++++++
+    #   OASIS: END OF DEFINITION
+    # ++++++++++++++++++++++++++++
     comp.enddef()
     
     if comm_rank == 0:
         logging.info('  End Of Definition')
         
-    # +++++++++++++++++
-    #   RUN EXCHANGES
-    # +++++++++++++++++
+    # +++++++++++++++++++++++++++
+    #   TIME INFO FROM NAMELIST
+    # +++++++++++++++++++++++++++
     namelist = nml.read('earth_namelist')
-    
     time_step = int( namelist['namdom']['rn_Dt'] )
     niter = int( namelist['namrun']['nn_itend'] - namelist['namrun']['nn_it000'] ) + 1
     total_time = niter*time_step
@@ -92,20 +118,29 @@ def main():
         logging.info('  Simulation length: %.1i' % total_time)
         logging.info('  -----------------------------------------------------------')
 
+    # +++++++++++++++++++
+    #   INITIALIZE DATA
+    # +++++++++++++++++++
+    # Set sst and svt data to zero to control evolution
     sst = pyoasis.asarray( numpy.zeros((local_size,1)) )
     svt = pyoasis.asarray( numpy.zeros((local_size,nlvl)) )
+    # msk value does not matter since it is sent without return
     msk = pyoasis.asarray( numpy.arange(local_size).reshape(local_size,1) )
+    # Reception fields initialized to zero
     var_sst = pyoasis.asarray( numpy.zeros((local_size,1)) )
     var_svt = pyoasis.asarray( numpy.zeros((local_size,nlvl)) )
 
-
+    # +++++++++++++++++
+    #   RUN EXCHANGES
+    # +++++++++++++++++
+    # Loop for time advancement
     for it in range(niter):
         it_sec = int(time_step * it)
         
         if comm_rank == 0:
             logging.info(f'  Ite {it}:')
 
-        # send field for Modeling
+        # send fields
         if it_sec%dat_sst.cpl_freqs[0] == 0.0 and comm_rank == 0:
             logging.info('    Sending %s' % (dat_sst._name))
 
@@ -119,7 +154,7 @@ def main():
         dat_svt.put(it_sec,svt)
         dat_msk.put(it_sec,msk)
 
-        # receive modified field
+        # receive fields
         if it_sec%inf_sst.cpl_freqs[0] == 0.0 and comm_rank == 0:
             logging.info('    Receiving %s' % (inf_sst._name))
 
@@ -129,14 +164,16 @@ def main():
         inf_sst.get(it_sec,var_sst)
         inf_svt.get(it_sec,var_svt)
 
-        # Modify field
+        # Modify fields
         sst = pyoasis.asarray(var_sst + 0.2)
         svt = pyoasis.asarray(var_svt + 0.5)
 
     if comm_rank == 0:
         logging.info('  End Of Loop')
 
-    # check final values
+    # +++++++++++++++
+    #   FINAL CHECK
+    # +++++++++++++++
     epsilon = 1e-8
     error = abs(var_sst[0,0] - 66833.2) + abs(var_svt[0,2] - 2813.5)
 

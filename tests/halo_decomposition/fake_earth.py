@@ -1,3 +1,33 @@
+"""
+Fake Earth (FE) script emulates a surrogate geoscientific code with an hard-coded OASIS interface.
+Purpose of FE is to test Eophis behavior in real conditions, without deploying an entire heavy geoscientific model.
+It is coupled with the Python code contained in models.py in which the coupling interface has been deployed by Eophis.
+Coupling namelist is also written by Eophis
+
+FE initializes the data and sends them first to the coupled model. Returned data may be compared to expected results.
+Coupling, content of FE and models.py may be adapted in order to test different features.
+
+
+HALO DECOMPOSITION
+------------------
+FE advances in time with parameters provided in "earth_namelist".
+It intends to send two fields psi and phi, and to receive their first order discrete differences along first and second axis.
+Differences are also computed in FE with complete grid and compared with returned results. Test fails if results do not match.
+
+Differences imply to know neighboring cells. Those will be missing at boundaries, especially if Python model is scattered among processes.
+Fields need to be received on the model side with at least 1 extra halo cell to compute correct differences. Halo cells should not be kept after.
+It is also required to specify what values should contain the halos located at the boundaries of the global grid.
+
+FE is supposed to send/receive real cells only, without halos.
+This test case checks the capability of Eophis to achieve fields exchanges with correct automatic reconstruction and rejection of halos. It means that:
+    - Eophis correctly created halos with right values: wrong returned differences if not
+    - Eophis returned the grid without the halos: presence of boundary-miscomputed differences if not
+
+First field phi sent by FE is defined on Arakawa C-grid V-points, with cyclic/NF conditions for east-west/north-south boundary conditions, respectively.
+Folding is done around F point and field is rebuilt with 1 halo.
+Second field psi sent by FE is defined on a grid with close/cyclic boundary conditions. Wihtout NF condition, grid type (T-point, U-point...) does not matter. It is rebuilt with 2 halos.
+
+"""
 # oasis modules
 import pyoasis
 from pyoasis import OASIS
@@ -11,7 +41,8 @@ import time
 # ================= 
 #       Utils
 # =================
-def make_edge_phi( array , fold=False ):
+def make_edge_phi( array ):
+    """ Build halo cells for the entire phi grid. """
     # build north edge
     folded_halos = array[ :, 1:2 , : ].copy()
     folded_halos = np.flip( folded_halos , axis=(0,1) )
@@ -30,7 +61,8 @@ def make_edge_phi( array , fold=False ):
     edged_array = np.vstack( (edged_array,left) )
     return edged_array
 
-def make_edge_psi( array , fold=False ):
+def make_edge_psi( array ):
+    """ Build halo cells for the entire psi grid. """
     # build north-south edges
     up = array[:,:1,:].copy()
     bottom = array[:,-1:,:].copy() 
@@ -49,9 +81,9 @@ def make_edge_psi( array , fold=False ):
 #       Main
 # ================
 def main():
-    # ++++++++++++++++++
-    #   INITIALISATION
-    # ++++++++++++++++++
+    # +++++++++++++++++++++++++
+    #   OASIS: INITIALISATION
+    # +++++++++++++++++++++++++
     comm = MPI.COMM_WORLD
     component_name = "fake_earth"
     comp = pyoasis.Component(component_name,True,comm)
@@ -65,9 +97,9 @@ def main():
         logging.info('  Running with %.1i processes' % comm_size)
         logging.info('  -----------------------------------------------------------')
 
-    # +++++++++++++++++++
-    #   GRID DEFINITION
-    # +++++++++++++++++++
+    # ++++++++++++++++++++++++++
+    #   OASIS: GRID DEFINITION
+    # ++++++++++++++++++++++++++
     grd_src = 'torc'
     nlon = 10
     nlat = 10
@@ -78,9 +110,9 @@ def main():
         logging.info('  Grid size: %.1i %.1i %.1i' % (nlon, nlat, nlvl))
         logging.info('  End Of Grid Def')
 
-    # ++++++++++++++++++++++++
-    #   PARTITION DEFINITION
-    # ++++++++++++++++++++++++
+    # +++++++++++++++++++++++++++++++
+    #   OASIS: PARTITION DEFINITION
+    # +++++++++++++++++++++++++++++++
     local_size = int(nlon * nlat / comm_size)
     offset = comm_rank * local_size
 
@@ -92,9 +124,9 @@ def main():
     if comm_rank == 0:
         logging.info('  End Of Part Def')
         
-    # ++++++++++++++++++++++++
-    #   VARIABLES DEFINITION
-    # ++++++++++++++++++++++++
+    # +++++++++++++++++++++++++++++++
+    #   OASIS: VARIABLES DEFINITION
+    # +++++++++++++++++++++++++++++++
     var_out = ['E_OUT_0','E_OUT_1']
     var_in = ['E_IN_0','E_IN_1','E_IN_2','E_IN_3']
 
@@ -109,9 +141,9 @@ def main():
     if comm_rank == 0:
         logging.info('  End Of Var Def')
 
-    # +++++++++++++++++++++
-    #   END OF DEFINITION
-    # +++++++++++++++++++++
+    # ++++++++++++++++++++++++++++
+    #   OASIS: END OF DEFINITION
+    # ++++++++++++++++++++++++++++
     comp.enddef()
     
     if comm_rank == 0:
@@ -120,20 +152,22 @@ def main():
     # +++++++++++++++
     #   INIT ARRAYS
     # +++++++++++++++
+    # Init entire psi/phi grid, isolate part corresponding to local process
     psi = np.arange(nlon*nlat*nlvl).reshape(nlon*nlat,nlvl,order='F')
     psi = psi[offset:offset+local_size,:]
     psi = pyoasis.asarray(psi)
     phi = np.arange(nlon*nlat*2).reshape(nlon*nlat,2,order='F')
     phi = phi[offset:offset+local_size,:]
     phi = pyoasis.asarray(phi)
+    # Reception fields, initialized to zero
     dxpsi = pyoasis.asarray( np.zeros((local_size,nlvl)) )
     dypsi = pyoasis.asarray( np.zeros((local_size,nlvl)) )
     dxphi = pyoasis.asarray( np.zeros((local_size,2)) )
     dyphi = pyoasis.asarray( np.zeros((local_size,2)) )
 
-    # +++++++++++++++++
-    #   RUN EXCHANGES
-    # +++++++++++++++++
+    # +++++++++++++++++++++++++++
+    #   TIME INFO FROM NAMELIST
+    # +++++++++++++++++++++++++++
     namelist = nml.read('earth_namelist')
     
     time_step = int( namelist['namdom']['rn_Dt'] )
@@ -147,14 +181,17 @@ def main():
         logging.info('  Simulation length: %.1i' % total_time)
         logging.info('  -----------------------------------------------------------')
 
-    # Loop
+    # +++++++++++++++++
+    #   RUN EXCHANGES
+    # +++++++++++++++++
+    # Loop for time advancement
     for it in range(niter):
         it_sec = int(time_step * it)
         
         if comm_rank == 0:
             logging.info(f'  Ite {it}:')
 
-        # send field for Modeling
+        # send fields
         if it_sec%dat_psi.cpl_freqs[0] == 0.0 and comm_rank == 0:
             logging.info('    Sending %s' % (dat_psi._name))
 
@@ -164,7 +201,7 @@ def main():
         dat_psi.put(it_sec,psi)
         dat_phi.put(it_sec,phi)
 
-        # receive modified field
+        # receive fields
         if it_sec%res_dxpsi.cpl_freqs[0] == 0.0 and comm_rank == 0:
             logging.info('    Receiving %s' % (res_dxpsi._name))
 
@@ -188,31 +225,41 @@ def main():
     # ++++++++++++++++++
     #     REFERENCES
     # ++++++++++++++++++
+    # create entire psi grid
     ref_psi = np.arange(nlon*nlat*nlvl).reshape(nlon,nlat,nlvl,order='F')
+    # add halos on entire psi grid
     ref_psi = make_edge_psi(ref_psi)
+    # compute differences
     ref_dxpsi = np.diff(ref_psi,axis=0,append=ref_psi[0:1,:,:])
     ref_dypsi = np.diff(ref_psi,axis=1,prepend=ref_psi[:,0:1,:])
+    # remove halos
     ref_dxpsi = ref_dxpsi[1:-1,1:-1,:]
     ref_dypsi = ref_dypsi[1:-1,1:-1,:]
+    # isolate part corresponding to local process
     ref_dxpsi = ref_dxpsi.reshape(nlon*nlat,nlvl,order='F')
     ref_dypsi = ref_dypsi.reshape(nlon*nlat,nlvl,order='F')
     ref_dxpsi = ref_dxpsi[offset:offset+local_size,:]
     ref_dypsi = ref_dypsi[offset:offset+local_size,:]
    
+    # create entire phi grid
     ref_phi = np.arange(nlon*nlat*2).reshape(nlon,nlat,2,order='F')
+    # add halos on entire phi grid
     ref_phi = make_edge_phi(ref_phi)
+    # compute differences
     ref_dxphi = np.diff(ref_phi,axis=0,append=ref_phi[0:1,:,:])
     ref_dyphi = np.diff(ref_phi,axis=1,prepend=ref_phi[:,0:1,:])
+    # remove halos
     ref_dxphi = ref_dxphi[1:-1,1:-1,:]
     ref_dyphi = ref_dyphi[1:-1,1:-1,:]
+    # isolate part corresponding to local process
     ref_dxphi = ref_dxphi.reshape(nlon*nlat,2,order='F')
     ref_dyphi = ref_dyphi.reshape(nlon*nlat,2,order='F')
     ref_dxphi = ref_dxphi[offset:offset+local_size,:]
     ref_dyphi = ref_dyphi[offset:offset+local_size,:]
 
-    # +++++++++++++++++++
-    #      CHECK RES
-    # +++++++++++++++++++
+    # +++++++++++++++
+    #   FINAL CHECK
+    # +++++++++++++++
     check_1 = np.array_equal(ref_dxpsi,dxpsi)
     check_2 = np.array_equal(ref_dypsi,dypsi)
     check_3 = np.array_equal(ref_dxphi,dxphi)

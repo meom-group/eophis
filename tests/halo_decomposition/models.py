@@ -20,7 +20,7 @@ def Is_None(*inputs):
 #      Compute Delta      #
 # ======================= #
 def deltaxy(fld):
-    """  """
+    """ Return first order discrete differences along first and second axis of fld (numpy.ndarray) """
     if Is_None(fld):
         return None, None
     else:
