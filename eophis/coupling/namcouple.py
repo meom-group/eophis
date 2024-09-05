@@ -1,5 +1,9 @@
 """
 Contains tools to create and manipulate OASIS namelist sections in right format.
+
+* Copyright (c) 2023 IGE-MEOM
+    Eophis is released under an MIT License.
+    See the `LICENSE <https://github.com/meom-group/eophis/blob/main/LICENSE>`_ file for details.
 """
 # eophis modules
 from .namelist import raw_content, find, replace_line, find_and_replace_line, find_and_replace_char, write

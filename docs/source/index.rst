@@ -19,6 +19,7 @@ Contents:
    :maxdepth: 2
 
    Overview <overview>
+   Eophis License <license>
    Installation <install>
    Concepts <concept>
    Usage <usage>

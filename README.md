@@ -21,6 +21,10 @@ Basically, Eophis allows to:
 
 Check out corresponding sections in [Eophis documentation](https://eophis.readthedocs.io/en/latest/index.html) for further informations.
 
+## License
+
+Copyright &copy; IGE-MEOM
+Eophis is distributed under the [MIT License](https://github.com/meom-group/eophis/blob/main/LICENSE).
 
 ## Demonstration cases
 
