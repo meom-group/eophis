@@ -27,7 +27,6 @@ class Freqs:
     YEARLY = 365 * DAILY
 
 
-
 class Mode:
     """
     This class contains the status of eophis modes.
@@ -41,13 +40,14 @@ class Mode:
     PREPROD = False
     PROD = True
 
+
 def set_mode(mode_to_set):
     """
-    Change eophis Mode
+    Changes eophis Mode.
     
     Parameters
     ----------
-    mode_to_set : str
+    mode_to_set : string
         'preprod' or 'prod'
         
     Notes

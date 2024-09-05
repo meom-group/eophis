@@ -67,13 +67,13 @@ class Namcouple:
             self._activated = False
 
     def _reset(self):
-        """ unset coupling environment, reinit namcouple content. """
+        """ Unsets coupling environment, reinit namcouple content. """
         del self.comp
         self.initialized = False
         self.__init__(self.infile,self.outfile)
 
     def _read_namcouple(self):
-        """ read namcouple file from ``infile`` attribute, generate minimal content if empty. """
+        """ Reads namcouple file from ``infile`` attribute, generate minimal content if empty. """
         self._lines = raw_content(self.infile)
         if len(self._lines) == 0:
             self._lines =  [ '$NFIELDS', '0', '$END', '############' ]
@@ -83,7 +83,7 @@ class Namcouple:
         self._reflines = self._lines
 
     def _add_tunnel(self,label,grids,exchs,geo_aliases=None,py_aliases=None):
-        """ update namcouple file content, create new Tunnel from updates. """
+        """ Updates namcouple file content, create new Tunnel from updates. """
         # Default values
         geo_aliases = geo_aliases or {}
         py_aliases = py_aliases or {}
@@ -117,7 +117,7 @@ class Namcouple:
     
     def _finalize(self,total_time):
         """
-        Final namcouple updates before writing, then write file.
+        Final namcouple updates before writing, then writes file.
         
         Parameters
         ----------
@@ -145,7 +145,7 @@ class Namcouple:
         Paral.EOPHIS_COMM.Barrier()
 
     def _activate(self):
-        """ set OASIS environment, configure Tunnels. """
+        """ Sets OASIS environment, configure Tunnels. """
         # Skip if coupled
         if self._activated:
             logs.warning('Ignore tunnels opening, already done')
@@ -167,7 +167,7 @@ class Namcouple:
 
 def _make_and_check_section(name_snd,name_rcv,freq,grd,npts,nmcpl=''):
     """
-    Assemble tunnel infos to create a complete namcouple section.
+    Assembles tunnel infos to create a complete namcouple section.
     Check consistency with namcouple in production mode.
     
     Returns
@@ -209,7 +209,7 @@ def _make_and_check_section(name_snd,name_rcv,freq,grd,npts,nmcpl=''):
 
 def init_namcouple(cpl_nml_tmp,cpl_nml):
     """
-    Namcouple API: init and read namcouple file. Completely reinit Namcouple if it is already instantiated.
+    Namcouple API: init and reads namcouple file. Completely reinit Namcouple if it is already instantiated.
     
 
     Parameters
@@ -239,7 +239,7 @@ def init_namcouple(cpl_nml_tmp,cpl_nml):
 
 def register_tunnels(configs):
     """
-    Namcouple API: update namcouple content and init Tunnel
+    Namcouple API: updates namcouple content and init Tunnel.
     
     Parameters
     ----------
@@ -257,7 +257,7 @@ def register_tunnels(configs):
 
 def write_coupling_namelist(simulation_time=31536000.0):
     """
-    Namcouple API: write namcouple at its current state
+    Namcouple API: writes namcouple at its current state.
     
     Parameters
     ----------
@@ -277,7 +277,7 @@ def write_coupling_namelist(simulation_time=31536000.0):
 
 def open_tunnels():
     """
-    Namcouple API: start coupling environment, create OASIS objects in Tunnels
+    Namcouple API: starts coupling environment, creates OASIS objects in Tunnels.
         
     Raises
     ------
@@ -291,7 +291,7 @@ def open_tunnels():
 
 
 def tunnels_ready():
-    """ Namcouple API: check if Tunnels are ready to start time loop. A Tunnel is ready if all the static exchanges have been done. """
+    """ Namcouple API: checks if Tunnels are ready to start time loop. A Tunnel is ready if all the static exchanges have been done. """
     for tnl in Namcouple().tunnels:
         if not all( done for done in tnl._static_used.values() ):
             return False
@@ -299,6 +299,6 @@ def tunnels_ready():
 
 
 def close_tunnels():
-    """ Namcouple API: terminate coupling environement if set up. Reset Namcouple with same initialization attributes. """
+    """ Namcouple API: terminates coupling environement if set up. Resets Namcouple with same initialization attributes. """
     logs.info(f'\n  Closing tunnels')
     Namcouple()._reset()

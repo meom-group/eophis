@@ -30,7 +30,7 @@ class FortranNamelist:
         
     def _read(self,file_path):
         """
-        Read namelist.
+        Reads namelist.
         
         Parameters
         ----------
@@ -43,7 +43,7 @@ class FortranNamelist:
 
     def get(self,*labels):
         """
-        Access the values of variables labels contained in namelist.
+        Accesses the values of variables labels contained in namelist.
         
         Parameters
         ----------
@@ -54,20 +54,20 @@ class FortranNamelist:
         -------
         values : list
             List of values corresponding to labels
+            
         """
         res = { label : gr2 for gr1,gr2 in self.formatted.groups() for label in labels if label.lower() in gr1 }
         return [ res[label] for label in labels ]
 
     def write(self):
-        """ Write namelist under Fortran format. """
+        """ Writes namelist under Fortran format. """
         outfile = self.file_path
         f90nml.write(self.nml,outfile)
 
 
-
 def raw_content(file_path):
     """
-    Read lines contained in a file.
+    Reads lines contained in a file.
     
     Parameters
     ----------
@@ -97,10 +97,10 @@ def raw_content(file_path):
         
 def find(lines,target):
     """
-    Find first text occurence inside of a read file list of lines.
+    Finds first text occurence inside of a read file list of lines.
     
-    Parameter
-    ---------
+    Parameters
+    ----------
     lines : list( string )
         list of lines
     target : string
@@ -117,7 +117,7 @@ def find(lines,target):
         
 def replace_line(lines,content,pos):
     """
-    Replace a specified line of a read file list of lines by another complete line.
+    Replaces a specified line of a read file list of lines by another complete line.
     
     Parameters
     ----------
@@ -135,7 +135,7 @@ def replace_line(lines,content,pos):
         
 def find_and_replace_line(lines,old_txt,new_txt,offset=0):
     """
-    Apply find and replace_line functions to a read file list of lines.
+    Applies find() and replace_line() to a read file list of lines.
     
     Parameters
     ----------
@@ -155,7 +155,7 @@ def find_and_replace_line(lines,old_txt,new_txt,offset=0):
 
 def find_and_replace_char(lines,old_char,new_char):
     """
-    Replace every character chain occurence in a read file list of lines
+    Replaces every character chain occurence in a read file list of lines
     by another character chain, lines are saved.
     
     Parameters
@@ -175,7 +175,7 @@ def find_and_replace_char(lines,old_char,new_char):
 
 def write(lines,outfile,add_header=False):
     """
-    Write list of lines in an output file.
+    Writes list of lines in an output file.
     
     Parameters
     ----------
@@ -183,7 +183,7 @@ def write(lines,outfile,add_header=False):
         list of lines
     outfile : string
         output file path
-    add_header : bool)
+    add_header : bool
         add "MODIFIED BY EOPHIS" to output file if True
         
     """

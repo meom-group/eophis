@@ -16,7 +16,7 @@ __all__ = ['info','warning','abort']
 class _Logbuffer:
     """
     This class contains the log buffer. It is used to store output messages until the Master process is identified,
-    which is not possible while coupling environement is not set.
+    which is not possible while coupling environment is not set.
     
     Attributes
     ----------
@@ -29,8 +29,9 @@ class _Logbuffer:
     content = []
     store = True
 
+
 def flush_buffer(writer=Paral.RANK):
-    """ Calling process writes content of log buffer in log files """
+    """ Calling process writes content of log buffer in log files. """
     if _Logbuffer.store:
         _Logbuffer.store = False
         for message in _Logbuffer.content:
@@ -39,7 +40,7 @@ def flush_buffer(writer=Paral.RANK):
 
 def info(message='',writer=Paral.MASTER):
     """
-    Write informational message in 'eophis.out' log file.
+    Writes informational message in 'eophis.out' log file.
     
     Parameters
     ----------
@@ -57,8 +58,8 @@ def info(message='',writer=Paral.MASTER):
 
 def warning(message='Warning not described'):
     """
-    Write a warning message in 'eophis.err' log file.
-    Write that a warning occured in 'eophis.out' log file.
+    Writes a warning message in 'eophis.err' log file.
+    Writes that a warning occured in 'eophis.out' log file.
     
     Parameters
     ----------
@@ -73,9 +74,9 @@ def warning(message='Warning not described'):
 
 def abort(message='Error not described'):
     """
-    Write an error message in 'eophis.err' log file.
-    Write that a error occured in 'eophis.out' log file.
-    Stop execution.
+    Writes an error message in 'eophis.err' log file.
+    Writes that a error occured in 'eophis.out' log file.
+    Stops execution.
     
     Parameters
     ----------
@@ -92,7 +93,7 @@ def abort(message='Error not described'):
 
 def _setup_logger(name, log_file, formatter, level=logging.INFO):
     """
-    Create a logger
+    Creates a logger.
     
     Parameters
     ----------
@@ -124,6 +125,7 @@ def _setup_logger(name, log_file, formatter, level=logging.INFO):
     logger.addHandler(handler)
 
     return logger
+    
     
 # define and create formats and loggers for warning and info logs
 _format = logging.Formatter('%(message)s')

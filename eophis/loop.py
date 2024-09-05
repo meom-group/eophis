@@ -26,7 +26,7 @@ def starter(loop_router):
 
 def all_in_all_out(geo_model,step,niter):
     """
-    Build a Loop on All In All Out (AIAO) structure. ``assembler()`` function inserts ``router()``
+    Builds a Loop on All In All Out (AIAO) structure. ``assembler()`` function inserts ``router()``
     inside ``base_loop()`` in which receivings and sendings steps are pre-defined.
     
     Parameters
@@ -65,7 +65,6 @@ def all_in_all_out(geo_model,step,niter):
     >>>     outputs[varToSendBack] = my_model(inputs[varReceived])
     >>>     return outputs
     
-        
     """
     final_date = datetime.timedelta(seconds=niter*step)
     step_date = datetime.timedelta(seconds=step)

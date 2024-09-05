@@ -1,5 +1,5 @@
 """
-nfhalo.py - This module contains tools to define halo cells that do cross North Fold boundary.
+nfhalo.py - This module contains tools to define halo cells that do cross global domain NorthFold boundary.
 
 * Copyright (c) 2023 IGE-MEOM
     Eophis is released under an MIT License.
@@ -16,7 +16,7 @@ __all__ = []
 
 class NFHalo(HaloGrid):
     """
-    This class represents the halo cells of a given subdomain in a global grid. NFHalo only knows how to identify halo cells if they do cross the global grid north fold boundary. It also setup the operations to rebuild a raw field received by OASIS with north folded halo cells.
+    This class represents the halo cells of a given subdomain in a global grid. NFHalo only knows how to identify halo cells if they do cross the global grid NorthFold boundary. It also configures the operations to rebuild a raw field received by OASIS with north-folded halo cells.
     
     Attributes
     ----------
@@ -69,7 +69,7 @@ class NFHalo(HaloGrid):
             logs.abort(f'Halo size {size} is too big for y dimension {global_grid[0]}')
         
     def segment(self):
-        """ Decompose North Fold boundary-crossing halo cells into offsets/sizes couple. """
+        """ Decomposes NorthFold boundary-crossing halo cells into offsets/sizes couple. """
         hls_offsets = [[],[]]
         hls_sizes = [[],[]]
         
@@ -133,7 +133,7 @@ class NFHalo(HaloGrid):
         return fold_offsets, fold_sizes
     
     def rebuild_instructions(self, offsets, sizes):
-        """ Identify operations required to build the folded halo cells from a received field. """
+        """ Identifies operations required to build the folded halo cells from a received field. """
         # folded / regular partitions
         folded_grid = np.concatenate([np.arange(off, off + size) + 1 for off, size in zip(offsets[1], sizes[1])])
         right_grid = np.concatenate([np.arange(off, off + size) + 1 for off, size in zip(offsets[0], sizes[0])])
@@ -169,7 +169,7 @@ class NFHalo(HaloGrid):
         return offsets, sizes
     
     def rebuild(self, field_grid):
-        """ Rebuild a received field from OASIS into subdomain with North Fold boundary-crossing halo cells. """
+        """ Rebuilds a received field from OASIS into subdomain with NorthFold boundary-crossing halo cells. """
         # make halos grid
         if len(self._copies) != 0:
             S_cp = self._copies[:,0]
@@ -202,7 +202,7 @@ class NFHalo(HaloGrid):
         return field_grid
     
     def rebuild_halos(self, halos_grid):
-        """ Rebuild the North Fold halo cells extracted from received field. """
+        """ Rebuilds the NorthFold halo cells extracted from received field. """
         size_z = halos_grid.shape[1]
         halos_grid = halos_grid.reshape( len(halos_grid)//self.shifts[1], self.shifts[1], size_z ,order='F' )
         halos_grid = np.flip(halos_grid , axis=(0,1))
@@ -210,7 +210,7 @@ class NFHalo(HaloGrid):
         return halos_grid
     
     def fill_boundary_halos(self,field_grid):
-        """ Creates received field halo cells if global grid size is contained within the subdomain, apply closing condition. """
+        """ Creates received field halo cells if global grid size is contained within the subdomain, applies closing condition. """
         # build folded halos from whole grid
         if self.full_dim[0] and self.full_dim[1]:
             folded_halos = field_grid[ :, self.fold_param[0] : self.fold_param[0]+self.size , : ].copy()

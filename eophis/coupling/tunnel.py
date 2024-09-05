@@ -20,13 +20,13 @@ __all__ = ['Tunnel']
 class Tunnel:
     """
     This class gathers a set of OASIS objects created during an Eophis execution under a common entity.
-    This allows to spread OASIS commands between different identified coupled geoscientific codes
+    This allows to spread OASIS commands between different identified coupled geoscientific codes.
     
     Attributes
     ----------
     label : string
         Tunnel name
-    grids : eophis.Grid
+    grids : dict( eophis.Grid )
         registered Grid objects
     exchs : list
         Tunnel user-defined exchanges
@@ -35,9 +35,9 @@ class Tunnel:
     py_aliases : dict
         Correspondence between Tunnel and namcouple fields names from Python side
     _partitions : dict
-        list of OASIS Partition objects
+        list of pyoasis.Partition objects
     _variables : dict
-        list of OASIS Var objects to receive ('rcv') and to send ('snd')
+        list of pyoasis.Var objects to receive ('rcv' key) and to send ('snd' key)
     _static_used : dict
         status of static variables (exchanged or not)
         
@@ -81,7 +81,7 @@ class Tunnel:
     
     def _define_partitions(self,myrank,oursize):
         """
-        Create OASIS Partition from attributes
+        Creates OASIS partitions from attributes.
         
         Parameters
         ----------
@@ -104,7 +104,7 @@ class Tunnel:
             self._inpartitions[grd_lbl] = pyoasis.OrangePartition(off_seg, siz_seg, ncells)
 
     def _define_variables(self):
-        """ Create OASIS Variable from attributes and initialise status of static variables """
+        """ Creates OASIS variables from attributes and initialise status of static variables. """
         for ex in self.exchs:
             for varin in ex['in']:
                 self._var2grid[varin] = ex['grd']
@@ -118,16 +118,16 @@ class Tunnel:
                     self._static_used[varout] = False
 
     def arriving_list(self):
-        """ Return list of non-static receiveable variables """
+        """ Returns list of non-static receiveable variables. """
         return [ lbl for ex in self.exchs for lbl in ex['in'] if ex['freq'] > 0 ]
     
     def departure_list(self):
-        """ Return list of non-static sendable variables """
+        """ Returns list of non-static sendable variables. """
         return [ lbl for ex in self.exchs for lbl in ex['out'] if ex['freq'] > 0 ]
 
     def send(self, var_label, values, date=86579):
         """
-        Send variable value to geoscientific code if date does match frequency exchange, nothing otherwise
+        Sends variable value to geoscientific code if date does match frequency exchange, nothing otherwise.
         
         Parameters
         ----------
@@ -136,7 +136,7 @@ class Tunnel:
         date : int
             current simulation time
         values : numpy.ndarray
-            array to send via OASIS under var_label
+            array to send through OASIS under var_label
             
         Raises
         ------
@@ -167,7 +167,7 @@ class Tunnel:
 
     def receive(self, var_label, date=86579):
         """
-        Request a variable reception from geoscientific code
+        Requests a variable reception from geoscientific code.
         
         Parameters
         ----------
@@ -213,7 +213,7 @@ class Tunnel:
 
 def init_oasis(comp_name='eophis'):
     """
-    Initialize OASIS environment
+    Initializes OASIS environment.
     
     Parameters
     ----------

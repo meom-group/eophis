@@ -1,5 +1,5 @@
 """
-halo.py - This module contains tools to define halo cells that do not cross boundaries.
+halo.py - This module contains tools to define halo cells that do not cross global domain boundaries.
 
 * Copyright (c) 2023 IGE-MEOM
     Eophis is released under an MIT License.
@@ -12,7 +12,7 @@ __all__ = []
 
 class HaloGrid:
     """
-    This class represents the halo cells of a given subdomain in a global grid. HaloGrid only knows how to identify halo cells if they do not cross the global grid boundaries. It also setup the operations to rebuild a raw field received by OASIS.
+    This class represents the halo cells of a given subdomain in a global grid. HaloGrid only knows how to identify halo cells if they do not cross the global grid boundaries. It also configures the operations to rebuild a raw field received by OASIS.
         
     Attributes
     ----------
@@ -33,7 +33,7 @@ class HaloGrid:
         self.offset = offset
                 
     def segment(self):
-        """ Decompose non boundary-crossing halos cells into offsets/sizes couple. """
+        """ Decomposes non boundary-crossing halos cells into offsets/sizes couple. """
         hls_offsets = []
         hls_sizes = []
         
@@ -68,7 +68,7 @@ class HaloGrid:
         return side_offsets, side_sizes
 
     def rebuild(self, field_grid, full_dim=(0,0)):
-        """ Rebuild a received field from OASIS into subdomain with non boundary-crossing halo cells. """
+        """ Rebuilds a received field from OASIS into a subdomain with non boundary-crossing halo cells. """
         size_x = self.local_grid[0] + 2*self.size*(1-full_dim[0])
         size_y = self.local_grid[1] + 2*self.size*(1-full_dim[1])
         size_z = field_grid.shape[1]

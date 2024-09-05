@@ -1,5 +1,5 @@
 """
-cyclichalo.py - This module contains tools to define halo cells that do cross periodic/closed boundaries.
+cyclichalo.py - This module contains tools to define halo cells that do cross global domain periodic/closed boundaries.
 
 * Copyright (c) 2023 IGE-MEOM
     Eophis is released under an MIT License.
@@ -15,7 +15,7 @@ __all__ = []
 
 class CyclicHalo(HaloGrid):
     """
-    This class represents the halo cells of a given subdomain in a global grid. CyclicHalo only knows how to identify halo cells if they do cross the global grid closed or cyclic boundaries. It also setup the operations to rebuild a raw field received by OASIS with closed/cyclic halo cells.
+    This class represents the halo cells of a given subdomain in a global grid. CyclicHalo only knows how to identify halo cells if they do cross the global grid closed or cyclic boundaries. It also configures the operations to rebuild a raw field received by OASIS with closed/cyclic halo cells.
     
     Attributes
     ----------
@@ -63,7 +63,7 @@ class CyclicHalo(HaloGrid):
             logs.abort(f'Halo size {size} is too big for y dimension {global_grid[0]}')
     
     def segment(self):
-        """ Decompose close/cyclic boundary-crossing halo cells into offsets/sizes couple. """
+        """ Decomposes close/cyclic boundary-crossing halo cells into offsets/sizes couple. """
         hls_offsets = []
         hls_sizes = []
     
@@ -96,7 +96,7 @@ class CyclicHalo(HaloGrid):
         return hls_offsets, hls_sizes
     
     def rebuild(self, field_grid):
-        """ Rebuild a received field from OASIS into subdomain with close/cyclic boundary-crossing halo cells. """
+        """ Rebuilds a received field from OASIS into subdomain with close/cyclic boundary-crossing halo cells. """
         field_grid = super().rebuild(field_grid,self.full_dim)
         field_grid = np.roll(field_grid,self.shifts[0],axis=0)
         field_grid = np.roll(field_grid,self.shifts[1],axis=1)
@@ -104,7 +104,7 @@ class CyclicHalo(HaloGrid):
         return field_grid
     
     def fill_boundary_halos(self,field_grid):
-        """ Creates received field halo cells if global grid size is contained within the subdomain, apply closing condition. """
+        """ Creates received field halo cells if global grid size is contained within the subdomain, applies closing condition. """
         # duplicate opposite boundary cells for periodicity
         if self.full_dim[0]:
             left = field_grid[:self.size,:,:]

@@ -36,10 +36,9 @@ class Paral:
     MASTER = 0
 
 
-
 def set_local_communicator(new_comm):
     """
-    Change eophis communicator and rank. This is useful when coupling environment is changing.
+    Changes eophis communicator and rank. This is useful when coupling environment is changing.
     
     Parameters
     ----------
@@ -52,5 +51,5 @@ def set_local_communicator(new_comm):
 
 
 def quit_eophis():
-    """ Kill Eophis """
+    """ Kills Eophis. """
     Paral.GLOBAL_COMM.Abort(0)

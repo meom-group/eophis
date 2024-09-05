@@ -11,9 +11,9 @@ Prerequisites:
    - `netcdf <https://www.unidata.ucar.edu/software/netcdf/>`_ library for Fortran (>=4.5.2) and C (>=4.7.2)
    - Python environment
 
-OASIS_V5.0
-----------
 
+OASIS3-MCT_5.0
+--------------
 
 Download OASIS
 ~~~~~~~~~~~~~~
@@ -29,7 +29,7 @@ Check commit and go in compilation directory:
 
 .. code-block:: bash
 
-     git checkout OASIS-MCT_5.0
+     git checkout OASIS3-MCT_5.0
      cd util/make_dir
 
 

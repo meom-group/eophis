@@ -34,7 +34,7 @@ import pkg_resources as pkg
 import atexit
 
 def _init_eophis():
-    """ Initialize Eophis: print package infos and call subpackage init routines. """
+    """ Initializes Eophis: print package infos and call subpackage init routines. """
     ver = pkg.get_distribution("eophis").version
     logs.info(f'===============================')
     logs.info(f'|    CNRS - IGE - MEOM Team   |')
@@ -51,10 +51,12 @@ def _init_eophis():
     # Schedule termination
     atexit.register(_finish_eophis)
 
+
 def _finish_eophis():
-    """ Execute cleaning processes at end of Eophis use. """
+    """ Executes cleaning processes at end of Eophis use. """
     close_tunnels()
     logs.info('\nEOPHIS run finished')
     logs.flush_buffer(Paral.MASTER)
+
 
 _init_eophis()

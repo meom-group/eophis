@@ -1,5 +1,5 @@
 """
-grid.py - This module contains tools for grid definition and parallel decomposition.
+grid.py - This module contains tools for global grid/domain definition and parallel decomposition.
 
 * Copyright (c) 2023 IGE-MEOM
     Eophis is released under an MIT License.
@@ -25,6 +25,9 @@ class Domains:
     demo (eophis.Grids): npts = (720,603), halos = 0, bnd = ('close','close'), folding = (T,T)
     eORCA05 (eophis.Grids): npts = (720,603), halos = 1, bnd = ('cyclic','NFold'), folding = (T,T)
     eORCA025 (eophis.Grids): npts = (1442,1207), halos = 1, bnd = ('cyclic','NFold'), folding = (T,T)
+    eORCA025_U (eophis.Grids): npts = (1442,1207), halos = 1, bnd = ('cyclic','NFold'), folding = (U,T)
+    eORCA025_V (eophis.Grids): npts = (1442,1207), halos = 1, bnd = ('cyclic','NFold'), folding = (V,T)
+    eORCA025_F (eophis.Grids): npts = (1442,1207), halos = 1, bnd = ('cyclic','NFold'), folding = (F,T)
     
     Notes
     ------
@@ -32,9 +35,9 @@ class Domains:
         npts : (int,int)
             number of longitude and latitude points, respectively
         halos : int
-            grid halos size
-        bnd : (str,str)
-            boundary conditions in east-west and north-south directions
+            grid halo size
+        bnd : (string,string)
+            boundary conditions in east-west and north-south directions, respectively
         folding : (str,str)
             grid and folding type, respectively
 
@@ -42,9 +45,11 @@ class Domains:
     demo    =  {'npts' : (720,603)   , 'halos' : 0, 'bnd' : ('close','close'), 'folding' : ('T','T')}
     eORCA05 =  {'npts' : (720,603)   , 'halos' : 1, 'bnd' : ('cyclic','NFold'), 'folding' : ('T','T')}
     eORCA025 = {'npts' : (1440,1206) , 'halos' : 1, 'bnd' : ('cyclic','NFold'), 'folding' : ('T','T')}
-
-
-
+    eORCA025_U = {'npts' : (1440,1206) , 'halos' : 1, 'bnd' : ('cyclic','NFold'), 'folding' : ('U','T')}
+    eORCA025_V = {'npts' : (1440,1206) , 'halos' : 1, 'bnd' : ('cyclic','NFold'), 'folding' : ('V','T')}
+    eORCA025_F = {'npts' : (1440,1206) , 'halos' : 1, 'bnd' : ('cyclic','NFold'), 'folding' : ('F','T')}
+    
+    
 class Grid:
     """
     This class represents the grid on which fields can be discretized and exchanged. Fields are usually scattered among their executing processes and OASIS needs to know the local grid decomposition to perform optimized partition-to-partition communications.
@@ -52,13 +57,13 @@ class Grid:
     
     The local grid representing the subdomain may be divided in two parts:
         1. "real cells": cells strictly contained in the subdomain
-        2. "halo cells": potential cells outside the subdomain containing neighbouring values
+        2. "halo cells": potential cells outside the subdomain containing neighboring values
         
     Grid can only identify real cells. Halo cells depend on the subdomain position within global grid, halo size and boundary conditions. Thus, Grid contains a HaloGrid object to identify and configure halo cells in accordance with global and local grid properties.
     
-    Sending arrays only contain real cells while receiving arrays also contain halo cells. Because of the complexity of halo definition and OASIS design, arrays received from OASIS are in a raw format that does not represent the subdomain. Grid methods can generate correctly shaped empty arrays for OASIS receptions and rebuild them into awaited subdomain shape. Grid is also able to convert a reshaped received array into a sending-shaped array.
+    Sending arrays only contain real cells, while receiving arrays also contain halo cells. Because of the complexity of halo definition and OASIS design, arrays received from OASIS are in a raw format that does not represent the subdomain. Grid methods can generate correctly shaped empty arrays for OASIS receptions, and rebuild them into awaited subdomain shape. Grid is also able to convert a reshaped received array (with halos) into a sending-shaped array (without halos).
     
-    Third dimension z is not manipulated by Grid since OASIS considers that exchanging a 3D field is like communicating "nz" times on the same 2D partition.
+    Third dimension z is not manipulated by Grid since OASIS considers that exchanging a 3D field is like communicating 'nz' times on the same 2D partition.
     
     Attributes
     ----------
@@ -132,12 +137,12 @@ class Grid:
                 
     def decompose(self,nsub):
         """
-        Find the best decomposition of global grid for a given number of subdomains.
+        Finds the best decomposition of global grid for a given number of subdomains.
         
         Parameters
         ----------
         nsub : int
-            number of subdomains for decomposition
+            number of subdomains to decompose the global grid into
             
         Returns
         -------
@@ -180,7 +185,7 @@ class Grid:
 
     def make_local_subdomain(self,domid,nsub):
         """
-        Decompose the global grid in subdomains. Identify the local subdomain properties. Select the Halo grid corresponding to subdomain.
+        Decomposes the global grid in subdomains. Identifies the local subdomain properties. Selects the Halo grid corresponding to subdomain.
         
         Parameters
         ----------
@@ -191,8 +196,10 @@ class Grid:
 
         Raises
         ------
-            Abort if subdomain ID is negative or greater than number of subdomain
-            Abort if halos size make them to overlap themselves
+            eophis.abort()
+                if subdomain ID is negative or greater than number of subdomain
+            eophis.abort()
+                if halos size make them to overlap themselves
             
         """
         # check arguments
@@ -242,11 +249,11 @@ class Grid:
         return seg_offsets, seg_sizes, self.size[0]*self.size[1]
         
     def rebuild(self,oasis_field):
-        """ Rebuild a received field from OASIS into subdomain shape with real and halo cells. """
+        """ Rebuilds a received field from OASIS into subdomain shape with real and halo cells. """
         return self.halos.rebuild(oasis_field)
         
     def format_sending_array(self,sending_array,var_label=''):
-        """ Convert a real and halo cells shaped subdomain field into a sending-compatible shape. """
+        """ Converts a real and halo cells shaped subdomain field into a sending-compatible shape. """
         # check array
         if not isinstance(sending_array, np.ndarray):
             logs.abort(f'Grid {self.label}: Sending array for {var_label} must by a numpy array')
@@ -263,7 +270,7 @@ class Grid:
         return sending_array[ hls : sending_array.shape[0]-hls , hls : sending_array.shape[1]-hls , : ]
                 
     def generate_receiving_array(self,nlvl=1):
-        """ Generate an array whose shape matches OASIS reception raw format.
+        """ Generates an array whose shape matches OASIS reception raw format.
         
         Parameters
         ----------
@@ -272,7 +279,6 @@ class Grid:
         
         """
         return np.zeros( (self.orange_size,nlvl) )
-
 
 
 def select_halo_type(grd, fold, bnd, halo_size, global_grid, local_grid, offset):

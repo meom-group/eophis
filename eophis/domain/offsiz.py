@@ -11,7 +11,7 @@ import numpy as np
 __all__ = []
 
 def set_fold_trf(grd, fold_point):
-    """ Returns parameters for North Fold halo configuration in accordance with grid type and folding point. """
+    """ Returns parameters for NorthFold halo configuration in accordance with grid type and folding point. """
     trf_T = { 'T' : [1,1,0] , 'U' : [1,0,0] , 'V' : [2,1,0] , 'F' : [2,0,0] }
     trf_F = { 'T' : [0,0,0] , 'U' : [0,-1,0] , 'V' : [1,0,0] , 'F' : [1,-1,0] }
     trfs = { 'T' : trf_T , 'F' : trf_F }
@@ -46,7 +46,7 @@ def list_to_slices(idx):
 
 
 def grid_to_offsets_sizes(grid):
-    """ Transform a list of indexed cells to a couple offsets/sizes lists (for OASIS). """
+    """ Transforms a list of indexed cells to a couple offsets/sizes lists (for OASIS). """
     # find discontinuities positions
     disc_idx = np.where( np.diff(grid) != 1 )[0] + 1
     
@@ -61,7 +61,7 @@ def grid_to_offsets_sizes(grid):
 
 
 def clean_for_oasis(offsets, sizes):
-    """ Rearrange contents of an offsets/sizes couple to remove duplicates and sort indexes in increasing order. """
+    """ Rearranges contents of an offsets/sizes couple to remove duplicates and sort indexes in increasing order. """
     # build artificial oasis partition
     grid = np.concatenate([np.arange(off, off + size) + 1 for off, size in zip(offsets, sizes)])
 
