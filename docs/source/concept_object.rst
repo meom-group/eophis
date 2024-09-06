@@ -5,7 +5,7 @@ Objects
    :toctree: generated
 
 
-Eophis abstractions are presented here. The aim is to explain their roles and functionalities but not to demonstrate how to use them. See usage section with coding examples for this.
+Eophis abstractions are presented here. The aim is to explain their roles and functionalities but not to demonstrate how to use them. See **Usage** section with coding examples for this.
 
 Coupling
 --------
@@ -32,18 +32,58 @@ OASIS objects and commands to execute the sending and reception of fields are en
 Grid
 ~~~~
 
-The fields sent or received by each coupled scripts are usually scattered among their executing processes.
+The fields that are sent or received by each coupled script are usually scattered among their executing processes.
 OASIS needs to know the local grid sizes expressed with global indexes to perform optimized partition-to-partition communications.
-If the global sizes are different, OASIS can also perform the interpolation from a grid to another.
+If global sizes are different, OASIS can also perform interpolation from a grid to another.
 
 .. image:: images/oasis_partitioning.png
     :width: 500px
     :align: center
 
-In the Eophis framework, it is considered that coupled grids are identical on both side. Defining the local partition is still required anyway.
-This operation is done by the Grid object. Only global 2D longitude and latitude sizes are required to create a Grid. Third dimension for depth is specified in Tunnel since OASIS considers that sending a 3D field is like communicating N-level times on the same 2D partition.
+In the Eophis framework, it is considered that the coupled grids are identical on both side. Defining the local partition is still required anyway to set up communications.
+This operation is done by the Grid object. Global 2D longitude and latitude sizes are the minimal required attributes to create a Grid. Third dimension for depth is specified in Tunnel since OASIS considers that sending a 3D field is like communicating N-level times on the same 2D partition.
 
-.. note:: Pre-defined commonly used grids are stored in Eophis sources.
+
+**Halos**
+
+For some operations, such as differential calculus or in Convolutional Neural Networks, it is necessary to know the neighboring cells of the subdomain being processed.
+When subdomains are located at the edges of global grid, boundary conditions must be specified to determine the values of cells that cross the boundary.
+This requirement remains true even if global grid is not distributed across multiple processes.
+
+Thus, grid representing the subdomain may be divided in two parts:
+    - *real cells*: cells strictly contained in the subdomain (yellow)
+    - *halo cells*: potential extra cells outside the subdomain containing neighboring values (blue)
+
+.. image:: images/real_halo_cells.png
+    :width: 600px
+    :align: center
+
+In classic OASIS coupling, communications only involve real cells, as coupled geoscientific models have their own internal communication system to construct halos.
+With some tricks and intermediate reconstruction operations, Grid can obtain fields with extra halos cells directly from OASIS communications.
+When sending a field back, Grid automatically removes the halo cells.
+
+.. image:: images/send_without_halos.png
+    :width: 600px
+    :align: center
+
+Grid definition can include an additionnal halo size attribute. A zero halo size corresponds to classic OASIS communications.
+Boundary conditions can also be specified during Grid definition to determine the value of halo cells that cross the global grid edges.
+
+Three types of boundary conditions are available:
+    - *close*: halos cells are filled with zeros (horizontal dimension in above examples)
+    - *cyclic*: halos cells are filled with periodic values (vertical dimension in above examples)
+    - *NFold*: vertical dimension top line is folded on itself, see `section 7.2 of this documentation <https://zenodo.org/records/8167700>`_
+
+.. image:: images/nfold_condition.png
+    :width: 700px
+    :align: center
+
+If not specified, default halo size and boundary conditions are zero and *close*. Note that boundary conditions are useless if Grid is defined without halos.
+
+.. warning :: *NFold* (NorthFold) imposes *close* condition for second dimension bottom line. It is used by `NEMO <https://www.nemo-ocean.eu/>`_ on three-polar ORCA grids to model global ocean circulation. *NFold* condition requires to specify folding point (T or F) and grid point type (T,U,V or F).
+
+.. note:: Pre-defined commonly used grids with/out halos are stored in Eophis sources. A pre-defined Grid is referred to as Domains in Eophis.
+
 
 
 Model
