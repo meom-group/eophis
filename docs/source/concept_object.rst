@@ -46,20 +46,20 @@ This operation is done by the Grid object. Global 2D longitude and latitude size
 
 **Halos**
 
-For some operations, such as differential calculus or in Convolutional Neural Networks, it is necessary to know the neighboring cells of the subdomain being processed.
-When subdomains are located at the edges of global grid, boundary conditions must be specified to determine the values of cells that cross the boundary.
+For some operations, such as differential calculus or in Convolutional Neural Networks, it is necessary to know the neighboring cells of the local grid being processed.
+When local grids are located at the edges of global grid, boundary conditions must be specified to determine the values of cells that cross the boundary.
 This requirement remains true even if global grid is not distributed across multiple processes.
 
-Thus, grid representing the subdomain may be divided in two parts:
-    - *real cells*: cells strictly contained in the subdomain (yellow)
-    - *halo cells*: potential extra cells outside the subdomain containing neighboring values (blue)
+Thus, grid cells may be divided in two parts:
+    - *real cells*: cells strictly contained in the local grid (yellow)
+    - *halo cells*: potential extra cells outside the local grid containing neighboring values (blue)
 
 .. image:: images/real_halo_cells.png
     :width: 600px
     :align: center
 
 In classic OASIS coupling, communications only involve real cells, as coupled geoscientific models have their own internal communication system to construct halos.
-With some tricks and intermediate reconstruction operations, Grid can obtain fields with extra halos cells directly from OASIS communications.
+With some tricks and intermediate reconstruction operations, Grid can obtain fields with extra halos cells directly from OASIS communications. This spares the need to create an internal communication system for Eophis, killing two birds with one stone by combining halo construction with field exchanges.
 When sending a field back, Grid automatically removes the halo cells.
 
 .. image:: images/send_without_halos.png

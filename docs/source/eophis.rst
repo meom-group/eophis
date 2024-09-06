@@ -8,6 +8,7 @@ Subpackages
    :maxdepth: 4
 
    eophis.coupling
+   eophis.domain
    eophis.utils
 
 Submodules

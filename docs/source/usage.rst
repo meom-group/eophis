@@ -31,7 +31,7 @@ This automatically creates the log files ``eophis.out`` and ``eophis.err``. The 
     ===============================
     |    CNRS - IGE - MEOM Team   |
     |           ------            |
-    |     EOPHIS 0.9.1 (2024)     |
+    |     EOPHIS 1.0.0 (2024)     |
     ===============================
     Main packages used:
     Python implementation: CPython
@@ -101,7 +101,7 @@ Note that ``eophis.abort()`` will also kill the execution. Here are the outputs:
     ===============================
     |    CNRS - IGE - MEOM Team   |
     |           ------            |
-    |     EOPHIS 0.9.1 (2024)     |
+    |     EOPHIS 1.0.0 (2024)     |
     ===============================
     Main packages used:
     Python implementation: CPython
@@ -250,35 +250,51 @@ Note that the ``FortranNamelist.get()`` method is not sensitive to the letter ca
 
 Grids
 ~~~~~
-A Grid may be created both in preproduction and production modes.
+A Grid may be created both in preproduction and production modes. However, it is not possible to directly instantiate a Grid with the class constructor. This step is done by Tunnel (see hereafter).
 
-In this version, Grid is a simple tuple containing:
-    - the number of global longitude points
-    - the number of global latitude points
-    - an unused integer (for now)
-    - an unused integer (for now)
-
-The fields exchanged with "Fake Earth" are discretized on grids that all have the same longitude and latitude points, ``720`` and ``603`` respectively. Only one Grid is needed here:
-
-::
-
-    my_grid = (720,603,0,0)
+A Grid is defined with arguments arranged in a dictionary:
+    - number of longitude and latitude points: ``{ 'npts' : () }``
+    - number of halos : ``{ 'halos' : }``
+    - boundary conditions in east-west and north-south directions: ``{ 'bnd' : () }``
+    - grid and folding type, respectively (NorthFold condition only) : ``{ 'folding' : () }``
 
 
-This size corresponds to the 2D size of an eORCA05 grid that is commonly used for global ocean circulation. It is pre-registered in Eophis and can be imported with:
+The fields exchanged with Fake Earth are all discretized on the same global grid whose number of longitude and latitude points are ``720`` and ``603``, respectively. Only first argument ``npts`` is compulsory, others are optional:
 
 ::
 
-    from eophis import Grids
+    my_grid = { 'npts' : (720,603)}
 
-    my_grid = Grids.eORCA05
+
+This size corresponds to an eORCA05 grid that is commonly used for global ocean circulation. It is pre-registered in Eophis and can be imported with:
+
+::
+
+    from eophis import Domains
+
+    my_grid = Domains.demo
     print(my_grid)
     
 ::
 
-    (720, 603, 0, 0)
+    {'npts': (720, 603), 'halos': 0, 'bnd': ('close', 'close'), 'folding': ('T', 'T')}
 
-Check out the ``eophis.utils.params`` module described in the **API** section of this documentation fore more details about pre-registered Grids.
+Fields discretized on this grid will be received without extra halo cells. It can still be modified before sending back, but operations that require neighboring cells won't be executed optimaly on the edges of the local grid. The same eORCA05 grid is also pre-registered in Eophis with halos:
+
+::
+
+    from eophis import Domains
+    
+    my_halo_grid = Domains.eORCA05
+    print(my_halo_grid)
+    
+::
+
+    {'npts': (720, 603), 'halos': 1, 'bnd': ('cyclic', 'nfold'), 'folding': ('T', 'T')}
+
+Fields discretized on this grid will be received with 1 extra halo cells, with a cyclic boundary condition applied on east-west dimension, and a NorthFold condition for north-south dimension.
+
+Check out the ``eophis.domain.grid`` module described in the **API** section of this documentation for more details about pre-registered Domains.
 
 
 
@@ -300,18 +316,18 @@ A Tunnel may be created both in preproduction and production modes. Since the re
 * ``grids`` are the Grids that will be partionned by OASIS and on which fields could be exchanged
 * ``exchs`` is a list of parameters that described how the fields should be exchanged
 
-In the previous section, we defined the Grid on which we wish to perform the coupling with "Fake Earth", let's use it in Tunnel:
+In the previous section, we defined the Grid on which we wish to perform the coupling with Fake Earth, let's use it in Tunnel:
 
 ::
 
-    from eophis import Grids
+    from eophis import Domains
 
     tunnel_args = { 'label' : 'TO_EARTH', \
-                    'grids' : { 'eORCA05' : Grids.eORCA05 }, \
+                    'grids' : { 'demo' : Domains.demo }, \
                     'exchs' : [ {} ]
                   }
 
-Now, the Tunnel will be able to configure communications of fields discretized on the ``eORCA05`` Grid.
+Now, the Tunnel will be able to configure communications of fields discretized on the ``demo`` Grid.
 
 .. note:: More than one Grid may be associated to the Tunnel.
 
@@ -339,13 +355,13 @@ A Tunnel can handle exchanges with different options, that's why it takes a list
 
 ::
 
-    from eophis import Grids, Freqs
+    from eophis import Domains, Freqs
 
     tunnel_args = { 'label' : 'TO_EARTH', \
-                  'grids' : { 'eORCA05' : Grids.eORCA05 }, \
-                  'exchs' : [ {'freq' :        3600,  'grd' : 'eORCA05', 'lvl' : 1, 'in' : ['sst'], 'out' : ['sst_var'] },  \
-                              {'freq' : Freqs.DAILY,  'grd' : 'eORCA05', 'lvl' : 3, 'in' : ['svt'], 'out' : ['svt_var'] },  \
-                              {'freq' : Freqs.STATIC, 'grd' : 'eORCA05', 'lvl' : 1, 'in' : ['msk'], 'out' : [] }]
+                  'grids' : { 'demo' : Domains.demo }, \
+                  'exchs' : [ {'freq' :        3600,  'grd' : 'demo', 'lvl' : 1, 'in' : ['sst'], 'out' : ['sst_var'] },  \
+                              {'freq' : Freqs.DAILY,  'grd' : 'demo', 'lvl' : 3, 'in' : ['svt'], 'out' : ['svt_var'] },  \
+                              {'freq' : Freqs.STATIC, 'grd' : 'demo', 'lvl' : 1, 'in' : ['msk'], 'out' : [] }]
                 }
                               
 
@@ -364,27 +380,40 @@ Registration takes the same arguments as the Tunnel constructor except that they
 
 ::
 
-    from eophis import Freqs, Grids
+    from eophis import Freqs, Domains
 
     # empty Tunnel config list
     tunnel_config = list()
     
     # Tunnel for the regular exchanges
     tunnel_config.append( { 'label' : 'TO_EARTH', \
-                            'grids' : { 'eORCA05' : Grids.eORCA05 }, \
-                            'exchs' : [ {'freq' :        3600,  'grd' : 'eORCA05', 'lvl' : 1, 'in' : ['sst'], 'out' : ['sst_var'] }, \
-                                        {'freq' : Freqs.DAILY,  'grd' : 'eORCA05', 'lvl' : 3, 'in' : ['svt'], 'out' : ['svt_var'] }] }
+                            'grids' : { 'demo' : Domains.demo }, \
+                            'exchs' : [ {'freq' :        3600,  'grd' : 'demo', 'lvl' : 1, 'in' : ['sst'], 'out' : ['sst_var'] }, \
+                                        {'freq' : Freqs.DAILY,  'grd' : 'demo', 'lvl' : 3, 'in' : ['svt'], 'out' : ['svt_var'] }] }
                         )
 
     # Tunnel for the static exchange
     tunnel_config.append( { 'label' : 'TO_EARTH_METRIC', \
-                            'grids' : { 'eORCA05' : Grids.eORCA05}, \
-                            'exchs' : [ {'freq' : Freqs.STATIC, 'grd' : 'eORCA05', 'lvl' : 1, 'in' : ['msk'], 'out' : []} ] }
+                            'grids' : { 'demo' : Domains.demo}, \
+                            'exchs' : [ {'freq' : Freqs.STATIC, 'grd' : 'demo', 'lvl' : 1, 'in' : ['msk'], 'out' : []} ] }
                         )
 
     # Register Tunnels
     earth, earth_metrics = eophis.register_tunnels( tunnel_config )
 
+
+Grids associated to the Tunnel will be instantiated during registration. This may be seen in logs:
+
+.. code-block :: bash
+
+    cat eophis.out
+    # [...]
+    -------- Tunnel TO_EARTH registered --------
+    # [...]
+      Grid demo registered
+          Global size: (720, 603)
+          Boundary conditions: ('close', 'close')
+    ------------------------------------
 
 
 Assemble a Loop and a Router
@@ -396,7 +425,7 @@ For instance, only one Loop is available in Eophis. It is named ``all_in_all_out
 ::
 
     niter = it_end - it_0 + 1
-    @eophis.all_in_all_out(earth_system=earth, step=step, niter=niter)
+    @eophis.all_in_all_out(geo_model=earth, step=step, niter=niter)
 
 
 Router is an empty function that is embedded within the Loop between the reception and the sending phases. Inside the Loop, it receives all the fields obtained during the reception phase and is expected to return all the fields required for the sending back phase. An empty Router assembled with a Loop has the following structure:
@@ -404,7 +433,7 @@ Router is an empty function that is embedded within the Loop between the recepti
 
 ::
 
-    @eophis.all_in_all_out(earth_system=earth, step=step, niter=niter)
+    @eophis.all_in_all_out(geo_model=earth, step=step, niter=niter)
     def loop_core(**inputs):
         outputs = {}
         # ...
@@ -417,7 +446,7 @@ In other words, Router delivers all the Tunnel received fields in ``inputs``. Us
 
 ::
 
-    @eophis.all_in_all_out(earth_system=earth, step=step, niter=niter)
+    @eophis.all_in_all_out(geo_model=earth, step=step, niter=niter)
     def loop_core(**inputs):
         outputs = {}
         outputs['sst_var'] = add_100(inputs['sst'])
@@ -488,40 +517,40 @@ Total simulation time is required by the OASIS namelist and is passed as argumen
     # ======= Tunnel TO_EARTH =======
     # Earth -- sst --> Models
     E_OUT_0 M_IN_0 1 3600 0 rst.nc EXPORTED
-    720 603 720 603 eORCA05 eORCA05 LAG=0
+    720 603 720 603 demo demo LAG=0
     P 2 P 2
     # Earth <-- sst_var -- Models
     M_OUT_0 E_IN_0 1 3600 0 rst.nc EXPORTED
-    720 603 720 603 eORCA05 eORCA05 LAG=0
+    720 603 720 603 demo demo LAG=0
     P 2 P 2
     # Earth -- svt --> Models
     E_OUT_1 M_IN_1 1 86400 0 rst.nc EXPORTED
-    720 603 720 603 eORCA05 eORCA05 LAG=0
+    720 603 720 603 demo demo LAG=0
     P 2 P 2
     # Earth <-- svt_var -- Models
     M_OUT_1 E_IN_1 1 86400 0 rst.nc EXPORTED
-    720 603 720 603 eORCA05 eORCA05 LAG=0
+    720 603 720 603 demo demo LAG=0
     P 2 P 2
     # ======= Tunnel TO_EARTH_METRIC =======
     # Earth -- msk --> Models
     E_OUT_2 M_IN_2 1 2424000 0 rst.nc EXPORTED
-    720 603 720 603 eORCA05 eORCA05 LAG=0
+    720 603 720 603 demo demo LAG=0
     P 2 P 2
     #
     $END
 
 Without going in the details, just note the header that indicates that Eophis worked here and the comments added to identify which sections correspond to which exchanges and Tunnels.
 
-At this point, everything is ready for OASIS. For curious or OASIS initiated users, a last editing functionality is available. In a ``namcouple`` section, like:
+At this point, everything is ready for OASIS. For curious people or OASIS initiated users, a last editing functionality is available. In a ``namcouple`` section, like:
 
 .. code-block :: bash
 
     # Earth -- sst --> Models
     E_OUT_0 M_IN_0 1 3600 0 rst.nc EXPORTED
-    720 603 720 603 eORCA05 eORCA05 LAG=0
+    720 603 720 603 demo demo LAG=0
     P 2 P 2
 
-the two first terms are aliases that OASIS uses to perform the communications. ``sst`` is manipulated by OASIS under the name ``E_OUT_0`` from the "Fake Earth" side and under ``M_IN_0`` from the Python side. Those aliases have been set by default during Tunnel registration.
+the two first terms are aliases that OASIS uses to perform the communications. ``sst`` is manipulated by OASIS under the name ``E_OUT_0`` from the Fake Earth side and under ``M_IN_0`` from the Python side. Those aliases have been set by default during Tunnel registration.
 
 In Eophis, it does not matter to know these aliases since every OASIS actions are wrapped. On the contrary, it might do from the geoscientific side to setup the coupling, depending on the OASIS implementation.
 
@@ -544,13 +573,13 @@ In Eophis, it does not matter to know these aliases since every OASIS actions ar
           - sst_var -> M_OUT_0
           - svt -> M_IN_1
           - svt_var -> M_OUT_1
+    # [...]
     -------- Tunnel TO_EARTH_METRIC registered --------
       namcouple variable names
         Earth side:
           - msk -> E_OUT_2
         Models side:
           - msk -> M_IN_2
-
 
 
 * A second solution is to specify user-defined aliases corresponding to those used in the physical code. This can be done with two optional Tunnel arguments ``geo_aliases`` and ``py_aliases``. Both are dictionnaries that associate an alias to the fields names defined in Tunnel for the Earth side and the Model side, respectively. For example:
@@ -560,9 +589,9 @@ In Eophis, it does not matter to know these aliases since every OASIS actions ar
     
     # Configurate a Tunnel for the regular exchanges
     tunnel_config.append( { 'label'      : 'TO_EARTH', \
-                            'grids'      : { 'eORCA05' : Grids.eORCA05}, \
-                            'exchs'      : [ {'freq' :        3600,  'grd' : 'eORCA05', 'lvl' : 1, 'in' : ['sst'], 'out' : ['sst_var'] },  \
-                                             {'freq' : Freqs.DAILY,  'grd' : 'eORCA05', 'lvl' : 3, 'in' : ['svt'], 'out' : ['svt_var'] }], \
+                            'grids'      : { 'demo' : Domains.demo}, \
+                            'exchs'      : [ {'freq' :        3600,  'grd' : 'demo', 'lvl' : 1, 'in' : ['sst'], 'out' : ['sst_var'] },  \
+                                             {'freq' : Freqs.DAILY,  'grd' : 'demo', 'lvl' : 3, 'in' : ['svt'], 'out' : ['svt_var'] }], \
                             'geo_aliases' : { 'sst' : 'EAR_SST', 'svt' : 'EAR_TEMP', 'sst_var' : 'EAR_SSTV', 'svt_var' : 'EARTEMPV'},  \
                             'py_aliases'  : { 'sst' : 'EOP_SST', 'svt' : 'EOP_TEMP', 'sst_var' : 'EOP_SSTV', 'svt_var' : 'EOPTEMPV'}   }
                         )
@@ -589,24 +618,24 @@ It is of course possible to use only one of these optional arguments and Eophis 
     # ======= Tunnel TO_EARTH =======
     # Earth -- sst --> Models
     EAR_SST EOP_SST 1 3600 0 rst.nc EXPORTED
-    720 603 720 603 eORCA05 eORCA05 LAG=0
+    720 603 720 603 demo demo LAG=0
     P 2 P 2
     # Earth <-- sst_var -- Models
     EOP_SSTV EAR_SSTV 1 3600 0 rst.nc EXPORTED
-    720 603 720 603 eORCA05 eORCA05 LAG=0
+    720 603 720 603 demo demo LAG=0
     P 2 P 2
     # Earth -- svt --> Models
     EAR_TEMP EOP_TEMP 1 86400 0 rst.nc EXPORTED
-    720 603 720 603 eORCA05 eORCA05 LAG=0
+    720 603 720 603 demo demo LAG=0
     P 2 P 2
     # Earth <-- svt_var -- Models
     EOPTEMPV EARTEMPV 1 86400 0 rst.nc EXPORTED
-    720 603 720 603 eORCA05 eORCA05 LAG=0
+    720 603 720 603 demo demo LAG=0
     P 2 P 2
     # ======= Tunnel TO_EARTH_METRIC =======
     # Earth -- msk --> Models
     E_OUT_0 M_IN_0 1 2424000 0 rst.nc EXPORTED
-    720 603 720 603 eORCA05 eORCA05 LAG=0
+    720 603 720 603 demo demo LAG=0
     P 2 P 2
     #
     $END
@@ -675,6 +704,7 @@ Static reception of ``msk`` with the Tunnel ``earth_metrics`` is done with:
     my_mask = earth_metrics.receive('msk')
     print(my_mask.shape)
     # should print (720,603,1) if executed on one process
+    # should print (722,605,1) if defined on a grid with 1 halo, and executed on one process
     
     
 This also writes a message in the log file:

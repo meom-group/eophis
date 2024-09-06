@@ -67,10 +67,10 @@ Following commands run the test (number of executing processes may be changed in
 A surrogate geoscientific code with an hard-coded OASIS interface is emulated by ``fake_earth.py``.
 The script advances in time in accordance with parameters provided in the Fortran namelist ``earth_namelist``. ``models.py`` contains a dummy model ``deltaxy()`` that computes first order discrete differences along first and second axis.
 
-Differences imply to know neighboring cells. Those will be missing at boundaries, especially if ``models.py`` is scattered among processes. Fields need to be received on the model side with at least 1 extra halo cell to compute correct differences. It is also required to specify what values should contain the halos located at the boundaries of the global grid.
+Differences imply to know neighboring cells. Those will be missing at boundaries, especially if ``models.py`` is scattered among processes. Fields need to be received on the model side with at least 1 extra halo cell to compute correct differences. It is also required to determine the values of the halos located over the edges of the global grid.
 
 Thus, Fake Earth intends to send every time step:
-    - ``psi``, on Arakawa C-grid V-points, with size ``(10,10,3)``, cyclic/NFold conditions and 1 halo
+    - ``psi``, on Arakawa C-grid V points, with size ``(10,10,3)``, cyclic/NFold conditions and 1 halo
     - ``phi``, on a standard grid, with size ``(10,10,2)``, closed/cyclic conditions and 2 halos
 and to receive from the Python model:
     - ``dxpsi`` and ``dypsi``, results from ``deltaxy(psi)``, defined on same ``psi`` grid
