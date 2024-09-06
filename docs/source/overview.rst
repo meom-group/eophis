@@ -4,7 +4,7 @@ Eophis
 .. toctree::
     :maxdepth: 0
     
-**Eophis** is a collection of tools to ease the deployment of Python scripts (as pre-trained Machine Learning components) within Fortran/C geoscientific models through OASIS.
+**Eophis** is a collection of tools that eases the deployment of Python scripts (as pre-trained Machine Learning components) within Fortran/C geoscientific models through OASIS.
 
     *Also it is the currently oldest known snake ancestra (2023)*
 

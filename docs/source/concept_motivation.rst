@@ -7,7 +7,7 @@ Why Eophis ?
 A bit of context
 ----------------
 
-Eophis development takes place in the context of combinating Python models with geoscientific legacy solvers written in low-level abstraction languages as Fortran or C/C++.
+Eophis development takes place in the context of combinating Python models with geoscientific legacy solvers that are written in low-level abstraction languages, such as Fortran or C/C++.
 
 Typical applications include:
     - Machine Learning (ML) / Physic-based hybrid modelling
@@ -22,16 +22,16 @@ Interfaces are here required to make both entities to coexist. Beyond the hetero
    :width: 400px
    :align: center
 
-The question is adressed here through the strategy of creating pipes between Fortran/C and Python scripts executed seperately. In this framework, both scripts are intended to exchange generic formatted data (typically arrays) through a communicating library.
+The question is adressed here through the strategy of creating pipes between Fortran/C and Python scripts executed seperately. In this framework, both scripts are intended to exchange generic formatted data (typically arrays) through a communication library.
 
 Advantages of this approach are many:
-    - Flexibility to fill each scripts of any content with mininal bindings
-    - Execution of each scripts in different processing architectures
+    - Flexibility to fill each script of any content with mininal bindings
+    - Execution of each script in different processing architectures
     - Python scripts easily shareable
-    - Each scripts are up-to-date with its own environment
+    - Each script is up-to-date with its own environment
 
 
-`OASIS <https://oasis.cerfacs.fr/en/>`_ is a Fortran coupling library that allows to perform exchanges of 2D/3D fields with/out interpolation between coupled executables and appears here to be a good candidate. Indeed, last releases provided C and Python APIs, allowing coupling of heterogeneously written codes. Most of all, OASIS is already widely deployed in the climate modeling community codes.
+`OASIS <https://oasis.cerfacs.fr/en/>`_ is a Fortran coupling library that allows to perform exchanges of 2D/3D fields with/out interpolation between coupled executables, and appears to be a good candidate. Indeed, last releases provided C and Python APIs, allowing coupling of heterogeneously written codes. Most of all, OASIS is already widely deployed in the climate modeling community codes.
 
 
 
@@ -40,7 +40,7 @@ Advantages of this approach are many:
    :align: center
    :alt: Exchange data between Fortran/C and Python with OASIS.
 
-.. note:: The main motivation is to use OASIS in a way that a geoscientific model would exchange data with an external Python script that should contain an OASIS interface and modeling / ML material.
+.. note:: Main motivation is to use OASIS in a way that a geoscientific model would exchange data with an external Python script that should contain an OASIS interface and modeling / ML material.
 
 Difficulties
 ------------
