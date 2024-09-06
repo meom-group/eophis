@@ -43,12 +43,16 @@ jobs:
       with:
         python-version: "3.10.4"
         cache: "pip"
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install netcdf4 numpy f90nml pytest watermark
-        python -m pip install mpi4py==3.1.5
-        
+
+    - name: Install eophis
+      run: |
+        cd /home/runner/work/eophis/eophis/
+        pip install .
+
     - name: Install OASIS
       run: |
         cd /home/runner/work/eophis/eophis/oasis3-mct/util/make_dir/
@@ -61,15 +65,11 @@ jobs:
         source /home/runner/work/eophis/eophis/oasis3-mct/BLD/python/init.sh
         source /home/runner/work/eophis/eophis/oasis3-mct/BLD/python/init.csh
 
-    - name: Install eophis
-      run: |
-        cd /home/runner/work/eophis/eophis/
-        pip install .
-    - name: Run unit tests
+    - name: Run Eophis unit tests
       run: |
         cd /home/runner/work/eophis/eophis/tests/unit_tests
         pytest
     - name: Run operating tests
       run: |
-        cd /home/runner/work/eophis/eophis/tests/write_and_couple
-        make
+        cd /home/runner/work/eophis/eophis/tests/
+        ./run_all_tests.sh
