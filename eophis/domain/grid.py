@@ -53,7 +53,7 @@ class Domains:
 class Grid:
     """
     This class represents the grid on which fields can be discretized and exchanged. Fields are usually scattered among their executing processes and OASIS needs to know the local grid decomposition to perform optimized partition-to-partition communications.
-    The class provides methods to decompose a global grid in several subdomains, identify the subdomain on which fields will be exchanged, and generate informations required by OASIS to setup communications.
+    The class provides methods to decompose a global grid in several subdomains, identifies the subdomain on which fields will be exchanged, and generates information required by OASIS to set up communications.
     
     The local grid representing the subdomain may be divided in two parts:
         1. "real cells": cells strictly contained in the subdomain
@@ -210,7 +210,7 @@ class Grid:
             logs.abort(f'Grid {self.label}: Subdomain ID {domid} should not negative')
         
         # divide grid in subdomains
-        logs.info(f'            Configure grid {self.label} for subdomain {domid+1} out of {nsub+1} with {self.halo_size} halo cells.')
+        logs.info(f'            Configure grid {self.label} for subdomain {domid+1} out of {nsub} with {self.halo_size} halo cells.')
         sub_sizes_x, sub_sizes_y = self.decompose(nsub)
 
         # local grid dimension
