@@ -252,7 +252,7 @@ Grids
 ~~~~~
 A Grid may be created both in preproduction and production modes. However, it is not possible to directly instantiate a Grid with the class constructor. This step is done by Tunnel (see hereafter).
 
-A Grid is defined with arguments arranged in a dictionary:
+Instead, a Grid is defined by user with arguments arranged in a dictionary:
     - number of longitude and latitude points: ``{ 'npts' : () }``
     - number of halos : ``{ 'halos' : }``
     - boundary conditions in east-west and north-south directions: ``{ 'bnd' : () }``
@@ -272,27 +272,31 @@ This size corresponds to an eORCA05 grid that is commonly used for global ocean 
 
     from eophis import Domains
 
-    my_grid = Domains.demo
-    print(my_grid)
+    my_defined_grid = Domains.demo
+    print(my_defined_grid)
     
 ::
 
     {'npts': (720, 603), 'halos': 0, 'bnd': ('close', 'close'), 'folding': ('T', 'T')}
 
-Fields discretized on this grid will be received without extra halo cells. It can still be modified before sending back, but operations that require neighboring cells won't be executed optimaly on the edges of the local grid. The same eORCA05 grid is also pre-registered in Eophis with halos:
+Fields discretized on this grid will be received without extra halo cells. It can still be modified before sending back. However, operations that require neighboring cells won't be executed optimaly on the edges of the local grid. The same eORCA05 grid is also pre-registered in Eophis with halos:
 
 ::
 
     from eophis import Domains
     
-    my_halo_grid = Domains.eORCA05
-    print(my_halo_grid)
+    my_eorca05 = Domains.eORCA05
+    print(my_eorca05)
     
 ::
 
     {'npts': (720, 603), 'halos': 1, 'bnd': ('cyclic', 'nfold'), 'folding': ('T', 'T')}
 
-Fields discretized on this grid will be received with 1 extra halo cells, with a cyclic boundary condition applied on east-west dimension, and a NorthFold condition for north-south dimension.
+Fields discretized on this grid will be received with 1 extra halo cells, with a cyclic boundary condition applied on east-west dimension, and a NorthFold condition for north-south dimension. Those arguments can of course be user-defined:
+
+::
+
+    my_halo_grid = { 'npts' : (720,603), 'halos': 3, 'bnd': ('cyclic', 'cyclic')}
 
 Check out the ``eophis.domain.grid`` module described in the **API** section of this documentation for more details about pre-registered Domains.
 
