@@ -8,6 +8,7 @@ OASIS with its Python API must be installed first. More informations may be foun
 
 Prerequisites:
    - Fortran / C compilers
+   - MPI libraries
    - `netcdf <https://www.unidata.ucar.edu/software/netcdf/>`_ library for Fortran (>=4.5.2) and C (>=4.7.2)
    - Python environment
 
