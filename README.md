@@ -1,6 +1,6 @@
 # Eophis
 
-https://readthedocs.org/projects/eophis/badge/?version=latest&style=plastic
+[![Documentation Status](https://readthedocs.org/projects/eophis/badge/?version=latest)](https://eophis.readthedocs.io/en/latest/?badge=latest)
 
 **_Eophis_** is a collection of tools to ease the deployment of Python scripts (as pre-trained Machine Learning components) within Fortran/C geoscientific models through OASIS.
 > _Also it is the currently oldest known snake ancestra (2023)_
