@@ -1,6 +1,10 @@
 # Eophis
 
+![Python Version](https://img.shields.io/badge/Python-3.10-blue)
+[![C, Fortran, and MPI Required](https://img.shields.io/badge/Compiler-C%20%2F%20Fortran%20%2F%20MPI-important)](https://www.open-mpi.org/)
+[![netcdf Required](https://img.shields.io/badge/Build-netCDF%E2%80%93C%20%2F%20netCDF%E2%80%93F-important)](https://www.unidata.ucar.edu/software/netcdf/)
 [![Documentation Status](https://readthedocs.org/projects/eophis/badge/?version=latest)](https://eophis.readthedocs.io/en/latest/?badge=latest)
+
 
 **_Eophis_** is a collection of tools to ease the deployment of Python scripts (as pre-trained Machine Learning components) within Fortran/C geoscientific models through OASIS.
 > _Also it is the currently oldest known snake ancestra (2023)_
