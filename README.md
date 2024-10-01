@@ -27,7 +27,7 @@ Basically, Eophis allows to:
 
 Check out corresponding sections in [Eophis documentation](https://eophis.readthedocs.io/en/latest/index.html) for further informations.
 
-## Demonstration cases
+## *Real-World* cases
 
 Those projects use Eophis:
 - [Morays](https://github.com/morays-community) : Python scripts deployed in ocean models with Eophis
