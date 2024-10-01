@@ -37,6 +37,7 @@ build-requires = [
 host-requires = [
   "pkg:https://github.com/Unidata/netcdf-c/releases/tag/v4.7.2",
   "pkg:https://github.com/Unidata/netcdf-fortran/releases/tag/v4.5.2",
+  "pkg:https://https://www.open-mpi.org/"
 ]
 
 [project.urls]
