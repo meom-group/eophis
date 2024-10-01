@@ -27,12 +27,20 @@ Basically, Eophis allows to:
 
 Check out corresponding sections in [Eophis documentation](https://eophis.readthedocs.io/en/latest/index.html) for further informations.
 
-## License
-
-Copyright &copy; IGE-MEOM
-Eophis is distributed under the [MIT License](https://github.com/meom-group/eophis/blob/main/LICENSE).
-
 ## Demonstration cases
 
 Here is a list of repositories containing realizations of coupled runs between different geophysical models and ML models deployed by Eophis:
 - [Morays](https://github.com/morays-community) : coupled experiments with ocean codes
+
+
+## How to cite
+
+[![DOI](https://zenodo.org/badge/713480336.svg)](https://doi.org/10.5281/zenodo.13852038) 
+
+Please above DOI or **Cite this repository** button in the **About** section of the repository
+
+
+## License
+
+Copyright &copy; IGE-MEOM
+Eophis is distributed under the [MIT License](https://github.com/meom-group/eophis/blob/main/LICENSE).

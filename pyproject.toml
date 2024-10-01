@@ -6,7 +6,8 @@ build-backend = "setuptools.build_meta"
 name = "eophis"
 version = "1.0.0"
 description = "Tools to couple Python and Machine Learning models with Geophysical simulation codes through OASIS."
-authors = [ { name="Alexis Barge", email="alexis.barge@proton.me" }, ]
+authors = [ { name="Alexis Barge", email="alexis.barge@proton.me" }, 
+	    { name = "Julien Le Sommer", email = "julien.lesommer@univ-grenoble-alpes.fr" },]
 readme = "README.md"
 license = {file = "LICENSE"}
 

@@ -26,7 +26,7 @@ identifiers:
     description: URL of Eophis version 1.0.0
   - type: url
     value: 'https://gmd.copernicus.org/articles/10/3297/2017/'
-    description: OASIS-MC3 heritage link
+    description: OASIS-MCT3 heritage link
 repository-code: 'https://github.com/meom-group/eophis'
 abstract: >-
   Eophis is a collection of tools to facilitate the creation
