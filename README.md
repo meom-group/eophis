@@ -40,6 +40,10 @@ Those projects use Eophis:
 Please use above DOI or **Cite this repository** button in the **About** section of the repository
 
 
+## Contributing
+
+See [CONTRIBUTING.md](https://github.com/meom-group/eophis/blob/main/CONTRIBUTING.md) to get started.
+
 ## License
 
 Copyright &copy; IGE-MEOM
