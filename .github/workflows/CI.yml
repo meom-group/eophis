@@ -41,14 +41,14 @@ jobs:
 
     - name: Install OASIS
       run: |
-        cd /home/runner/work/test-CI/test-CI/oasis3-mct/util/make_dir/
-        echo "include /home/runner/work/test-CI/test-CI/.github/workflows/make.gnu" > make.inc
-        sed -i '13s/.*/COUPLE       = \/home\/runner\/work\/test-CI\/test-CI\/oasis3-mct/' /home/runner/work/test-CI/test-CI/.github/workflows/make.gnu
+        cd /home/runner/work/eophis/eophis/oasis3-mct/util/make_dir/
+        echo "include /home/runner/work/eophis/eophis/.github/workflows/make.gnu" > make.inc
+        sed -i '13s/.*/COUPLE       = \/home\/runner\/work\/eophis\/eophis\/oasis3-mct/' /home/runner/work/eophis/eophis/.github/workflows/make.gnu
         make -f TopMakefileOasis3 pyoasis
 
     - name: Install pyOASIS
       run: |
-        source /home/runner/work/test-CI/test-CI/oasis3-mct/BLD/python/init.sh
+        source /home/runner/work/eophis/eophis/oasis3-mct/BLD/python/init.sh
 
     - name: Install eophis
       run: |
