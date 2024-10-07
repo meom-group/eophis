@@ -23,21 +23,12 @@ jobs:
 
     - name: Install MPI implementation
       run: |
-        sudo apt-get install -y libopenmpi-dev openmpi-bin
+        sudo apt -y install openmpi-bin libmpich-dev libopenmpi-dev gcc g++ gfortran subversion libcurl4-openssl-dev wget make m4 git liburi-perl libxml2-dev
 
-    - name: Verify OpenMPI Installation
+    - name: Install NetCDF Library for C and Fortran
       run: |
-        mpifort --version
-        mpicc --version
+        sudo apt-get install -y libnetcdf-dev libnetcdff-dev
 
-    - name: Install NetCDF Library for C
-      run: |
-        sudo apt-get install -y libnetcdf-dev
-
-    - name: Install NetCDF Library for Fortran
-      run: |
-        sudo apt-get install -y libnetcdff-dev
-        
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
@@ -48,27 +39,27 @@ jobs:
       run: |
         python -m pip install --upgrade pip
 
-    - name: Install eophis
-      run: |
-        cd /home/runner/work/eophis/eophis/
-        pip install .
-
     - name: Install OASIS
       run: |
-        cd /home/runner/work/eophis/eophis/oasis3-mct/util/make_dir/
-        echo "include /home/runner/work/eophis/eophis/docs/machine/arch/make.jeanzay" > make.inc
-        sed -i '13s/.*/COUPLE       = \/home\/runner\/work\/eophis\/eophis\/oasis3-mct/' /home/runner/work/eophis/eophis/docs/machine/arch/make.jeanzay        
+        cd /home/runner/work/test-CI/test-CI/oasis3-mct/util/make_dir/
+        echo "include /home/runner/work/test-CI/test-CI/.github/workflows/make.jeanzay" > make.inc
+        sed -i '13s/.*/COUPLE       = \/home\/runner\/work\/test-CI\/test-CI\/oasis3-mct/' /home/runner/work/test-CI/test-CI/.github/workflows/make.jeanzay
         make -f TopMakefileOasis3 pyoasis
 
     - name: Install pyOASIS
       run: |
-        source /home/runner/work/eophis/eophis/oasis3-mct/BLD/python/init.sh
-        source /home/runner/work/eophis/eophis/oasis3-mct/BLD/python/init.csh
+        source /home/runner/work/test-CI/test-CI/oasis3-mct/BLD/python/init.sh
+
+    - name: Install eophis
+      run: |
+        cd /home/runner/work/eophis/eophis/
+        pip install .[dev]
 
     - name: Run Eophis unit tests
       run: |
         cd /home/runner/work/eophis/eophis/tests/unit_tests
         pytest
+
     - name: Run operating tests
       run: |
         cd /home/runner/work/eophis/eophis/tests/
