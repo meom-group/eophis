@@ -46,10 +46,6 @@ jobs:
         sed -i '13s/.*/COUPLE       = \/home\/runner\/work\/eophis\/eophis\/oasis3-mct/' /home/runner/work/eophis/eophis/.github/workflows/make.gnu
         make -f TopMakefileOasis3 pyoasis
 
-    - name: Install pyOASIS
-      run: |
-        source /home/runner/work/eophis/eophis/oasis3-mct/BLD/python/init.sh
-
     - name: Install eophis
       run: |
         cd /home/runner/work/eophis/eophis/
@@ -57,13 +53,12 @@ jobs:
 
     - name: Run Eophis unit tests
       run: |
-        cd /home/runner/work/eophis/eophis/tests/unit_tests
         source /home/runner/work/eophis/eophis/oasis3-mct/BLD/python/init.sh
-        echo $PYTHONPATH
-        echo $LD_LIBRARY_PATH
+        cd /home/runner/work/eophis/eophis/tests/unit_tests
         pytest
 
     - name: Run operating tests
       run: |
+        source /home/runner/work/eophis/eophis/oasis3-mct/BLD/python/init.sh
         cd /home/runner/work/eophis/eophis/tests/
         ./run_all_tests.sh
