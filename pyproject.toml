@@ -24,7 +24,7 @@ dependencies = [
     "numpy>=1.21.0",
     "f90nml>=1.4.4",
     "watermark>=2.4.3",
-    "mpi4py==3.1.5",
+    "mpi4py>=3.1.5",
 ]
 
 [project.optional-dependencies]
