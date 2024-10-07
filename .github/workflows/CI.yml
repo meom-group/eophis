@@ -42,8 +42,8 @@ jobs:
     - name: Install OASIS
       run: |
         cd /home/runner/work/test-CI/test-CI/oasis3-mct/util/make_dir/
-        echo "include /home/runner/work/test-CI/test-CI/.github/workflows/make.jeanzay" > make.inc
-        sed -i '13s/.*/COUPLE       = \/home\/runner\/work\/test-CI\/test-CI\/oasis3-mct/' /home/runner/work/test-CI/test-CI/.github/workflows/make.jeanzay
+        echo "include /home/runner/work/test-CI/test-CI/.github/workflows/make.gnu" > make.inc
+        sed -i '13s/.*/COUPLE       = \/home\/runner\/work\/test-CI\/test-CI\/oasis3-mct/' /home/runner/work/test-CI/test-CI/.github/workflows/make.gnu
         make -f TopMakefileOasis3 pyoasis
 
     - name: Install pyOASIS
