@@ -49,6 +49,7 @@ jobs:
     - name: Install pyOASIS
       run: |
         source /home/runner/work/eophis/eophis/oasis3-mct/BLD/python/init.sh
+        cat /home/runner/work/eophis/eophis/oasis3-mct/BLD/python/init.sh
 
     - name: Install eophis
       run: |
@@ -58,6 +59,8 @@ jobs:
     - name: Run Eophis unit tests
       run: |
         cd /home/runner/work/eophis/eophis/tests/unit_tests
+        echo $PYTHONPATH
+        echo $LD_LIBRARY_PATH
         pytest
 
     - name: Run operating tests
