@@ -1,7 +1,7 @@
 # Eophis
 
-![Python Version](https://img.shields.io/badge/Python-3.10-blue)
-[![C, Fortran, and MPI Required](https://img.shields.io/badge/Compiler-C%20%2F%20Fortran%20%2F%20MPI-important)](https://www.open-mpi.org/)
+![Python Version](https://img.shields.io/badge/Python-3.10%20%2F%203.11%20%2F%203.12-blue)
+[![C, Fortran, and MPI Required](https://img.shields.io/badge/Compilers-C%20%2F%20Fortran%20%2F%20MPI-important)](https://www.open-mpi.org/)
 [![netcdf Required](https://img.shields.io/badge/Build-netCDF%E2%80%93C%20%2F%20netCDF%E2%80%93F-important)](https://www.unidata.ucar.edu/software/netcdf/)
 [![Documentation Status](https://readthedocs.org/projects/eophis/badge/?version=latest)](https://eophis.readthedocs.io/en/latest/?badge=latest)
 
