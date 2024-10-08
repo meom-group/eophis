@@ -10,7 +10,7 @@ CHAN            = MPI1
 # Paths for libraries, object files and binaries
 #
 # COUPLE        : path for oasis3-mct main directory
-COUPLE          = /PATH/TO/oasis3-mct
+COUPLE          = /home/runner/work/eophis/eophis/oasis3-mct/
 #
 # ARCHDIR       : directory created when compiling
 ARCHDIR         = $(COUPLE)/BLD
