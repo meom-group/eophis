@@ -20,9 +20,15 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v2
     
+    - name: Set environment variable
+      run: |
+        echo "HOME=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+        echo "HOME_OASIS=$GITHUB_WORKSPACE/oasis3-mct" >> $GITHUB_ENV
+        echo "HOME_EOPHIS=$GITHUB_WORKSPACE/eophis" >> $GITHUB_ENV
+
     - name: Checkout OASIS
       run: |
-        git clone https://gitlab.com/cerfacs/oasis3-mct.git
+        git clone https://gitlab.com/cerfacs/oasis3-mct.git $HOME_OASIS
 
     - name: Install MPI implementation
       run: |
@@ -34,8 +40,8 @@ jobs:
 
     - name: Install OASIS
       run: |
-        cd /home/runner/work/eophis/eophis/oasis3-mct/util/make_dir/
-        echo "include /home/runner/work/eophis/eophis/.github/workflows/make.gnu" > make.inc
+        cd $HOME_OASIS
+        echo "include $HOME_EOPHIS/.github/workflows/make.gnu" > make.inc
         make -f TopMakefileOasis3 pyoasis
 
     - name: Set up Python ${{ matrix.python-version }}
@@ -46,17 +52,17 @@ jobs:
 
     - name: Install eophis
       run: |
-        cd /home/runner/work/eophis/eophis/
+        cd $HOME_EOPHIS
         pip install .[dev]
 
     - name: Run Eophis unit tests
       run: |
-        source /home/runner/work/eophis/eophis/oasis3-mct/BLD/python/init.sh
-        cd /home/runner/work/eophis/eophis/tests/unit_tests
+        source $HOME_OASIS/BLD/python/init.sh
+        cd $HOME_EOPHIS/tests/unit_tests
         pytest
 
     - name: Run operating tests
       run: |
-        source /home/runner/work/eophis/eophis/oasis3-mct/BLD/python/init.sh
-        cd /home/runner/work/eophis/eophis/tests/
+        source $HOME_OASIS/BLD/python/init.sh
+        cd $HOME_EOPHIS/tests/
         ./run_all_tests.sh
