@@ -20,37 +20,6 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v2
 
-<<<<<<< HEAD
-    - name: Install MPI implementation
-      run: |
-        sudo apt -y install openmpi-bin libmpich-dev libopenmpi-dev gcc g++ gfortran
-
-    - name: Install NetCDF Library for C and Fortran
-      run: |
-        sudo apt-get install -y libnetcdf-dev libnetcdff-dev
-
-    - name: Install OASIS
-      run: |
-        cd /home/runner/work/eophis/eophis/oasis3-mct/util/make_dir/
-        echo "include /home/runner/work/eophis/eophis/.github/workflows/make.gnu" > make.inc
-        make -f TopMakefileOasis3 pyoasis
-
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
-        cache: "pip"
-
-    - name: Install eophis
-      run: |
-        cd /home/runner/work/eophis/eophis/
-        pip install .[dev]
-
-    - name: Run Eophis unit tests
-      run: |
-        source /home/runner/work/eophis/eophis/oasis3-mct/BLD/python/init.sh
-        cd /home/runner/work/eophis/eophis/tests/unit_tests
-=======
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
@@ -84,16 +53,10 @@ jobs:
       run: |
         source $HOME_OASIS/BLD/python/init.sh
         cd $HOME/tests/unit_tests
->>>>>>> 1724f4e9292d830828c9f7812a050a2a3c479632
         pytest
 
     - name: Run operating tests
       run: |
-<<<<<<< HEAD
-        source /home/runner/work/eophis/eophis/oasis3-mct/BLD/python/init.sh
-        cd /home/runner/work/eophis/eophis/tests/
-=======
         source $HOME_OASIS/BLD/python/init.sh
         cd $HOME/tests/
->>>>>>> 1724f4e9292d830828c9f7812a050a2a3c479632
         ./run_all_tests.sh
