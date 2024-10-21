@@ -17,6 +17,15 @@ jobs:
         python-version: ["3.10", "3.11", "3.12"]
         
     steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: "pip"
+
     - name: Set environment variables
       run: |
         echo "HOME=$GITHUB_WORKSPACE" >> $GITHUB_ENV
@@ -25,15 +34,6 @@ jobs:
     - name: Install MPI, Netcdf for C and Fortran
       run: |
         sudo apt -y install openmpi-bin libmpich-dev libopenmpi-dev gcc g++ gfortran libnetcdf-dev libnetcdff-dev
-
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
-        cache: "pip"
-
-    - name: Checkout Repository
-      uses: actions/checkout@v2
 
     - name: Install eophis
       run: |
