@@ -40,7 +40,7 @@ jobs:
 
     - name: Install OASIS
       run: |
-        cd $HOME_OASIS
+        cd $HOME_OASIS/util/make_dir
         echo "include $HOME_EOPHIS/.github/workflows/make.gnu" > make.inc
         make -f TopMakefileOasis3 pyoasis
 
