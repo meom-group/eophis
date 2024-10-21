@@ -16,8 +16,8 @@ prod:
 
 # remove working file
 clean:
-	-rm namcouple* nout* debug* *.log *.out *.err
+	@-rm namcouple* nout* debug* *.log *.out *.err
 
 # purge
 veryclean: clean
-	-rm -r __pycache__
+	@-rm -r __pycache__

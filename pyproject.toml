@@ -6,7 +6,8 @@ build-backend = "setuptools.build_meta"
 name = "eophis"
 version = "1.0.0"
 description = "Tools to couple Python and Machine Learning models with Geophysical simulation codes through OASIS."
-authors = [ { name="Alexis Barge", email="alexis.barge@proton.me" }, ]
+authors = [ { name="Alexis Barge", email="alexis.barge@proton.me" }, 
+	    { name = "Julien Le Sommer", email = "julien.lesommer@univ-grenoble-alpes.fr" },]
 readme = "README.md"
 license = {file = "LICENSE"}
 
@@ -23,7 +24,7 @@ dependencies = [
     "numpy>=1.21.0",
     "f90nml>=1.4.4",
     "watermark>=2.4.3",
-    "mpi4py==3.1.5",
+    "mpi4py>=3.1.5",
 ]
 
 [project.optional-dependencies]
@@ -37,6 +38,7 @@ build-requires = [
 host-requires = [
   "pkg:https://github.com/Unidata/netcdf-c/releases/tag/v4.7.2",
   "pkg:https://github.com/Unidata/netcdf-fortran/releases/tag/v4.5.2",
+  "pkg:https://https://www.open-mpi.org/"
 ]
 
 [project.urls]

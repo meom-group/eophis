@@ -1,0 +1,48 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Eophis
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Alexis
+    family-names: Barge
+    email: alexis.barge@proton.me
+    affiliation: 'IGE, CNRS, Université Grenoble Alpes'
+  - given-names: Julien
+    family-names: Le Sommer
+    email: julien.lesommer@univ-grenoble-alpes.fr
+    affiliation: 'IGE, CNRS, Université Grenoble Alpes'
+  - name: IGE-MEOM
+    city: Saint Martin d'Hères
+    country: FR
+    post-code: '38400'
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.13852038
+    description: URL of Eophis version 1.0.0
+  - type: url
+    value: 'https://gmd.copernicus.org/articles/10/3297/2017/'
+    description: OASIS-MCT3 heritage link
+repository-code: 'https://github.com/meom-group/eophis'
+abstract: >-
+  Eophis is a collection of tools to facilitate the creation
+  and the configuration of an OASIS environment in a Python
+  script to couple with Fortran/C geoscientific codes.
+  Typical applications include hybrid physics / ML modeling,
+  deployment of fast evolving high-level libraries in stable
+  low-level codes or prototypal code testing.
+keywords:
+  - Python
+  - Fortran
+  - Machine Learning
+  - Geophysical models
+  - Hybrid physics
+  - OASIS coupling
+license: MIT
+commit: 0e8be458720d2d6838e860bd382cbcd8e21f673d
+version: v1.0.0
+date-released: '2024-09-27'
