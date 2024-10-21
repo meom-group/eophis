@@ -19,11 +19,8 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v2
-    
-    - name: Checkout OASIS
-      run: |
-        git clone https://gitlab.com/cerfacs/oasis3-mct.git
 
+<<<<<<< HEAD
     - name: Install MPI implementation
       run: |
         sudo apt -y install openmpi-bin libmpich-dev libopenmpi-dev gcc g++ gfortran
@@ -53,10 +50,50 @@ jobs:
       run: |
         source /home/runner/work/eophis/eophis/oasis3-mct/BLD/python/init.sh
         cd /home/runner/work/eophis/eophis/tests/unit_tests
+=======
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Set environment variables
+      run: |
+        echo "HOME=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+        echo "HOME_OASIS=$GITHUB_WORKSPACE/oasis3-mct" >> $GITHUB_ENV
+
+    - name: Install MPI, Netcdf for C and Fortran
+      run: |
+        sudo apt -y install openmpi-bin libmpich-dev libopenmpi-dev gcc g++ gfortran libnetcdf-dev libnetcdff-dev
+
+    - name: Install eophis
+      run: |
+        cd $HOME
+        pip install .[dev]
+
+    - name: Checkout OASIS
+      run: |
+        git clone https://gitlab.com/cerfacs/oasis3-mct.git $HOME_OASIS
+
+    - name: Install OASIS
+      run: |
+        cd $HOME_OASIS/util/make_dir
+        echo "include $HOME/.github/workflows/make.gnu" > make.inc
+        make -f TopMakefileOasis3 pyoasis
+
+    - name: Run Eophis unit tests
+      run: |
+        source $HOME_OASIS/BLD/python/init.sh
+        cd $HOME/tests/unit_tests
+>>>>>>> 1724f4e9292d830828c9f7812a050a2a3c479632
         pytest
 
     - name: Run operating tests
       run: |
+<<<<<<< HEAD
         source /home/runner/work/eophis/eophis/oasis3-mct/BLD/python/init.sh
         cd /home/runner/work/eophis/eophis/tests/
+=======
+        source $HOME_OASIS/BLD/python/init.sh
+        cd $HOME/tests/
+>>>>>>> 1724f4e9292d830828c9f7812a050a2a3c479632
         ./run_all_tests.sh
