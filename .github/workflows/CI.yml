@@ -32,7 +32,7 @@ jobs:
 
     - name: Install MPI, Netcdf for C and Fortran
       run: |
-        sudo apt -y install openmpi-bin libmpich-dev libopenmpi-dev gcc g++ gfortran libnetcdf-dev libnetcdff-dev
+        sudo apt -y install openmpi-bin libopenmpi-dev gcc g++ gfortran libnetcdf-dev libnetcdff-dev
 
     - name: Install eophis
       run: |
