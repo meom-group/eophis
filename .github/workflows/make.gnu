@@ -16,10 +16,9 @@ COUPLE          = $(HOME)/oasis3-mct/
 ARCHDIR         = $(COUPLE)/BLD
 #
 # MPI libraries
-#ARCH        = x86_64-linux-gnu
-MPIDIR      = /usr/lib/$(ARCH)/
-MPIBIN      = $(MPIDIR)/bin
-MPI_INCLUDE = $(MPIDIR)/mpich/
+MPIDIR      = /usr/lib/$(ARCH)/openmpi
+MPIBIN      = /usr/bin
+MPI_INCLUDE = $(MPIDIR)/include
 MPILIB      = -L$(MPIDIR)/lib -lmpi
 MPIRUN      = $(MPIBIN)/mpirun --oversubscribe
 #
