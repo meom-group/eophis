@@ -31,7 +31,7 @@ From: debian:bookworm-slim
    rm -rf /var/lib/apt/lists/*
 
    # Install eophis 
-   git clone --branch CI_workflows https://github.com/meom-group/eophis $HOME/eophis
+   git clone https://github.com/meom-group/eophis $HOME/eophis
    cd $HOME/eophis/
    pip install .
 
