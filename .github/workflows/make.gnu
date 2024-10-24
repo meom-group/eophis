@@ -48,7 +48,7 @@ ARFLAGS     = -ruv
 #
 CPPDEF    = -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY
 #
-FCBASEFLAGS  = -O2 -I. -ffree-line-length-0 -fallow-argument-mismatch -mcmodel=large
+FCBASEFLAGS  = -O2 -I. -ffree-line-length-0 -fallow-argument-mismatch
 CCBASEFLAGS  = -O2
 INC_DIR = -I$(ARCHDIR)/include
 #
