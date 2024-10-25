@@ -103,7 +103,7 @@ As a Python package, installing Eophis is straightforward. However, some depende
 
 Please make sure that the following requisites are installed on your system:
    - Fortran / C compilers
-   - MPI implementation, such as `OpenMPI <https://www.open-mpi.org/>`_ (>=4.1.6)
+   - MPI implementation, such as `OpenMPI <https://www.open-mpi.org/>`_
    - `netcdf <https://www.unidata.ucar.edu/software/netcdf/>`_ library for Fortran (>=4.5.2) and C (>=4.7.2)
    - Python environment (>=3.10)
 
