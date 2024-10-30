@@ -4,6 +4,7 @@ Contains tools to create and manipulate OASIS namelist sections in right format.
 * Copyright (c) 2023 IGE-MEOM
     Eophis is released under an MIT License.
     See the `LICENSE <https://github.com/meom-group/eophis/blob/main/LICENSE>`_ file for details.
+    
 """
 # eophis modules
 from .namelist import raw_content, find, replace_line, find_and_replace_line, find_and_replace_char, write
@@ -203,7 +204,7 @@ def _make_and_check_section(name_snd,name_rcv,freq,grd,npts,nmcpl=''):
         refsec = ref[ pos : pos + secsize ]
         # compare section and namcouple, stop if they do not match
         if not all ( sec in refsec for sec in subsec ):
-            logs.abort(f'Section {" ".join(sct)} required by registered tunnel and namcouple do not match')
+            logs.abort(f'Section "{" ".join(sct)}" required by registered tunnel does not match with namcouple content "{refsec}"')
     return section
 
 

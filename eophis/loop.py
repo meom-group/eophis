@@ -4,6 +4,7 @@ This module contains time loop structures to synchronize connexions between coup
 * Copyright (c) 2023 IGE-MEOM
     Eophis is released under an MIT License.
     See the `LICENSE <https://github.com/meom-group/eophis/blob/main/LICENSE>`_ file for details.
+    
 """
 # eophis modules
 from .utils import logs
@@ -77,10 +78,8 @@ def all_in_all_out(geo_model,step,niter):
             logs.info(f'Total Time : {niter*step}s -- {final_date} \n')
 
             # check router
-            if callable(router):
-                logs.info('Router: ...TO BE COMPLETED...\n')
-            else:
-                logs.abort('No Router defined for coupled run')
+            if not callable(router):
+                logs.abort('No Router defined')
 
             # check static variables status
             if not tunnels_ready():
