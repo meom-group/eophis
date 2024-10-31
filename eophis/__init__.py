@@ -9,6 +9,8 @@ Available subpackages
 ---------------------
 coupling
     tools to setup coupling environment
+domain
+    tools to manipulate grid decomposition
 utils
     miscellaneous operating tools
 
@@ -43,7 +45,7 @@ def _init_eophis():
     logs.info(f'===============================')
     logs.info(f'Main packages used:')
     
-    logs.info(watermark(packages="mpi4py,f90nml,numpy",python=True))
+    logs.info(watermark(packages="mpi4py,f90nml,numpy,netcdf4",python=True))
     
     # init coupling
     _init_coupling()

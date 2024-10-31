@@ -4,6 +4,7 @@ grid.py - This module contains tools for global grid/domain definition and paral
 * Copyright (c) 2023 IGE-MEOM
     Eophis is released under an MIT License.
     See the `LICENSE <https://github.com/meom-group/eophis/blob/main/LICENSE>`_ file for details.
+    
 """
 # eophis modules
 from ..utils import logs
@@ -125,7 +126,7 @@ class Grid:
             if self.grd != 'T' and grd != 'U' and self.grd != 'V' and self.grd != 'F':
                 logs.abort(f'Grid {label}: Grid type {grd} not supported')
         elif 'close' not in self.bnd[1] and 'cyclic' not in self.bnd[1]:
-            logs.abort(f'Grid {label}: unrecognized y dimension boundary condition, set to close by default')
+            logs.warning(f'Grid {label}: unrecognized y dimension boundary condition, set to close by default')
             self.bnd = (self.bnd[0],'close')
         
         # print some infos
@@ -220,7 +221,7 @@ class Grid:
         self.global_offset = sum(sub_sizes_y[0:jsub]) * self.size[0] + sum(sub_sizes_x[0:isub])
             
         # create halos
-        self.halos = select_halo_type( self.grd, self.fold, self.bnd, self.halo_size, self.size, self.loc_size, self.global_offset )
+        self.halos = _select_halo_type( self.grd, self.fold, self.bnd, self.halo_size, self.size, self.loc_size, self.global_offset )
         
     def as_box_partition(self):
         """ Returns subdomain real cells (only) as parameters useable by OASIS to define a sending Box Partition. """
@@ -281,7 +282,7 @@ class Grid:
         return np.zeros( (self.orange_size,nlvl) )
 
 
-def select_halo_type(grd, fold, bnd, halo_size, global_grid, local_grid, offset):
+def _select_halo_type(grd, fold, bnd, halo_size, global_grid, local_grid, offset):
     """
     Returns a halo grid corresponding to local and global grid properties.
     HaloGrid states in three different types:
