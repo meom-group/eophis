@@ -7,7 +7,7 @@ Contains tools to create and manipulate OASIS namelist sections in right format.
     
 """
 # eophis modules
-from .namelist import raw_content, find, replace_line, find_and_replace_line, find_and_replace_char, write
+from .namelist import raw_content, is_in, find_pos, replace_line, find_and_replace_line, find_and_replace_char, write
 from .tunnel import init_oasis, Tunnel
 from ..utils.worker import Paral, set_local_communicator
 from ..utils.params import Mode
@@ -132,13 +132,14 @@ class Namcouple:
             return
     
         # Update Nbfield and Runtime
-        nfield = int(self._lines[ find(self._lines,'$NFIELDS') + 1 ]) + self._Nin + self._Nout
-        runtime = int(self._lines[ find(self._lines,'$RUNTIME') + 1 ])
+        nfield = int(self._lines[ find_pos(self._lines,'$NFIELDS') + 1 ]) + self._Nin + self._Nout
+        runtime = int(self._lines[ find_pos(self._lines,'$RUNTIME') + 1 ])
         find_and_replace_line(self._lines,'$NFIELDS',str(nfield),offset=1)
         if total_time > runtime:
             find_and_replace_line(self._lines,'$RUNTIME',str(total_time),offset=1)
 
-        # Update static frequencies
+        # Update static frequencies - check runtime
+        _check_runtime(total_time) if is_in(self._lines,'-1') else None
         find_and_replace_char(self._lines,'-1',str(total_time))
 
         # Write namcouple
@@ -194,9 +195,10 @@ def _make_and_check_section(name_snd,name_rcv,freq,grd,npts,nmcpl=''):
         
         # in case of static exchange...
         if freq == -1:
-            total_time = nmcpl[ find(nmcpl,'$RUNTIME') +1 ]
+            total_time = nmcpl[ find_pos(nmcpl,'$RUNTIME') +1 ]
             subsec[0] = subsec[0][:-2] + total_time
             secsize = secsize -2 + len(total_time)
+            _check_runtime(total_time)
         
         # find corresponding subsections in namcouple
         ref = re.sub(r'\s','',''.join(nmcpl))
@@ -206,6 +208,15 @@ def _make_and_check_section(name_snd,name_rcv,freq,grd,npts,nmcpl=''):
         if not all ( sec in refsec for sec in subsec ):
             logs.abort(f'Section "{" ".join(sct)}" required by registered tunnel does not match with namcouple content "{refsec}"')
     return section
+
+
+def _check_runtime(runtime):
+    """ Verifies if runtime value if higher than 1e8. If True and presence of static variables, OASIS will crash. """
+    if float(runtime) >= 1e8:
+        logs.abort(f'\nTotal simulation time {runtime} is too high. It cannot be higher than 1e8 if exchanges with STATIC frequencies are defined:\n' \
+                   f'  - Reduce simulation time lower than 1e8 (<= 3.1 years) and run several segments \n'  \
+                   f'  - Do not use STATIC exchanges\n'
+                   f'  - Upgrade to Eophis_v1.1.0 or higher.')
 
 
 def init_namcouple(cpl_nml_tmp,cpl_nml):
