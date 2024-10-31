@@ -7,7 +7,11 @@ Contains tools to create and manipulate OASIS namelist sections in right format.
     
 """
 # eophis modules
+<<<<<<< HEAD
 from .namelist import FortranNamelist, raw_content, is_in, find_pos, replace_line, find_and_replace_line, find_and_replace_char, write
+=======
+from .namelist import raw_content, is_in, find_pos, replace_line, find_and_replace_line, find_and_replace_char, write
+>>>>>>> 95cc178 (Solve issue #32 (#37))
 from .tunnel import init_oasis, Tunnel
 from ..utils.worker import Paral, set_local_communicator
 from ..utils.params import Mode
@@ -145,11 +149,16 @@ class Namcouple:
             logs.warning('Tunnels are opened, cannot write coupling namelist')
             return
     
+<<<<<<< HEAD
         # Update Nbfield
         nfield = int(self._lines[ find_pos(self._lines,'$NFIELDS') + 1 ]) + self._Nin + self._Nout
         self.eophis_nml['nameophis_nb']['nb_var'] = self._Nin + self._Nout
         
         # Update runtime
+=======
+        # Update Nbfield and Runtime
+        nfield = int(self._lines[ find_pos(self._lines,'$NFIELDS') + 1 ]) + self._Nin + self._Nout
+>>>>>>> 95cc178 (Solve issue #32 (#37))
         runtime = int(self._lines[ find_pos(self._lines,'$RUNTIME') + 1 ])
         find_and_replace_line(self._lines,'$NFIELDS',str(nfield),offset=1)
         if total_time > runtime:

@@ -4,7 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "eophis"
+<<<<<<< HEAD
 version = "1.1.0"
+=======
+version = "1.0.1"
+>>>>>>> 95cc178 (Solve issue #32 (#37))
 description = "Tools to couple Python and Machine Learning models with Geophysical simulation codes through OASIS."
 authors = [ { name="Alexis Barge", email="alexis.barge@proton.me" }, 
 	    { name = "Julien Le Sommer", email = "julien.lesommer@univ-grenoble-alpes.fr" },]
