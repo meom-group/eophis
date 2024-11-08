@@ -36,7 +36,7 @@ From: debian:bookworm-slim
    pip install .
 
    # Install OASIS
-   git clone https://gitlab.com/cerfacs/oasis3-mct.git $HOME/oasis3-mct
+   git clone --branch release https://gitlab.com/cerfacs/oasis3-mct.git $HOME/oasis3-mct
    cd $HOME/oasis3-mct/util/make_dir
    git checkout OASIS3-MCT_5.0
    export ARCH="$(uname -m)-linux-gnu"
