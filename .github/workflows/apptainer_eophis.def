@@ -31,12 +31,12 @@ From: debian:bookworm-slim
    rm -rf /var/lib/apt/lists/*
 
    # Install eophis 
-   git clone https://github.com/meom-group/eophis $HOME/eophis
+   git clone --branch release https://github.com/meom-group/eophis $HOME/eophis
    cd $HOME/eophis/
    pip install .
 
    # Install OASIS
-   git clone --branch release https://gitlab.com/cerfacs/oasis3-mct.git $HOME/oasis3-mct
+   git clone https://gitlab.com/cerfacs/oasis3-mct.git $HOME/oasis3-mct
    cd $HOME/oasis3-mct/util/make_dir
    git checkout OASIS3-MCT_5.0
    export ARCH="$(uname -m)-linux-gnu"
