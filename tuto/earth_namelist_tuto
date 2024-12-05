@@ -1,0 +1,31 @@
+!-----------------------------------------------------------------------
+&namrun        !   parameters of the run
+!-----------------------------------------------------------------------
+   nn_it000      =    ...    !  first time step
+   nn_itend      =    ...    !  last  time step
+   nn_write      =    ...    !  output frequency
+/
+!-----------------------------------------------------------------------
+&namdom        !   time and space domain
+!-----------------------------------------------------------------------
+   rn_Dt       =   ...   ! time step value (in seconds)
+   nlon        =   ...   ! number of longitude points (x-direction)
+   nlat        =   ...   ! number of latitude points (y-direction)
+   nlvl	       =   ...   ! number of depth level
+/
+!-----------------------------------------------------------------------
+&namcpl        !   variables to couple
+!-----------------------------------------------------------------------
+   ln_cpl = .false.   ! standalone or coupled mode
+   !
+   !         !      Variable name     !  couple variable (T/F) !   OASIS namcouple name   !  number of levels  !
+   cpl_u =              'U'           ,           .false.       ,          '...'           ,       ...
+   cpl_v =              'V'           ,           .false.       ,          '...'           ,       ...
+   cpl_t =              'T'           ,           .false.       ,          '...'           ,       ...
+   cpl_x =              'X'           ,           .false.       ,          '...'           ,       ...
+   cpl_y =              'Y'           ,           .false.       ,          '...'           ,       ...
+ ! ------- !
+   cpl_force_u  =      'force_U'      ,           .false.       ,          '...'           ,       ...
+   cpl_force_v  =      'force_V'      ,           .false.       ,          '...'           ,       ...
+   cpl_force_t  =      'force_T'      ,           .false.       ,          '...'           ,       ...
+/
