@@ -25,6 +25,7 @@ From: debian:bookworm-slim
    # Python environment 
    python3 -m venv $PYLIB
    . .$PYLIB/bin/activate
+   pip install matplotlib
 
    # clean
    apt-get clean
