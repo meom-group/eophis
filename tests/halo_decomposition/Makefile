@@ -12,7 +12,7 @@ preprod:
 
 # run coupled test
 prod:
-	mpirun -np $(n1) python3 ./tpy_earth.py : -np $(n2) python3 ./main.py --exec prod
+	mpirun -np $(n1) python3 ./toy_earth.py : -np $(n2) python3 ./main.py --exec prod
 
 # remove working file
 clean:
