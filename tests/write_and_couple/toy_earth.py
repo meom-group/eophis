@@ -1,22 +1,22 @@
 """
-Fake Earth (FE) script emulates a surrogate geoscientific code with an hard-coded OASIS interface.
-Purpose of FE is to test Eophis behavior in real conditions, without deploying an entire heavy geoscientific model.
+Toy Earth (TE) script emulates a surrogate geoscientific code with an hard-coded OASIS interface.
+Purpose of TE is to test Eophis behavior in real conditions, without deploying an entire heavy geoscientific model.
 It is coupled with the Python code contained in models.py in which the coupling interface has been deployed by Eophis.
 Coupling namelist is also written by Eophis
 
-FE initializes the data and sends them first to the coupled model. Returned data may be compared to expected results.
-Coupling, content of FE and models.py may be adapted in order to test different features.
+TE initializes the data and sends them first to the coupled model. Returned data may be compared to expected results.
+Coupling, content of TE and models.py may be adapted in order to test different features.
 
 
 WRITE AND COUPLE
 ----------------
-FE advances in time with parameters provided in "earth_namelist" and sends:
+TE advances in time with parameters provided in "earth_namelist" and sends:
     - one 2D field sst, with a hourly frequency on grid (720,603)
     - one 3D field svt, with a daily frequency on grid (720,603,3)
     - one fixed metric field msk, only once, on the same sst grid
 
 Coupled model adds 100 to sst and svt and returns them as sst_var and svt_var, respectively. They are then copied in sst and svt.
-In addition, FE adds 0.2 to sst and 0.5 to svt every time step. Given the number of time steps and exchanges, final values are theoretically known.
+In addition, TE adds 0.2 to sst and 0.5 to svt every time step. Given the number of time steps and exchanges, final values are theoretically known.
 Test is successful if final sst and svt correspond to theory.
 
 This test case illustrates a basic coupling. It means that:
@@ -40,7 +40,7 @@ def main():
     #   OASIS: INITIALISATION
     # +++++++++++++++++++++++++
     comm = MPI.COMM_WORLD
-    component_name = "fake_earth"
+    component_name = "toy_earth"
     comp = pyoasis.Component(component_name,True,comm)
 
     comm_rank = comp.localcomm.rank

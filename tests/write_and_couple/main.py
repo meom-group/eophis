@@ -1,7 +1,7 @@
 """
-This Eophis script manages coupling between fake_earth.py and models.py. OASIS interface is already hard-coded in fake_earth.py.
+This Eophis script manages coupling between toy_earth.py and models.py. OASIS interface is already hard-coded in toy_earth.py.
 Purposes are to write coupling namelist during preproduction mode, configure OASIS interface for models.py, and orchestrate connexions between exchanged data and models.py.
-Checkout docstrings in fake_earth.py and documentation to learn more about what coupling is supposed to achieve.
+Checkout docstrings in toy_earth.py and documentation to learn more about what coupling is supposed to achieve.
 
 """
 # eophis API
@@ -23,7 +23,7 @@ def earth_info():
         2. receive 3 first levels of field svt, every simulated days, on demo grid, and send back a variable svt_var with same properties
         3. receive first level of field msk, only once, send back nothing
     
-    Received fields sst and svt are filled by coupled script fake_earth.py. Work will be to define what values to return under sst_var and svt_var.
+    Received fields sst and svt are filled by coupled script toy_earth.py. Work will be to define what values to return under sst_var and svt_var.
     This is done in loop_core().
     
     """
@@ -98,9 +98,9 @@ def production():
         """
         Loop is defined with the decorator and time step informations from 'earth_namelist'.
         Content of loop_core is the Router. Connexions between exchanged variables and models are defined here.
-        inputs dictionnary contains the variables that Eophis automatically received from fake_earth.py through OASIS.
+        inputs dictionnary contains the variables that Eophis automatically received from toy_earth.py through OASIS.
         sst_var is the result of add_100() with sst passed as argument, same with svt and svt_var.
-        Fill 'outputs' dictionnary  will let Eophis knows what to send back to fake_earth.py through OASIS under corresponding key
+        Fill 'outputs' dictionnary  will let Eophis knows what to send back to toy_earth.py through OASIS under corresponding key
         
         """
         outputs = {}
