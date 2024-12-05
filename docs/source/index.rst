@@ -22,6 +22,7 @@ Contents:
    Eophis License <license>
    Installation <install>
    Concepts <concept>
+   Tutorial <tutorial>
    Usage <usage>
    Tests <tests>
    API <modules>
