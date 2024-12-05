@@ -26,6 +26,10 @@ Basically, Eophis allows to:
 
 Follow this [tutorial](https://eophis.readthedocs.io/en/latest/tutorial.html) to get started.
 
+## Quickstart
+
+Follow this [tutorial](https://eophis.readthedocs.io/en/latest/tutorial.html) to get started.
+
 ## Usage, installation and test cases
 
 Check out corresponding sections in [Eophis documentation](https://eophis.readthedocs.io/en/latest/index.html) for further informations.
