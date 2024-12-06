@@ -47,5 +47,5 @@ host-requires = [
 
 [tool.setuptools]
 packages = ["eophis"]
-package-dir = {"" = "."}
+package-dir = {}
 
