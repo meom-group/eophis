@@ -46,6 +46,5 @@ host-requires = [
 "Bug Tracker" = "https://github.com/meom-group/eophis/issues"
 
 [tool.setuptools]
-packages = ["eophis"]
 package-dir = {}
 

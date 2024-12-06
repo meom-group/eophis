@@ -44,7 +44,7 @@ We start the tutorial by running Toy Earth in standalone mode. Go in tutorial di
 
 .. code-block :: bash
 
-    cd ~/eophis/tuto
+    cd ~/eophis/tests/tuto
 
 Edit ``earth_namelist_tuto`` to create a domain on a ``100x100`` grid with three levels on third dimension. Set the time configuration to run the model on one hundred time steps of five seconds.
 
