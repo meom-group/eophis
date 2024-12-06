@@ -21,7 +21,6 @@ Basically, Eophis allows to:
    - tools to write coupling info in geoscientific codes namelists
    - tools for time diagnostic
    - enhance packaging
-   - add more detailed tutorial
 
 ## Quickstart
 
