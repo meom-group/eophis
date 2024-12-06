@@ -4,6 +4,7 @@ offsiz.py - Miscellaneous tools to manipulate cells segments represented by an o
 * Copyright (c) 2023 IGE-MEOM
     Eophis is released under an MIT License.
     See the `LICENSE <https://github.com/meom-group/eophis/blob/main/LICENSE>`_ file for details.
+    
 """
 # external module
 import numpy as np
@@ -56,7 +57,7 @@ def grid_to_offsets_sizes(grid):
     
     # sizes between two discontinuities
     sizes = np.diff(np.concatenate(([0], disc_idx, [len(grid)])))
-    
+
     return offsets.tolist(), sizes.tolist()
 
 

@@ -16,15 +16,15 @@ COUPLE          = $(HOME)/oasis3-mct/
 ARCHDIR         = $(COUPLE)/BLD
 #
 # MPI libraries
-MPIDIR      = /usr/lib/x86_64-linux-gnu/
-MPIBIN      = $(MPIDIR)/bin
-MPI_INCLUDE = $(MPIDIR)/mpich/
+MPIDIR      = /usr/lib/$(ARCH)/openmpi
+MPIBIN      = /usr/bin
+MPI_INCLUDE = $(MPIDIR)/include
 MPILIB      = -L$(MPIDIR)/lib -lmpi
 MPIRUN      = $(MPIBIN)/mpirun --oversubscribe
 #
 # NETCDF libraries
 NETCDF_INCLUDE = /usr/include
-NETCDF_LIBRARY = -L/usr/lib/x86_64-linux-gnu/ -lnetcdff -lnetcdf
+NETCDF_LIBRARY = -L/usr/lib/$(ARCH)/ -lnetcdff -lnetcdf
 #
 # Make command
 F90         = mpifort -I$(MPI_INCLUDE)
@@ -47,7 +47,7 @@ ARFLAGS     = -ruv
 #
 CPPDEF    = -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY
 #
-FCBASEFLAGS  = -O2 -I. -ffree-line-length-0 -fallow-argument-mismatch -mcmodel=large
+FCBASEFLAGS  = -O2 -I. -ffree-line-length-0 -fallow-argument-mismatch
 CCBASEFLAGS  = -O2
 INC_DIR = -I$(ARCHDIR)/include
 #

@@ -4,6 +4,7 @@ Tools to manipulate namelist content.
 * Copyright (c) 2023 IGE-MEOM
     Eophis is released under an MIT License.
     See the `LICENSE <https://github.com/meom-group/eophis/blob/main/LICENSE>`_ file for details.
+    
 """
 # external modules
 import f90nml
@@ -94,10 +95,30 @@ def raw_content(file_path):
         lines = []
     return lines
         
-        
-def find(lines,target):
+
+def is_in(lines,target):
     """
-    Finds first text occurence inside of a read file list of lines.
+    Check if a text is present at least once inside of a read file list of lines.
+    
+    Parameters
+    ----------
+    lines : list( string )
+        list of lines
+    target : string
+        text to find
+    
+    Returns
+    -------
+    found : bool
+        Text has been found or not
+    
+    """
+    return any( target in txt for txt in lines )
+
+
+def find_pos(lines,target):
+    """
+    Finds position of first text occurence inside of a read file list of lines.
     
     Parameters
     ----------
@@ -109,7 +130,7 @@ def find(lines,target):
     Returns
     -------
     pos : int
-        line number containing target
+        line number containing target, None if not found
         
     """
     return [i for i,txt in enumerate(lines) if target in txt][0]
@@ -135,7 +156,7 @@ def replace_line(lines,content,pos):
         
 def find_and_replace_line(lines,old_txt,new_txt,offset=0):
     """
-    Applies find() and replace_line() to a read file list of lines.
+    Applies find_pos() and replace_line() to a read file list of lines.
     
     Parameters
     ----------

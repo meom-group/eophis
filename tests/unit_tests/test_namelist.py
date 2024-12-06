@@ -21,7 +21,7 @@ def clean_files():
 # ================
 # test namelist.py
 # ================
-from eophis.coupling.namelist import FortranNamelist, raw_content, find, replace_line, find_and_replace_line, find_and_replace_char, write
+from eophis.coupling.namelist import FortranNamelist, raw_content, is_in, find_pos, replace_line, find_and_replace_line, find_and_replace_char, write
 
 @pytest.fixture
 def namelist_file(tmpdir):
@@ -53,10 +53,18 @@ def test_raw_content(namelist_file):
     del lines[0]
     assert lines == ["&namelist1", "    var1 = value1", "    var2 = value2", "/", "", "&namelist2", "    var3 = value3", "    var4 = value4", "/"]
 
-def test_find(namelist_file):
+def test_is_in(namelist_file):
     lines = raw_content(namelist_file)
     del lines[0]
-    pos = find(lines, "&namelist2")
+    found_var1 = is_in(lines,'var1')
+    found_var5 = is_in(lines,'var5')
+    assert found_var1 == True
+    assert found_var5 == False
+
+def test_find_pos(namelist_file):
+    lines = raw_content(namelist_file)
+    del lines[0]
+    pos = find_pos(lines, "&namelist2")
     assert pos == 5
 
 def test_replace_line(namelist_file):

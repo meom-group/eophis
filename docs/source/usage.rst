@@ -218,7 +218,7 @@ Switching mode is done with the following commands:
 
 Read Fortran Namelist
 ~~~~~~~~~~~~~~~~~~~~~
-Fortran namelists may be read both in preproduction and production modes. Hereunder is the content of ``earth_namelist`` with which our surrogate geoscientific model ``fake_earth.py`` will perform the simulation.
+Fortran namelists may be read both in preproduction and production modes. Hereunder is the content of ``earth_namelist`` with which our surrogate geoscientific model ``toy_earth.py`` will perform the simulation.
 
   .. code-block:: bash
   
@@ -259,7 +259,7 @@ Instead, a Grid is defined by user with arguments arranged in a dictionary:
     - grid and folding type, respectively (NorthFold condition only) : ``{ 'folding' : () }``
 
 
-The fields exchanged with Fake Earth are all discretized on the same global grid whose number of longitude and latitude points are ``720`` and ``603``, respectively. Only first argument ``npts`` is compulsory, others are optional:
+The fields exchanged with Toy Earth are all discretized on the same global grid whose number of longitude and latitude points are ``720`` and ``603``, respectively. Only first argument ``npts`` is compulsory, others are optional:
 
 ::
 
@@ -320,7 +320,7 @@ A Tunnel may be created both in preproduction and production modes. Since the re
 * ``grids`` are the Grids that will be partionned by OASIS and on which fields could be exchanged
 * ``exchs`` is a list of parameters that described how the fields should be exchanged
 
-In the previous section, we defined the Grid on which we wish to perform the coupling with Fake Earth, let's use it in Tunnel:
+In the previous section, we defined the Grid on which we wish to perform the coupling with Toy Earth, let's use it in Tunnel:
 
 ::
 
@@ -469,7 +469,7 @@ Router content may be more complex but it is recommended to do the extra operati
 
 Preproduction Mode
 ------------------
-At this point, we have a Tunnel that gathers all informations to perform exchanges of coupled fields with "Fake Earth" and a Model with a correct I/O interface. Both are linked with a Router and automated in time with a Loop. The pipeline is ready to be used but we still need to edit the namelists.
+At this point, we have a Tunnel that gathers all informations to perform exchanges of coupled fields with "Toy Earth" and a Model with a correct I/O interface. Both are linked with a Router and automated in time with a Loop. The pipeline is ready to be used but we still need to edit the namelists.
 
 ::
 
@@ -554,7 +554,7 @@ At this point, everything is ready for OASIS. For curious people or OASIS initia
     720 603 720 603 demo demo LAG=0
     P 2 P 2
 
-the two first terms are aliases that OASIS uses to perform the communications. ``sst`` is manipulated by OASIS under the name ``E_OUT_0`` from the Fake Earth side and under ``M_IN_0`` from the Python side. Those aliases have been set by default during Tunnel registration.
+the two first terms are aliases that OASIS uses to perform the communications. ``sst`` is manipulated by OASIS under the name ``E_OUT_0`` from the Toy Earth side and under ``M_IN_0`` from the Python side. Those aliases have been set by default during Tunnel registration.
 
 In Eophis, it does not matter to know these aliases since every OASIS actions are wrapped. On the contrary, it might do from the geoscientific side to setup the coupling, depending on the OASIS implementation.
 
@@ -681,9 +681,9 @@ Coupling is now effective and exchanges may be executed by OASIS and the Tunnels
 
     .. code-block :: bash
 
-        mpirun -np 3 python3 ./fake_earth.py : mpirun -np 2 python3 ./main.py
+        mpirun -np 3 python3 ./toy_earth.py : mpirun -np 2 python3 ./main.py
 
-    In this example, ``fake_earth.py`` is running on three processes and ``main.py`` on two.
+    In this example, ``toy_earth.py`` is running on three processes and ``main.py`` on two.
 
 Calling ``eophis.open_tunnels()`` while Eophis is executed lonely will lead to an error.
 

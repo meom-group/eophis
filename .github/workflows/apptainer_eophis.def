@@ -1,0 +1,56 @@
+BootStrap: docker
+From: debian:bookworm-slim
+
+%labels
+   Author alexis.barge@proton.me
+
+%environment
+   export HOME=/home/jdoe
+   export PYLIB=$HOME/.local_python
+   export ARCH="$(uname -m)-linux-gnu"
+   export LD_LIBRARY_PATH=/usr/lib:/lib:$LD_LIBRARY_PATH
+
+%post
+   # Paths
+   HOME=/home/jdoe
+   PYLIB=$HOME/.local_python
+   mkdir -p $HOME
+
+   # Dev essential, MPI, NETCDF, Python
+   apt -y update
+   apt install -y build-essential git vim wget bash \
+                  openmpi-bin libopenmpi-dev libnetcdff-dev libnetcdf-dev \
+                  python3.11 python3-venv pip
+
+   # Python environment 
+   python3 -m venv $PYLIB
+   . .$PYLIB/bin/activate
+   pip install matplotlib
+
+   # clean
+   apt-get clean
+   rm -rf /var/lib/apt/lists/*
+
+   # Install eophis 
+   git clone --branch release https://github.com/meom-group/eophis $HOME/eophis
+   cd $HOME/eophis/
+   pip install .
+
+   # Install OASIS
+   git clone https://gitlab.com/cerfacs/oasis3-mct.git $HOME/oasis3-mct
+   cd $HOME/oasis3-mct/util/make_dir
+   git checkout OASIS3-MCT_5.0
+   export ARCH="$(uname -m)-linux-gnu"
+   echo "include $HOME/eophis/.github/workflows/make.gnu" > make.inc
+   make -f TopMakefileOasis3 pyoasis
+
+   # Build bashrc
+   echo "# Python Env\n############" >> ~/.bashrc
+   echo "source $PYLIB/bin/activate" >> ~/.bashrc
+   echo "source $HOME/oasis3-mct/BLD/python/init.sh" >> ~/.bashrc
+   echo "\n# Easier Life\n#############" >> ~/.bashrc
+   echo "alias ls='ls --color=auto'" >> ~/.bashrc
+   echo "alias grep='grep --color=auto -H'\n" >> ~/.bashrc
+   echo "\n# Start\n#######" >> ~/.bashrc
+   echo "echo '>>>> Welcome in Eophis demonstrator! <<<<'" >> ~/.bashrc
+   echo "cd $HOME" >> ~/.bashrc

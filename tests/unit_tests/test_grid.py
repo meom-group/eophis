@@ -22,7 +22,7 @@ def clean_files():
 # ============
 # test grid.py
 # ============
-from eophis.domain.grid import Grid, select_halo_type
+from eophis.domain.grid import Grid, _select_halo_type
 from eophis.domain.halo import HaloGrid
 from eophis.domain.cyclichalo import CyclicHalo
 from eophis.domain.nfhalo import NFHalo
@@ -30,27 +30,27 @@ from eophis.domain.nfhalo import NFHalo
 # test halo selector
 def test_halo_selector():
     # no halos - core and no core
-    hls = select_halo_type(grd='T', fold='T', bnd=('close','close'), halo_size=0, global_grid=(9,9), local_grid=(3,3), offset=0 )
+    hls = _select_halo_type(grd='T', fold='T', bnd=('close','close'), halo_size=0, global_grid=(9,9), local_grid=(3,3), offset=0 )
     assert isinstance(hls,HaloGrid)
-    hls = select_halo_type(grd='T', fold='T', bnd=('close','cyclic'), halo_size=0, global_grid=(9,9), local_grid=(3,3), offset=31 )
+    hls = _select_halo_type(grd='T', fold='T', bnd=('close','cyclic'), halo_size=0, global_grid=(9,9), local_grid=(3,3), offset=31 )
     assert isinstance(hls,HaloGrid)
     # halos in core grid
-    hls = select_halo_type(grd='T', fold='T', bnd=('close','cyclic'), halo_size=1, global_grid=(9,9), local_grid=(3,3), offset=31 )
+    hls = _select_halo_type(grd='T', fold='T', bnd=('close','cyclic'), halo_size=1, global_grid=(9,9), local_grid=(3,3), offset=31 )
     assert isinstance(hls,HaloGrid)
     # halos in bnd
-    hls = select_halo_type(grd='T', fold='T', bnd=('cyclic','close'), halo_size=1, global_grid=(9,9), local_grid=(3,3), offset=27 )
+    hls = _select_halo_type(grd='T', fold='T', bnd=('cyclic','close'), halo_size=1, global_grid=(9,9), local_grid=(3,3), offset=27 )
     assert isinstance(hls,CyclicHalo)
     # halos in bnd + intern line
-    hls = select_halo_type(grd='T', fold='T', bnd=('close','close'), halo_size=2, global_grid=(9,9), local_grid=(3,3), offset=41 )
+    hls = _select_halo_type(grd='T', fold='T', bnd=('close','close'), halo_size=2, global_grid=(9,9), local_grid=(3,3), offset=41 )
     assert isinstance(hls,CyclicHalo)
     # fold halos in core grid
-    hls = select_halo_type(grd='T', fold='T', bnd=('close','nfold'), halo_size=1, global_grid=(6,4), local_grid=(2,2), offset=8 )
+    hls = _select_halo_type(grd='T', fold='T', bnd=('close','nfold'), halo_size=1, global_grid=(6,4), local_grid=(2,2), offset=8 )
     assert isinstance(hls,HaloGrid)
     # fold halos in top bnd
-    hls = select_halo_type(grd='T', fold='T', bnd=('close','nfold'), halo_size=2, global_grid=(6,4), local_grid=(1,1), offset=3 )
+    hls = _select_halo_type(grd='T', fold='T', bnd=('close','nfold'), halo_size=2, global_grid=(6,4), local_grid=(1,1), offset=3 )
     assert isinstance(hls,NFHalo)
     # fold halos in bottom bnd
-    hls = select_halo_type(grd='T', fold='T', bnd=('cyclic','nfold'), halo_size=1, global_grid=(6,4), local_grid=(1,1), offset=18 )
+    hls = _select_halo_type(grd='T', fold='T', bnd=('cyclic','nfold'), halo_size=1, global_grid=(6,4), local_grid=(1,1), offset=18 )
     assert isinstance(hls,CyclicHalo)
 
 # ===========================

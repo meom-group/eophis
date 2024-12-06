@@ -1,7 +1,7 @@
 """
-This Eophis script manages coupling between fake_earth.py and models.py. OASIS interface is already hard-coded in fake_earth.py.
+This Eophis script manages coupling between toy_earth.py and models.py. OASIS interface is already hard-coded in toy_earth.py.
 Purposes are to write coupling namelist during preproduction mode, configure OASIS interface for models.py, and orchestrate connexions between exchanged data and models.py.
-Checkout docstrings in fake_earth.py and documentation to learn more about what coupling is supposed to achieve.
+Checkout docstrings in toy_earth.py and documentation to learn more about what coupling is supposed to achieve.
 
 """
 # eophis API

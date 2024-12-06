@@ -1,31 +1,31 @@
 """
-Fake Earth (FE) script emulates a surrogate geoscientific code with an hard-coded OASIS interface.
-Purpose of FE is to test Eophis behavior in real conditions, without deploying an entire heavy geoscientific model.
+Toy Earth (TE) script emulates a surrogate geoscientific code with an hard-coded OASIS interface.
+Purpose of TE is to test Eophis behavior in real conditions, without deploying an entire heavy geoscientific model.
 It is coupled with the Python code contained in models.py in which the coupling interface has been deployed by Eophis.
 Coupling namelist is also written by Eophis
 
-FE initializes the data and sends them first to the coupled model. Returned data may be compared to expected results.
-Coupling, content of FE and models.py may be adapted in order to test different features.
+TE initializes the data and sends them first to the coupled model. Returned data may be compared to expected results.
+Coupling, content of TE and models.py may be adapted in order to test different features.
 
 
 HALO DECOMPOSITION
 ------------------
-FE advances in time with parameters provided in "earth_namelist".
+TE advances in time with parameters provided in "earth_namelist".
 It intends to send two fields psi and phi, and to receive their first order discrete differences along first and second axis.
-Differences are also computed in FE with complete grid and compared with returned results. Test fails if results do not match.
+Differences are also computed in TE with complete grid and compared with returned results. Test fails if results do not match.
 
 Differences imply to know neighboring cells. Those will be missing at boundaries, especially if Python model is scattered among processes.
 Fields need to be received on the model side with at least 1 extra halo cell to compute correct differences. Halo cells should not be kept after.
 It is also required to specify what values should contain the halos located at the boundaries of the global grid.
 
-FE is supposed to send/receive real cells only, without halos.
+TE is supposed to send/receive real cells only, without halos.
 This test case checks the capability of Eophis to achieve fields exchanges with correct automatic reconstruction and rejection of halos. It means that:
     - Eophis correctly created halos with right values: wrong returned differences if not
     - Eophis returned the grid without the halos: presence of boundary-miscomputed differences if not
 
-First field phi sent by FE is defined on Arakawa C-grid V-points, with cyclic/NF conditions for east-west/north-south boundary conditions, respectively.
+First field phi sent by TE is defined on Arakawa C-grid V-points, with cyclic/NF conditions for east-west/north-south boundary conditions, respectively.
 Folding is done around F point and field is rebuilt with 1 halo.
-Second field psi sent by FE is defined on a grid with close/cyclic boundary conditions. Wihtout NF condition, grid type (T-point, U-point...) does not matter. It is rebuilt with 2 halos.
+Second field psi sent by TE is defined on a grid with close/cyclic boundary conditions. Wihtout NF condition, grid type (T-point, U-point...) does not matter. It is rebuilt with 2 halos.
 
 """
 # oasis modules
@@ -85,7 +85,7 @@ def main():
     #   OASIS: INITIALISATION
     # +++++++++++++++++++++++++
     comm = MPI.COMM_WORLD
-    component_name = "fake_earth"
+    component_name = "toy_earth"
     comp = pyoasis.Component(component_name,True,comm)
 
     comm_rank = comp.localcomm.rank
