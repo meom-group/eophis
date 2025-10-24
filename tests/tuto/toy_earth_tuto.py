@@ -178,11 +178,11 @@ def main():
         var_out.append(cpl_u[2])
 
     if cpl_v[1]:
-        dat_v = pyoasis.Var(cpl_u[2],partition,OASIS.OUT,bundle_size=min(nlvl,cpl_v[3]))
+        dat_v = pyoasis.Var(cpl_v[2],partition,OASIS.OUT,bundle_size=min(nlvl,cpl_v[3]))
         var_out.append(cpl_u[2])
         
     if cpl_t[1]:
-        dat_t = pyoasis.Var(cpl_u[2],partition,OASIS.OUT,bundle_size=min(nlvl,cpl_t[3]))
+        dat_t = pyoasis.Var(cpl_t[2],partition,OASIS.OUT,bundle_size=min(nlvl,cpl_t[3]))
         var_out.append(cpl_u[2])
 
     if cpl_x[1]:
