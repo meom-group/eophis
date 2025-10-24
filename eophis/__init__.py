@@ -32,12 +32,12 @@ from .utils.worker import Paral
 from .coupling import _init_coupling
 # external modules
 from watermark import watermark
-import pkg_resources as pkg
+from importlib.metadata import version
 import atexit
 
 def _init_eophis():
     """ Initializes Eophis: print package infos and call subpackage init routines. """
-    ver = pkg.get_distribution("eophis").version
+    ver = version("eophis")
     logs.info(f'===============================')
     logs.info(f'|    CNRS - IGE - MEOM Team   |')
     logs.info(f'|           ------            |')
