@@ -4,7 +4,7 @@ Contains User Inference/Analytic Models or Functions.
 A model must fit the following requisites and structure :
 -------------------------------------------------------
     1. must be a callable function that takes N numpy arrays as inputs
-    2. /!\ returns N None for the N awaited outputs if at least one of the input is None /!\
+    2. returns N None for the N awaited outputs if at least one of the input is None
     3. inputs may be freely formatted and transformed into what you want BUT...
     4. ...outputs must be formatted as numpy array for sending back
 """
