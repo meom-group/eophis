@@ -443,8 +443,8 @@ Router is an empty function that is embedded within the Loop between the recepti
         # ...
         return outputs
 
-* ``inputs`` is a dictionnary whose keys are the names of all the non-static fields identified as ``in`` in the ``earth`` Tunnel exchanges. Corresponding values are the fields received through the Tunnel.
-* ``outputs`` is a dictionnary whose keys must be the names of all the non-static fields identified as ``out`` in the ``earth`` Tunnel exchanges. Values must be the fields to send back through the Tunnel.
+* ``inputs`` is a dictionary whose keys are the names of all the non-static fields identified as ``in`` in the ``earth`` Tunnel exchanges. Corresponding values are the fields received through the Tunnel.
+* ``outputs`` is a dictionary whose keys must be the names of all the non-static fields identified as ``out`` in the ``earth`` Tunnel exchanges. Values must be the fields to send back through the Tunnel.
 
 In other words, Router delivers all the Tunnel received fields in ``inputs``. User is free to send them towards the imported Models and builds the ``outputs`` content. For the test case of this documentation, the Router is:
 

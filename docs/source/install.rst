@@ -20,12 +20,17 @@ We provide `Apptainer <https://apptainer.org/>`_ (formerly Singularity) images w
 
 .. code-block :: bash
     
-    # For Ubuntu ONLY
+    # For Ubuntu
     sudo apt update && sudo apt install -y software-properties-common
     sudo add-apt-repository -y ppa:apptainer/ppa
     sudo apt update && sudo apt install -y apptainer
-    # Test apptainer
-    apptainer --version
+    
+    # For amd64 Debian
+    sudo apt update
+    sudo apt install -y wget
+    cd /tmp
+    wget https://github.com/apptainer/apptainer/releases/download/v1.4.3/apptainer_1.4.3_amd64.deb
+    sudo apt install -y ./apptainer_1.4.3_amd64.deb
     
 .. warning :: For other Linux distributions, please refer to this `guide <https://github.com/apptainer/apptainer/blob/main/INSTALL.md>`_.
  
@@ -34,20 +39,17 @@ We provide `Apptainer <https://apptainer.org/>`_ (formerly Singularity) images w
 
 .. code-block:: bash
     
-    # Apptainer is available on macOS via Lima (Linux virtual Machines)
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    brew install qemu lima
+    # Apptainer is available on macOS via LIMA (LInux virtual MAchines)
+    brew install qemu lima  # Install with brew
+    port install qemu lima  # Install with macports
 
     # Create Linux VM with Apptainer
     limactl start template://apptainer
     limactl shell apptainer
-    cd ~/
-    # Test Apptainer
-    apptainer --version
+    # IMPORTANT: type 'cd' to go in VM home, 'pwd' should return '/home/<your_name>.linux'
+    cd
     
-    # NB: to remove VM on host
-    limactl stop apptainer
-    rm -rf ~/.lima/apptainer
+
 
 **Run Eophis containers**
 
@@ -55,44 +57,25 @@ Once you installed Apptainer, or are running the Virtual Machine, you can downlo
 
 .. code-block:: bash
 
-    # For Eophis version 1.0.1 on AMD64 architecture
-    export   VER=1.0.1   ARCH=amd64   # adapt as you need
+    # Get your hardware architecture
+    uname -m
+    #  aarch64 --> arm64
+    #  x86_64  --> amd64
+
+    # For Eophis version 1.0.2 on AMD64 architecture
+    export   VER=1.0.2   ARCH=amd64
     wget https://github.com/meom-group/eophis/releases/download/v${VER}/eophis_v${VER}_${ARCH}.zip
     tar -xf eophis_v${VER}_${ARCH}.zip
+    # or
+    unzip eophis_v${VER}_${ARCH}.zip
 
     # Run apptainer image
-    apptainer run --writable-tmpfs eophis_v${VER}_${ARCH}.sif
+    apptainer run --writable-tmpfs --bind $(pwd):/home/jdoe/to_host eophis_v${VER}_${ARCH}.sif
     
     # In the container: Test Eophis
     cd ~/eophis/tests
     ./run_all_tests.sh
-    # Should print "TEST SUCCESSFUL" for each test
-
-To know your hardware architecture, run ``uname -m`` in a Terminal:
-
-============  ====
-``uname -m``  ARCH
-============  ====
-aarch64       arm64
-x86_64        amd64
-============  ====
-
-**Tips**
-
-With above commands, modifications or files created in the container will be lost at closing. We present here different ways to run the containers:
-
-.. code-block:: bash
-
-    # keep modifications in the container
-    apptainer run --writable eophis_v${VER}_${ARCH}.sif
     
-    # share content of host directory HOST/DIR in container /CONTAINER/DIR directory for I/O
-    apptainer run --writable-tmpfs --bind /HOST/DIR:/CONTAINER/DIR eophis_v${VER}_${ARCH}.sif
-
-    # execute bash commands in container and close it, here: extract a file from container
-    apptainer exec eophis_v${VER}_${ARCH}.sif bash -c " cp /CONTAINER/FILE /HOST/DIR/ "
-
-See `Apptainer documentation <https://apptainer.org/docs/user/main/#>`_ for more advanced use.
 
 
 
@@ -133,6 +116,8 @@ OASIS libraries must be dynamically compiled. Edit your own ``make.<YOUR_ARCH>``
 
 .. code-block:: makefile
 
+     # Path for oasis main directory
+     COUPLE = /PATH/TO/oasis3-mct
      # Dynamic flags
      DYNOPT = -fPIC
      LDDYNOPT = -shared
