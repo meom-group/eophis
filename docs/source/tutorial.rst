@@ -5,7 +5,7 @@ Eophis Tutorial
    :maxdepth: 2
 
 
-In this tutorial we will build Eophis scripts to couple a Forcing Model with a geophysical code.
+In this tutorial we will build the Eophis script to couple a Forcing Model with a geophysical code.
 
 
 .. image:: images/morays_eophis.png
