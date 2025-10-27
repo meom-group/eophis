@@ -41,7 +41,7 @@ def _init_eophis():
     logs.info(f'===============================')
     logs.info(f'|    CNRS - IGE - MEOM Team   |')
     logs.info(f'|           ------            |')
-    logs.info(f'|     EOPHIS {ver} (2024)     |')
+    logs.info(f'|     EOPHIS {ver} (2025)     |')
     logs.info(f'===============================')
     logs.info(f'Main packages used:')
     
@@ -56,7 +56,7 @@ def _init_eophis():
 
 def _finish_eophis():
     """ Executes cleaning processes at end of Eophis use. """
-    close_tunnels()
+    close_tunnels(reread=False)
     logs.info('\nEOPHIS run finished')
     logs.flush_buffer(Paral.MASTER)
 

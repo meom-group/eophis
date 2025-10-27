@@ -8,6 +8,7 @@ Tools to manipulate namelist content.
 """
 # external modules
 import f90nml
+import time
 
 __all__ = ['FortranNamelist']
 
@@ -21,26 +22,11 @@ class FortranNamelist:
         path to namelist file
     formatted : f90nml.namelist.Namelist
         content of the namelist file in Fortran format
-    raw : list( string )
-        namelist file lines
 
     """
     def __init__(self,file_path):
         self.file_path = file_path
-        self._read(file_path)
-        
-    def _read(self,file_path):
-        """
-        Reads namelist.
-        
-        Parameters
-        ----------
-        file_path : string
-            path to namelist
-        
-        """
         self.formatted = f90nml.read(file_path)
-        self.raw = raw_content(file_path)
 
     def get(self,*labels):
         """
@@ -66,34 +52,31 @@ class FortranNamelist:
         f90nml.write(self.nml,outfile)
 
 
-def raw_content(file_path):
+def raw_content(file_path,retries=5):
     """
     Reads lines contained in a file.
+    Retry several times if FileNotFoundError to aboid metadata latencies on HPC clusters.
     
     Parameters
     ----------
     file_path : string
         path to file
-        
-    Raises
-    ------
-    FileNotFoundError
-        if file at file_path does not exist
-        
+                
     Returns
     -------
     lines : list( string )
-        file lines (str), empty list if FileNotFoundError.
+        file lines (str), empty list if FileNotFoundError persistent.
         
     """
-    try:
-        infile = open(file_path,'r')
-        lines = (infile.read()).split("\n")
-        del lines[-1:]
-        infile.close()
-    except FileNotFoundError:
-        lines = []
-    return lines
+    for attempt in range(retries):
+        try:
+            with open(file_path, 'r') as infile:
+                lines = (infile.read()).split("\n")
+            return lines[:-1]
+    
+        except FileNotFoundError:
+            time.sleep(0.25 * (attempt + 1))
+    return []
         
 
 def is_in(lines,target):

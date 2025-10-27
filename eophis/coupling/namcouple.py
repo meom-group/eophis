@@ -55,23 +55,23 @@ class Namcouple:
             cls._instance.initialized = False
         return cls._instance
     
-    def __init__(self,file_path='',outfile=''):
+    def __init__(self,file_path='',outfile='',read=True):
         if not self.initialized:
             self.initialized = True
+            self._activated = False
             self.infile = file_path
             self.outfile = outfile
             self.tunnels = []
             self.comp = None
             self._Nin = 0
             self._Nout = 0
-            self._read_namcouple()
-            self._activated = False
+            self._read_namcouple() if read else None
 
-    def _reset(self):
+    def _reset(self,reread=True):
         """ Unsets coupling environment, reinit namcouple content. """
         del self.comp
         self.initialized = False
-        self.__init__(self.infile,self.outfile)
+        self.__init__(self.infile,self.outfile,reread)
 
     def _read_namcouple(self):
         """ Reads namcouple file from ``infile`` attribute, generate minimal content if empty. """
@@ -310,7 +310,7 @@ def tunnels_ready():
     return True
 
 
-def close_tunnels():
+def close_tunnels(reread=True):
     """ Namcouple API: terminates coupling environement if set up. Resets Namcouple with same initialization attributes. """
     logs.info(f'\n  Closing tunnels')
-    Namcouple()._reset()
+    Namcouple()._reset(reread)
