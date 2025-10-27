@@ -5,7 +5,7 @@ Eophis Tutorial
    :maxdepth: 2
 
 
-In this tutorial we will build Eophis scripts to couple a Forcing Model with a geophysical code.
+In this tutorial we will build the Eophis script to couple a Forcing Model with a geophysical code.
 
 
 .. image:: images/morays_eophis.png
@@ -14,7 +14,7 @@ In this tutorial we will build Eophis scripts to couple a Forcing Model with a g
 
 
 Prerequisites to the tutorial:
-    - Installed Eophis package - we strongly recommand `installation From Container <file:///Users/bargea/Documents/IGE/Developpement/eophis/docs/build/html/install.html#from-container>`_
+    - Installed Eophis package - we strongly recommand `installation From Container <https://eophis.readthedocs.io/en/latest/install.html#from-container>`_
 
 
 Introduction
@@ -44,7 +44,7 @@ We start the tutorial by running Toy Earth in standalone mode. Go in tutorial di
 
 .. code-block :: bash
 
-    cd ~/eophis/tests/tuto
+    cd ~/eophis/tuto
 
 Edit ``earth_namelist_tuto`` to create a domain on a ``100x100`` grid with three levels on third dimension. Set the time configuration to run the model on one hundred time steps of five seconds.
 
@@ -115,17 +115,13 @@ Note that in accordance with header instructions, ``compute_gradient()`` returns
 
 .. note ::
 
-    We have now an external forcing model we wish our geoscientific code to use. However, ``models_tuto.py`` does not possess an OASIS interface and cannot be coupled with Toy Earth. In the next sections, we will build the Eophis scripts to set up and configure the coupling environment.
+    We have now an external forcing model we wish our geoscientific code to use. However, ``models_tuto.py`` does not possess an OASIS interface and cannot be coupled with Toy Earth. In the next sections, we will build the Eophis script to set up and configure the coupling environment.
 
 
-Eophis preproduction script
----------------------------
+Eophis Script
+-------------
 
-Some material and information are required to set up the coupling. We will generate everything with Eophis. First, we need to set Eophis in preproduction mode. Edit step 5 in ``preprod_tuto.py`` as follows:
-
-.. code-block :: python
-
-    eophis.set_mode('preprod')
+Some material and information are required to set up the coupling. We will generate everything with the Eophis script ``eophis_script_tuto.py``. The script may execute ``preproduction()`` or ``production()``. The first function is used to generate coupling material. The second one contains instructions to perform the coupling itself. For both, we need to define what we want to exchange in ``toy_earth_info()``.
 
 
 Defining the exchanges
@@ -141,7 +137,7 @@ and to receive from Forcing Model:
     :width: 500px
     :align: center
 
-In Eophis, exchanges are defined in Tunnel object. Define an empty Tunnel named ``TO_EARTH`` in ``preprod_tuto.py`` (step 1) with:
+In Eophis, exchanges are defined in Tunnel object. Define an empty Tunnel named ``TO_EARTH`` (step 1) with:
 
 .. code-block :: python
 
@@ -174,7 +170,7 @@ What remains now is to define the exchanges themselves. Following `Tunnel docume
                         )
 
 
-Now that we have defined the exchanges, we can create the Tunnel object (step 2) with:
+Now that we have defined the exchanges, we can create the Tunnel object in the ``preproduction()`` function (step 4) with:
 
 .. code-block :: python
 
@@ -187,20 +183,20 @@ Eophis is now aware of the exchanges to perform with OASIS.
 Generate OASIS material
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-OASIS namelist can be generated with ``write_coupling_namelist()``. This function requires total simulation time as argument. This information is available from time parameters in Toy Earth namelist. Define a Fortran Namelist object (step 3) from ``earth_namelist_tuto`` with:
+OASIS namelist can be generated with ``write_coupling_namelist()``. This function requires total simulation time as argument. This information is available from time parameters in Toy Earth namelist. Define a Fortran Namelist object (step 2) from ``earth_namelist_tuto`` with:
 
 .. code-block :: python
 
     earth_nml = eophis.FortranNamelist(os.path.join(os.getcwd(),'earth_namelist_tuto'))
     
-and read parameters with:
+and read parameters (step 3) with:
     
 .. code-block :: python
 
     step, it_end, it_0 = earth_nml.get('rn_Dt','nn_itend','nn_it000')
     total_time = (it_end - it_0 + 1) * step
 
-We finally generate OASIS namelist (step 4) with:
+We finally generate OASIS namelist (step 5) with:
 
 .. code-block :: python
 
@@ -210,7 +206,7 @@ Eophis preproduction script is now ready to be executed:
 
 .. code-block :: bash
 
-    python3 ./preprod_tuto.py
+    python3 ./eophis_script_tuto.py --exec preprod
 
 We have generated three files: Eophis logs ``eophis.out``, ``eophis.err``, and namelist ``namcouple``. The latter is required by OASIS, do no remove it (or rerun Eophis preproduction script).
 
@@ -260,37 +256,31 @@ We can see here that ``U``, ``force_U``, and ``X`` are manipulated by OASIS unde
 
 
 
-Eophis production script
-------------------------
+Connect models
+~~~~~~~~~~~~~~
 
-We build now the Eophis script that will deploy the OASIS interface in ``models_tuto.py`` and drive the exchanges all along the run. We need to set Eophis in production mode. Edit step 5 in ``prod_tuto.py`` as follows:
-
-.. code-block :: python
-
-    eophis.set_mode('prod')
-
-Eophis requires the same information here as in preproduction mode, namely the exchanges defined in a Tunnel and runtime information. The file ``prod_tuto.py`` is already pre-filled with these steps to save you time. At this point, we have all the necessary material to start coupling, and Tunnel registration has provided Eophis with all information needed to configure OASIS. We can deploy the OASIS interface (step 1) for ``models_tuto.py`` using:
+We build now the ``production()`` function that will deploy the OASIS interface in ``models_tuto.py`` and drive the exchanges all along the run. With the exchanges defined in the registered Tunnel and the runtime information from the Fortran namelist, we have all the necessary material to start coupling. We can deploy the OASIS interface (step 6) using:
 
 .. code-block :: python
 
     eophis.open_tunnels()
 
 
-Coupling is now effective and we can perform exchanges with Tunnel. During preproduction phase, we defined a static exchange for ``X``. This means that receiving ``X`` must be performed manually before to start any time-automated exchanges. Now that OASIS is activated, we can receive ``X`` (step 2) with help of this Tunnel method:
+Coupling is now effective and we can perform exchanges with Tunnel. During preproduction phase, we defined a static exchange for ``X``. This means that receiving ``X`` must be performed manually before to start any time-automated exchanges. Now that OASIS is activated, we can receive ``X`` (step 7) with help of this Tunnel method:
 
 .. code-block :: python
 
     x = to_earth.receive('X')
 
 
-We will use ``x`` as argument for the Forcing Model. We import it (step 3):
+We will use ``x`` as argument for the Forcing Model. We import it (step 8):
 
 .. code-block :: python
 
     from models_tuto import compute_gradient
     
     
-``U`` field is still missing to call Forcing Model. During preproduction, we identified that exchanges of ``U`` and ``force_U`` should be repeated in time. Synchronization of exchanges in time is done by Loop. Loop requires a Tunnel to work with, number of time iteration, and time step value. Define Loop (step 4) as follows:
+``U`` field is still missing to call Forcing Model. During preproduction, we identified that exchanges of ``U`` and ``force_U`` should be repeated in time. Synchronization of exchanges in time is done by Loop. Loop requires a Tunnel to work with, number of time iteration, and time step value. Define Loop (step 9) as follows:
 
 .. code-block :: python
 
@@ -305,7 +295,7 @@ Final step is to specify connexions between the exchanged data and the Forcing M
         """
         Loop is defined with the decorator and time step information from 'earth_namelist_tuto'.
         Content of loop_core is the Router. Connexions between exchanged variables and models are defined here.
-        inputs dictionnary contains the variables that Eophis automatically received from toy_earth_tuto.py through OASIS.
+        inputs dictionary contains the variables that Eophis automatically received from toy_earth_tuto.py through OASIS.
         
         """
         outputs = {}
@@ -318,7 +308,7 @@ Note that everything is assembled here. We are now ready to run Toy Earth in cou
 
 .. code-block :: bash
 
-    mpirun -np 1 python3 ./toy_earth_tuto.py : -np 1 python3 ./prod_tuto.py
+    mpirun -np 1 python3 ./toy_earth_tuto.py : -np 1 python3 ./eophis_script_tuto.py
 
 
 .. image:: images/u_coupled_dudx.png
@@ -336,7 +326,7 @@ Tutorial grid is small. For bigger grid size, it can be necessary to share work 
 
 .. code-block :: python
 
-    mpirun -np 1 python3 ./toy_earth_tuto.py : -np 5 python3 ./prod_tuto.py
+    mpirun -np 1 python3 ./toy_earth_tuto.py : -np 5 python3 ./eophis_script_tuto.py
 
 
 .. image:: images/u_coupled_paral.png
@@ -348,7 +338,7 @@ There is somethong wrong here: the evolution of ``U`` has deteriorated. This is 
 
 This problem could be overcome if Eophis processes had access to the values of neighboring subdomains grid cells . By default, ``numpy.gradient()`` in ``models_tuto.py`` uses first-order finite differences at the edges. In this case, just one extra cell would be sufficient.
 
-It is possible to configure Eophis to `create extra halos cells <https://eophis.readthedocs.io/en/latest/concept_object.html#coupling>`_ when exchanging fields with coupled geophysical model. These halos cells will be available when receiving fields and ignored when sending them back. Edit ``prod_tuto.py`` and adapt the grid definition in Tunnel as follows:
+It is possible to configure Eophis to `create extra halos cells <https://eophis.readthedocs.io/en/latest/concept_object.html#coupling>`_ when exchanging fields with coupled geophysical model. These halos cells will be available when receiving fields and ignored when sending them back. Edit ``eophis_script_tuto.py`` and adapt the grid definition in Tunnel as follows:
 
 
 .. code-block :: python

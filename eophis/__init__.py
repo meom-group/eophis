@@ -32,16 +32,16 @@ from .utils.worker import Paral
 from .coupling import _init_coupling
 # external modules
 from watermark import watermark
-import pkg_resources as pkg
+from importlib.metadata import version
 import atexit
 
 def _init_eophis():
     """ Initializes Eophis: print package infos and call subpackage init routines. """
-    ver = pkg.get_distribution("eophis").version
+    ver = version("eophis")
     logs.info(f'===============================')
     logs.info(f'|    CNRS - IGE - MEOM Team   |')
     logs.info(f'|           ------            |')
-    logs.info(f'|     EOPHIS {ver} (2024)     |')
+    logs.info(f'|     EOPHIS {ver} (2025)     |')
     logs.info(f'===============================')
     logs.info(f'Main packages used:')
     
@@ -56,7 +56,7 @@ def _init_eophis():
 
 def _finish_eophis():
     """ Executes cleaning processes at end of Eophis use. """
-    close_tunnels()
+    close_tunnels(reread=False)
     logs.info('\nEOPHIS run finished')
     logs.flush_buffer(Paral.MASTER)
 

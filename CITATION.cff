@@ -23,7 +23,7 @@ authors:
 identifiers:
   - type: doi
     value: 10.5281/zenodo.13852038
-    description: URL of Eophis version 1.0.0
+    description: URL of Eophis version 1.0.2
   - type: url
     value: 'https://gmd.copernicus.org/articles/10/3297/2017/'
     description: OASIS-MCT3 heritage link
@@ -44,5 +44,5 @@ keywords:
   - OASIS coupling
 license: MIT
 commit: 0e8be458720d2d6838e860bd382cbcd8e21f673d
-version: v1.0.0
+version: v1.0.2
 date-released: '2024-09-27'
