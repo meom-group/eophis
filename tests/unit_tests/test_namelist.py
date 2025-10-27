@@ -43,15 +43,17 @@ def namelist_file(tmpdir):
 
 def test_FortranNamelist(namelist_file):
     namelist = FortranNamelist(namelist_file)
-    del namelist.raw[0]
     assert namelist.formatted['namelist1']['var1'] == 'value1'
     assert namelist.formatted['namelist2']['var4'] == 'value4'
-    assert namelist.raw == ["&namelist1", "    var1 = value1", "    var2 = value2", "/", "", "&namelist2", "    var3 = value3", "    var4 = value4", "/"]
 
 def test_raw_content(namelist_file):
     lines = raw_content(namelist_file)
     del lines[0]
     assert lines == ["&namelist1", "    var1 = value1", "    var2 = value2", "/", "", "&namelist2", "    var3 = value3", "    var4 = value4", "/"]
+
+def test_raw_content_nofile():
+    lines = raw_content("nofile.dat")
+    assert lines == []
 
 def test_is_in(namelist_file):
     lines = raw_content(namelist_file)
