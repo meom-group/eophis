@@ -75,8 +75,6 @@ Once you installed Apptainer, or are running the Virtual Machine, you can downlo
     # In the container: Test Eophis
     cd ~/eophis/tests
     ./run_all_tests.sh
-    
-
 
 
 From Sources

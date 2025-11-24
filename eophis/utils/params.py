@@ -38,8 +38,8 @@ class Mode:
         Production mode : disables namelist writing, enables OASIS initialization and namelist consistency checking (default mode)
         
     """
-    PREPROD = False
-    PROD = True
+    PREPROD = True
+    PROD = False
 
 
 def set_mode(mode_to_set):

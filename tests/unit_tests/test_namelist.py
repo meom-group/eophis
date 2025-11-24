@@ -45,6 +45,13 @@ def test_FortranNamelist(namelist_file):
     namelist = FortranNamelist(namelist_file)
     assert namelist.formatted['namelist1']['var1'] == 'value1'
     assert namelist.formatted['namelist2']['var4'] == 'value4'
+    nml = { 'nameophis_test' : { 'var' : 5 } }
+    namelist.write(nml)
+    del namelist
+    namelist = FortranNamelist(namelist_file)
+    assert namelist.formatted['namelist1']['var1'] == 'value1'
+    assert namelist.formatted['namelist1']['var1'] == 'value1'
+    assert namelist.formatted['nameophis_test']['var'] == 5
 
 def test_raw_content(namelist_file):
     lines = raw_content(namelist_file)
