@@ -10,7 +10,7 @@ import eophis
 @pytest.fixture(scope="session",autouse=True)
 def clean_files():
     yield
-    for file_name in ["eophis.out", "eophis.err"]:
+    for file_name in ["eophis.out", "eophis.err", "eophis_nml"]:
         if os.path.exists(file_name):
             os.remove(file_name)
     if os.path.exists("test_namcouple"):
@@ -56,3 +56,4 @@ def test_Namcouple():
     set_mode('preprod')
     write_coupling_namelist()
     assert os.path.exists("test_namcouple"), "file 'test_namcouple' has not been written"
+    assert os.path.exists("eophis_nml"), "file 'eophis_nml' has not been written"

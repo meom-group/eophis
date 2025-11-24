@@ -7,7 +7,7 @@ Contains tools to create and manipulate OASIS namelist sections in right format.
     
 """
 # eophis modules
-from .namelist import raw_content, is_in, find_pos, replace_line, find_and_replace_line, find_and_replace_char, write
+from .namelist import FortranNamelist, raw_content, is_in, find_pos, replace_line, find_and_replace_line, find_and_replace_char, write
 from .tunnel import init_oasis, Tunnel
 from ..utils.worker import Paral, set_local_communicator
 from ..utils.params import Mode
@@ -65,6 +65,8 @@ class Namcouple:
             self.comp = None
             self._Nin = 0
             self._Nout = 0
+            self.eophis_nml = { 'nameophis_nb'  : { 'nb_var' : 0 } }
+            self.eophis_nml.update( { 'nameophis_var' : { 'cpl_names' : [] , 'cpl_aliases' : [] , 'cpl_lvls' : [] , 'cpl_ins' : []}} )
             self._read_namcouple() if read else None
 
     def _reset(self,reread=True):
@@ -94,23 +96,35 @@ class Namcouple:
             logs.warning(f'Tunnels are opened, cannot register new tunnel {label}')
             return
             
-        # content to add in namcouple, if production mode: check consistency
+        # content to add in namelists, if production mode: check consistency
         replace_line(self._lines, '# ======= Tunnel '+label+' =======', len(self._lines)-2)
         for ex in exchs:
             for varin in ex['in']:
+                # update namcouple
                 py_aliases.update({ varin : 'M_IN_'+str(self._Nin) }) if varin not in py_aliases.keys() else None
                 geo_aliases.update({ varin : 'E_OUT_'+str(self._Nin) }) if varin not in geo_aliases.keys() else None
                 section = _make_and_check_section( geo_aliases[varin],py_aliases[varin],ex['freq'],ex['grd'],grids[ex['grd']]['npts'], nmcpl=self._reflines )
                 self._lines.insert( len(self._lines)-1, '# Earth -- '+varin+' --> Models')
                 self._lines.insert( len(self._lines)-1, section)
                 self._Nin += 1
+                # update eophis Fortran namelist
+                self.eophis_nml['nameophis_var']['cpl_names'].append(varin)
+                self.eophis_nml['nameophis_var']['cpl_aliases'].append(geo_aliases[varin])
+                self.eophis_nml['nameophis_var']['cpl_lvls'].append(ex['lvl'])
+                self.eophis_nml['nameophis_var']['cpl_ins'].append(False)
             for varout in ex['out']:
+                # update namcouple
                 py_aliases.update({ varout : 'M_OUT_'+str(self._Nout) }) if varout not in py_aliases.keys() else None
                 geo_aliases.update({ varout : 'E_IN_'+str(self._Nout) }) if varout not in geo_aliases.keys() else None
                 section = _make_and_check_section( py_aliases[varout],geo_aliases[varout],ex['freq'],ex['grd'],grids[ex['grd']]['npts'], nmcpl=self._reflines )
                 self._lines.insert( len(self._lines)-1, '# Earth <-- '+varout+' -- Models')
                 self._lines.insert( len(self._lines)-1, section)
                 self._Nout += 1
+                # update eophis Fortran namelist
+                self.eophis_nml['nameophis_var']['cpl_names'].append(varout)
+                self.eophis_nml['nameophis_var']['cpl_aliases'].append(geo_aliases[varout])
+                self.eophis_nml['nameophis_var']['cpl_lvls'].append(ex['lvl'])
+                self.eophis_nml['nameophis_var']['cpl_ins'].append(True)
         self._lines.insert(len(self._lines)-1, '#')
 
         self.tunnels.append( Tunnel(label,grids,exchs,geo_aliases,py_aliases) )
@@ -131,8 +145,11 @@ class Namcouple:
             logs.warning('Tunnels are opened, cannot write coupling namelist')
             return
     
-        # Update Nbfield and Runtime
+        # Update Nbfield
         nfield = int(self._lines[ find_pos(self._lines,'$NFIELDS') + 1 ]) + self._Nin + self._Nout
+        self.eophis_nml['nameophis_nb']['nb_var'] = self._Nin + self._Nout
+        
+        # Update runtime
         runtime = int(self._lines[ find_pos(self._lines,'$RUNTIME') + 1 ])
         find_and_replace_line(self._lines,'$NFIELDS',str(nfield),offset=1)
         if total_time > runtime:
@@ -141,9 +158,12 @@ class Namcouple:
         # Update static frequencies - check runtime
         _check_runtime(total_time) if is_in(self._lines,'-1') else None
         find_and_replace_char(self._lines,'-1',str(total_time))
-
-        # Write namcouple
+ 
+        # Write OASIS and Eophis namelists
+        nml = FortranNamelist('eophis_nml',warn_if_not_found=False)
+        nml.write(self.eophis_nml) if Paral.RANK == Paral.MASTER else None
         write(self._lines,self.outfile,add_header=True) if Paral.RANK == Paral.MASTER else None
+
         Paral.EOPHIS_COMM.Barrier()
 
     def _activate(self):
@@ -269,7 +289,7 @@ def register_tunnels(configs):
 
 def write_coupling_namelist(simulation_time=31536000.0):
     """
-    Namcouple API: writes namcouple at its current state.
+    Namcouple API: writes namcouple at its current state. Also writes Eophis Fortran namelist.
     
     Parameters
     ----------
