@@ -9,7 +9,7 @@ This module contains tools for parallel execution.
 # external modules
 from mpi4py import MPI
 
-__all__ = []
+__all__ = ['Paral']
 
 # global MPI infos
 class Paral:
