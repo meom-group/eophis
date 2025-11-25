@@ -65,7 +65,7 @@ def main():
             step = min( step , int( lines[pos].split()[3] ) )
     
         total_time = int( lines[ [i for i,txt in enumerate(lines) if 'RUNTIME' in txt][0] +1 ] )
-        niter = math.floor(total_time / 1.01 / step)
+        niter = math.floor(total_time / step)
     
         # Grid size
         nlon, nlat = int( lines[pos+1].split()[0] ), int( lines[pos+1].split()[1] )
@@ -152,10 +152,27 @@ def main():
     # +++++++++++++++++
     # Loop for time advancement
     for it in range(niter):
+    
+        # ------ Advance time ----- #
         it_sec = int(step * it)
-        
         if comm_rank == 0:
             logging.info(f'  Ite {it}:')
+
+        # ------ Check Eophis termination ----- #
+        stop = False
+        time.sleep(0.01)
+        if comm_rank == 0:
+            with open('eophis.out', 'r') as infile:
+                    lines = (infile.read()).split("\n")
+            try:
+                [i for i,txt in enumerate(lines) if 'EOPHIS run finished' in txt][0]
+                stop = True
+            except:
+                stop = False
+                
+        comm.bcast(stop,root=0)
+        if stop:
+            break
 
         # ------ Send fields ------- #
         for varname, var in var_out.items():
