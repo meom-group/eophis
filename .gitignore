@@ -5,6 +5,7 @@ nout*
 debug*
 namcouple
 namcouple_ref
+eophis_nml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
