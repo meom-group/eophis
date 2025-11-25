@@ -14,6 +14,7 @@ import pyoasis
 from pyoasis import OASIS
 from mpi4py import MPI
 # utils modules
+from multiprocessing import Process
 import f90nml as nml
 import numpy as np
 import logging
@@ -33,6 +34,12 @@ def main():
     comm_rank = comp.localcomm.rank
     comm_size = comp.localcomm.size
 
+    if comm_rank == 0:
+        logging.info('  -----------------------------------------------------------')
+        logging.info('  Component name %s with ID: %.1i' % (component_name,comp._id))
+        logging.info('  Running with %.1i processes' % comm_size)
+        logging.info('  -----------------------------------------------------------')
+
 
     # ++++++++++++++++++++++
     #   INFO FROM NAMELIST
@@ -50,15 +57,15 @@ def main():
         with open('namcouple', 'r') as infile:
             lines = (infile.read()).split("\n")
     
-        # time inf
+        # time
         step = 1e8
         total_time = 0
         for alias in cpl_aliases:
             pos = [i for i,txt in enumerate(lines) if alias in txt][0]
             step = min( step , int( lines[pos].split()[3] ) )
-            total_time = max( total_time , int( lines[pos].split()[3] ) )
     
-        niter = math.floor(total_time / step)
+        total_time = int( lines[ [i for i,txt in enumerate(lines) if 'RUNTIME' in txt][0] +1 ] )
+        niter = math.floor(total_time / 1.01 / step)
     
         # Grid size
         nlon, nlat = int( lines[pos+1].split()[0] ), int( lines[pos+1].split()[1] )
@@ -68,13 +75,12 @@ def main():
         cpl_names, cpl_aliases, cpl_ins, cpl_lvls = [],[],[],[]
     
     # Communicate
-    nb_var, step, niter, nlon, nlat = comm.bcast(nb_var,root=0), comm.bcast(nlon,root=0), comm.bcast(nlat,root=0)
+    nb_var, nlon, nlat = comm.bcast(nb_var,root=0), comm.bcast(nlon,root=0), comm.bcast(nlat,root=0)
     step, niter, total_time = comm.bcast(step,root=0), comm.bcast(niter,root=0), comm.bcast(total_time,root=0)
     cpl_names, cpl_aliases = comm.bcast(cpl_names,root=0), comm.bcast(cpl_aliases,root=0)
     cpl_ins, cpl_lvls = comm.bcast(cpl_ins,root=0), comm.bcast(cpl_lvls,root=0)
 
     nlvl = max(cpl_lvls)
-    
 
     # +++++++++++++++++++++++++++++++
     #   OASIS: PARTITION DEFINITION
@@ -101,7 +107,7 @@ def main():
     outfld = np.random.rand(local_size,nlvl).astype('float32')
     
     # -- receiving field --
-    infld = np.zeros(local_size,nlvl).astype('float32')
+    infld = np.zeros((local_size,nlvl)).astype('float32')
 
 
     # +++++++++++++++++++++++++++++++
@@ -110,11 +116,11 @@ def main():
     var_out = {}
     var_in = {}
     
-    for varname, alias, to_rcv, lvl in zip(cpl_names,cpl_aliases,cplins,cpl_lvls):
-        if to_rcv:
-            var_out.update{ varname : pyoasis.Var(alias,partition,OASIS.OUT,bundle_size=lvl) }
+    for varname, alias, to_rcv, lvl in zip(cpl_names,cpl_aliases,cpl_ins,cpl_lvls):
+        if not to_rcv:
+            var_out.update({ varname : pyoasis.Var(alias,partition,OASIS.OUT,bundle_size=lvl) })
         else:
-            var_in.update{ varname : pyoasis.Var(alias,partition,OASIS.IN,bundle_size=lvl) }
+            var_in.update({ varname : pyoasis.Var(alias,partition,OASIS.IN,bundle_size=lvl) })
     
     if comm_rank == 0:
         logging.info(f'  Toy Earth coupled with following variables:')
@@ -153,17 +159,17 @@ def main():
 
         # ------ Send fields ------- #
         for varname, var in var_out.items():
-            if it_sec%var.cpl_freq[0] == 0.0:
+            if it_sec%var.cpl_freqs[0] == 0.0:
                 if comm_rank == 0:
                     logging.info('    Sending %s - %s' % (varname,var._name))
-                var.put(it_sec,pyoasis(outfld[:,:,0:var.bundle_size]))
+                var.put(it_sec,pyoasis.asarray(outfld[:,0:var.bundle_size]))
         
         # ------ Receive fields ------- #
         for varname, var in var_in.items():
-            if it_sec%var.cpl_freq[0] == 0.0:
+            if it_sec%var.cpl_freqs[0] == 0.0:
                 if comm_rank == 0:
-                    logging.info('    Sending %s - %s' % (varname,var._name))
-                var.get(it_sec,pyoasis(infld[:,:,0:var.bundle_size]))
+                    logging.info('    Receiving %s - %s' % (varname,var._name))
+                var.get(it_sec,pyoasis.asarray(infld[:,0:var.bundle_size]))
 
 
     if comm_rank == 0:
