@@ -147,9 +147,8 @@ Geoscientific Fortran / C codes often use namelists to configure the physical co
 
 User is free to hard code the physical context in the Python script. Nevertheless, it is more robust to obtain these informations where the coupled physical code does.
 
-Thus, a tool to read formatted namelist (only Fortran for now) and easily access its content is available in Eophis.
+Thus, a tool to read formatted namelist and access its content is available in Eophis. It also allows to modify the namelist items and write the updated version.
 
-Current implementation does not allow to modify and write a namelist. Update physical namelist in accordance with coupling context could spare user time and errors. This feature is under development for next releases.
 
 .. note:: OASIS namelist *namcouple* is a particular case. Only one OASIS namelist is required for all couplings and needs to be correctly written to avoid errors hard to track. Every action related to Tunnel configuration is supervised by *namcouple*. For all these reasons, object Namcouple is a protected unique entity with its own API.
 

@@ -135,6 +135,19 @@ Note that ``eophis.abort()`` will also kill the execution. Here are the outputs:
 
 
 
+Parallel environment
+~~~~~~~~~~~~~~~~~~~~
+Although all parallel context required to configure and perform coupling is automatically handled by Eophis, it might be useful in some case to perform MPI operations within the Eophis script. Thus, MPI ranks and communicators used by Eophis are accessible with:
+
+::
+
+    from eophis import Paral
+    
+
+Details about ``Paral`` attributes can be found `here <https://eophis.readthedocs.io/en/latest/eophis.utils.html#module-eophis.utils.worker.Paral>`_.
+
+
+
 Import Models
 ~~~~~~~~~~~~~
 Hereunder is the Model ``add_100()`` written in ``models.py`` with the correct requisites described in the **Concepts** section.
@@ -499,7 +512,7 @@ Once all Tunnels have been registered. The command to write the updated OASIS na
     eophis.write_coupling_namelist( simulation_time=total_time )
 
 
-Total simulation time is required by the OASIS namelist and is passed as argument here from the informations obtained in ``earth_namelist``. If everything went well, a new ``namcouple`` file has been created.
+Total simulation time is required by the OASIS namelist and is passed as argument here from the informations obtained in ``earth_namelist``. If everything went well, new files ``namcouple`` and ``eophis_nml`` have been created.
 
 .. code-block :: bash
 
@@ -543,6 +556,7 @@ Total simulation time is required by the OASIS namelist and is passed as argumen
     #
     $END
 
+
 Without going in the details, just note the header that indicates that Eophis worked here and the comments added to identify which sections correspond to which exchanges and Tunnels.
 
 At this point, everything is ready for OASIS. For curious people or OASIS initiated users, a last editing functionality is available. In a ``namcouple`` section, like:
@@ -558,7 +572,8 @@ the two first terms are aliases that OASIS uses to perform the communications. `
 
 In Eophis, it does not matter to know these aliases since every OASIS actions are wrapped. On the contrary, it might do from the geoscientific side to setup the coupling, depending on the OASIS implementation.
 
-* A first solution is to check the log file ``eophis.out`` in which aliases are summarized each time a Tunnel is registered.
+
+* A first solution is to check the log file ``eophis.out`` in which the aliases are summarized each time a Tunnel is registered:
 
 
 .. code-block :: bash
@@ -586,7 +601,26 @@ In Eophis, it does not matter to know these aliases since every OASIS actions ar
           - msk -> M_IN_2
 
 
-* A second solution is to specify user-defined aliases corresponding to those used in the physical code. This can be done with two optional Tunnel arguments ``geo_aliases`` and ``py_aliases``. Both are dictionnaries that associate an alias to the fields names defined in Tunnel for the Earth side and the Model side, respectively. For example:
+* A second solution is to make the geoscientific model read the ``eophis_nml`` file. The latter contains the correspondence between field names and OASIS aliases in Fortran namelist format, as well as other useful information coming from Tunnel definition. Those are expected to help automate the configuration of OASIS:
+
+
+.. code-block :: bash
+
+    cat eophis_nml
+    &nameophis_nb
+        nb_var = 5
+    /
+
+    &nameophis_var
+        cpl_aliases = 'E_OUT_0', 'E_IN_0', 'E_OUT_1', 'E_IN_1', 'E_OUT_2'
+        cpl_ins = .false., .true., .false., .true., .false.
+        cpl_lvls = 1, 1, 3, 3, 1
+        cpl_names = 'sst', 'sst_var', 'svt', 'svt_var', 'msk'
+    /
+
+
+
+* A last solution is to specify user-defined aliases corresponding to those used in the geophysical code. This can be done with two optional Tunnel arguments ``geo_aliases`` and ``py_aliases``. Both are dictionnaries that associate an alias to the fields names defined in Tunnel for the Earth side and the Model side, respectively. For example:
 
 
 ::
@@ -650,9 +684,20 @@ It is of course possible to use only one of these optional arguments and Eophis 
 
 Fortran Namelist
 ''''''''''''''''
-**Planned for next releases**
+Fortran namelist can be edited and rewritten during preproduction mode. Here is an example from an instantiated ``FortranNamelist`` object:
 
+::
 
+    earth_nml = eophis.FortranNamelist('~/PATH/TO/earth_namelist')
+    # modify item
+    earth_nml.formatted['namrun']['nn_itend'] = 1500
+    earth_nml.write()
+    # new item
+    add_in_nml = { 'namnew' : { 'var' : 2500 } }
+    earth_nml.write(add_in_nml)
+
+.. warning ::
+    Method ``FortranNamelist.write()`` overwrites the original file.
 
 
 Production Mode

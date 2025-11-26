@@ -33,6 +33,7 @@ Basically, Eophis allows to:
     People familiar with Eophis may find useful informations in these sections:
         - `Eophis detailed usage <https://eophis.readthedocs.io/en/latest/usage.html>`_
         - `Eophis native installation <https://eophis.readthedocs.io/en/latest/install.html#from-sources>`_
+        - `Eophis debug tool <https://eophis.readthedocs.io/en/latest/tests.html#id3>`_
 
     Advanced users can get inspired by visiting project pages that are using Eophis:
         - Python scripts deployed in ocean models with Eophis : `Morays <https://github.com/morays-community>`_

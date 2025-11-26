@@ -137,7 +137,7 @@ and to receive from Forcing Model:
     :width: 500px
     :align: center
 
-In Eophis, exchanges are defined in Tunnel object. Define an empty Tunnel named ``TO_EARTH`` (step 1) with:
+Eophis API aims to embody the above diagram. Exchanges are defined in Tunnel object. Define an empty Tunnel named ``TO_EARTH`` (step 1) with:
 
 .. code-block :: python
 
@@ -208,14 +208,14 @@ Eophis preproduction script is now ready to be executed:
 
     python3 ./eophis_script_tuto.py --exec preprod
 
-We have generated three files: Eophis logs ``eophis.out``, ``eophis.err``, and namelist ``namcouple``. The latter is required by OASIS, do no remove it (or rerun Eophis preproduction script).
+We have generated four files: Eophis logs ``eophis.out``, ``eophis.err``, and namelists ``namcouple``, ``eophis_nml``. The first namelist is required by OASIS, while the latter contains the exchanges information under Fortran namelist format. Thus, it can be used by a Fortran program to have access to Tunnel definition and help configure coupling. Do no remove them (or rerun Eophis preproduction script).
 
 
 
 Configure Toy Earth
 ~~~~~~~~~~~~~~~~~~~
 
-Now we configure coupling from Toy Earth side. Toy Earth needs to know the names under which OASIS will manipulate the variables to exchange. This information is available in ``eophis.log``:
+Toy Earth needs to know the names under which OASIS will manipulate the variables to exchange. This information is available in ``eophis.log``:
 
 .. code-block:: bash
 
@@ -236,22 +236,16 @@ Now we configure coupling from Toy Earth side. Toy Earth needs to know the names
           - X -> M_IN_1
 
 
-We can see here that ``U``, ``force_U``, and ``X`` are manipulated by OASIS under ``E_OUT_0``, ``E_IN_0``, and ``E_OUT_1``, respectively. In accordance with these informations, edit ``earth_namelist_tuto`` as follows to switch Toy Earth to coupled mode:
+We can see here that ``U``, ``force_U``, and ``X`` are manipulated by OASIS under ``E_OUT_0``, ``E_IN_0``, and ``E_OUT_1``, respectively. Thanks to ``eophis_nml``, Toy Earth have access to this information and is able to configure OASIS by itself. Just edit ``earth_namelist_tuto`` as follows to switch Toy Earth to coupled mode:
 
 .. code-block ::
 
-    vi earth_namelist_tuto
-    ln_cpl = .true.
-    !         !  Variable name  ! couple variable (T/F) ! OASIS namcouple name ! number of levels !
-    cpl_u =           'U'       ,        .true.         ,       'E_OUT_0'      ,        3
-    cpl_v =           'V'       ,        .false.        ,         '...'        ,       ...
-    cpl_t =           'T'       ,        .false.        ,         '...'        ,       ...
-    cpl_x =           'X'       ,        .true.         ,       'E_OUT_1'      ,        1
-    cpl_y =           'Y'       ,        .false.        ,         '...'        ,       ...
-    ! ------- !
-    cpl_force_u  =  'force_U'   ,        .true.         ,       'E_IN_0'       ,        3
-    cpl_force_v  =  'force_V'   ,        .false.        ,         '...'        ,       ...
-    cpl_force_t  =  'force_T'   ,        .false.        ,         '...'        ,       ...
+    !-----------------------------------------------------------------------
+    &namcpl        !   coupling
+    !-----------------------------------------------------------------------
+       ln_cpl = .true.   ! standalone or coupled mode
+    /
+
  
 
 
@@ -372,3 +366,13 @@ Using this documentation, a good exercise would be to set up a coupling where th
     force_U = U * dU/dX + V * dU/dY
     force_V = U * dV/dX + V * dV/dY
     force_T = U * dT/dX + V * dT/dY
+
+
+Keep in mind that changing exchanges definition implies to remove ``namcouple``, ``eophis_nml`` and generate them again.
+
+
+**Custom Toy Earth model**
+
+Toy Earth model is designed to serve purposes of the tutorial. Thus, it is not possible to use it with custum Eophis main script by modifying the number and shape of fields that Toy Earth can send and receive. Eophis package provides a different version of Toy Earth model that is able to adapt itself in accordance with the Eophis main script by mirroring the defined coupling context. Thus, it allows to help testing and track bugs without deploying a whole geophysical model.
+
+Usage of generic Toy Earth model is described in the **Tests** section of this documentation.
