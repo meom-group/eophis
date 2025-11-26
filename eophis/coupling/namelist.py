@@ -64,9 +64,12 @@ class FortranNamelist:
                 dictionary containing items to add in the namelist
                 
         """
-        if content is not None:
-            self.formatted.update(content)
-        f90nml.write(self.formatted,self.file_path,force=True)
+        if Mode.PROD:
+            logs.warning('FortranNamelist can only be written in preproduction mode')
+        else:
+            if content is not None:
+                self.formatted.update(content)
+            f90nml.write(self.formatted,self.file_path,force=True)
 
 
 def raw_content(file_path,retries=5):
