@@ -20,7 +20,7 @@ Prerequisites to the tutorial:
 Introduction
 -------------
 
-A surrogate geoscientific model "Toy Earth" with an OASIS interface is emulated by ``toy_earth_tuto.py``. It initializes three dimensionless physical 3D fields ``U``, ``V``, ``T``, discretized on metric 2D fields ``X``, ``Y`` that represent the simulated domain. The script advances in time in accordance with parameters provided in the fortran namelist ``earth_namelist_tuto`` and updates the physical fields with the following equation:
+A surrogate geoscientific model "Toy Earth" with an OASIS interface is emulated by ``toy_earth_tuto.py``. It initializes three dimensionless physical 3D fields ``U``, ``V``, ``T``, discretized on metric 2D fields ``X``, ``Y`` that represent the simulated domain. The script advances in time in accordance with parameters provided in the Fortran namelist ``earth_namelist_tuto`` and updates the physical fields with the following equation:
 
 .. code-block :: bash
 
@@ -328,7 +328,7 @@ Tutorial grid is small. For bigger grid size, it can be necessary to share work 
     :align: center
 
 
-There is somethong wrong here: the evolution of ``U`` has deteriorated. This is because ``U`` and ``X`` fields are distributed among Eophis processes, and edge effects appear when computing the gradient near internal boundaries. The five subdomains can indeed be distinguished in the color map.
+There is something wrong here: the evolution of ``U`` has deteriorated. This is because ``U`` and ``X`` fields are distributed among Eophis processes, and edge effects appear when computing the gradient near internal boundaries. The five subdomains can indeed be distinguished in the color map.
 
 This problem could be overcome if Eophis processes had access to the values of neighboring subdomains grid cells . By default, ``numpy.gradient()`` in ``models_tuto.py`` uses first-order finite differences at the edges. In this case, just one extra cell would be sufficient.
 
@@ -373,6 +373,6 @@ Keep in mind that changing exchanges definition implies to remove ``namcouple``,
 
 **Custom Toy Earth model**
 
-Toy Earth model is designed to serve purposes of the tutorial. Thus, it is not possible to use it with custum Eophis main script by modifying the number and shape of fields that Toy Earth can send and receive. Eophis package provides a different version of Toy Earth model that is able to adapt itself in accordance with the Eophis main script by mirroring the defined coupling context. Thus, it allows to help testing and track bugs without deploying a whole geophysical model.
+Toy Earth model is designed to serve purposes of the tutorial. Thus, it is not possible to use it with custom Eophis scripts by modifying the number and shape of fields that Toy Earth can send and receive. Eophis package provides a different version of Toy Earth model that is able to adapt itself in accordance with Eophis by mirroring the defined coupling context. Thus, it allows to help testing and track bugs without deploying a whole geophysical model.
 
-Usage of generic Toy Earth model is described in the **Tests** section of this documentation.
+Usage of this generic Toy Earth model is described in the **Tests** section of this documentation.

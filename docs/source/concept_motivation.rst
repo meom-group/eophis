@@ -7,12 +7,12 @@ Why Eophis ?
 A bit of context
 ----------------
 
-Eophis development takes place in the context of combinating Python models with geoscientific legacy solvers that are written in low-level abstraction languages, such as Fortran or C/C++.
+Eophis development takes place in the context of combining Python models with geoscientific legacy solvers that are written in low-level abstraction languages, such as Fortran or C/C++.
 
 Typical applications include:
     - Machine Learning (ML) / Physic-based hybrid modelling
     - Quick deployment of fast-evolving high-level libraries in stable low-level environment
-    - Testing prototypal code before translation for official merging
+    - Testing prototypal code before conversion for official merging
 
 
 Interfaces are here required to make both entities to coexist. Beyond the heterogeneity of programming languages, the interface may also be compulsory to couple a CPU-optimized code with a GPU-optimized code. ML / Physics hybridation is a complete representative example of all these needs.
