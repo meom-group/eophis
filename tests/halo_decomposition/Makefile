@@ -16,7 +16,7 @@ prod:
 
 # remove working file
 clean:
-	@-rm namcouple* nout* debug* *.log *.out *.err
+	@-rm namcouple* eophis_nml nout* debug* *.log *.out *.err
 
 # purge
 veryclean: clean

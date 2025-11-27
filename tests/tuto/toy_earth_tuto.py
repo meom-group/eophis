@@ -55,11 +55,34 @@ def plot_field(array,lon,lat,cmap,outfile,vmin,vmax):
     plt.close()
 
 
+def cpl_var_list(varname,names,ins,aliases,lvls):
+    """ Build list of coupling information for a variable from eophis_nml. """
+    try:
+        idx = names.index(varname)
+        return [ varname, True, aliases[idx], lvls[idx] ]
+    except:
+         return [ varname, False, '...', 0 ]
+
+
 def main():
     """ Main steps of Toy Earth. """
     # ++++++++++++++++++++++
     #   INFO FROM NAMELIST
     # ++++++++++++++++++++++
+    # eophis namelist
+    try:
+        eophis_nml = nml.read('eophis_nml')
+        cpl_names = eophis_nml['nameophis_var']['cpl_names']
+        cpl_ins = eophis_nml['nameophis_var']['cpl_ins']
+        cpl_aliases = eophis_nml['nameophis_var']['cpl_aliases']
+        cpl_lvls = eophis_nml['nameophis_var']['cpl_lvls']
+    except:
+        cpl_names = []
+        cpl_ins = []
+        cpl_aliases = []
+        cpl_lvls = []
+    
+    # model namelist
     namelist = nml.read('earth_namelist_tuto')
     
     # runtime
@@ -75,15 +98,15 @@ def main():
     
     # coupling
     ln_cpl = namelist['namcpl']['ln_cpl']
-    cpl_u = namelist['namcpl']['cpl_u']
-    cpl_v = namelist['namcpl']['cpl_v']
-    cpl_t = namelist['namcpl']['cpl_t']
-    cpl_x = namelist['namcpl']['cpl_x']
-    cpl_y = namelist['namcpl']['cpl_y']
-    cpl_force_u = namelist['namcpl']['cpl_force_u']
-    cpl_force_v = namelist['namcpl']['cpl_force_v']
-    cpl_force_t = namelist['namcpl']['cpl_force_t']
-    
+    cpl_u = cpl_var_list('U',cpl_names,cpl_ins,cpl_aliases,cpl_lvls)
+    cpl_v = cpl_var_list('V',cpl_names,cpl_ins,cpl_aliases,cpl_lvls)
+    cpl_t = cpl_var_list('T',cpl_names,cpl_ins,cpl_aliases,cpl_lvls)
+    cpl_x = cpl_var_list('X',cpl_names,cpl_ins,cpl_aliases,cpl_lvls)
+    cpl_y = cpl_var_list('Y',cpl_names,cpl_ins,cpl_aliases,cpl_lvls)
+    cpl_force_u = cpl_var_list('force_U',cpl_names,cpl_ins,cpl_aliases,cpl_lvls)
+    cpl_force_v = cpl_var_list('force_V',cpl_names,cpl_ins,cpl_aliases,cpl_lvls)
+    cpl_force_t = cpl_var_list('force_T',cpl_names,cpl_ins,cpl_aliases,cpl_lvls)
+
     # check consistency
     cpl_u[1] = cpl_u[1] * ln_cpl
     cpl_v[1] = cpl_v[1] * ln_cpl

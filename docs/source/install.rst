@@ -62,8 +62,8 @@ Once you installed Apptainer, or are running the Virtual Machine, you can downlo
     #  aarch64 --> arm64
     #  x86_64  --> amd64
 
-    # For Eophis version 1.0.2 on AMD64 architecture
-    export   VER=1.0.2   ARCH=amd64
+    # For Eophis version 1.1.0 on AMD64 architecture
+    export   VER=1.1.0   ARCH=amd64
     wget https://github.com/meom-group/eophis/releases/download/v${VER}/eophis_v${VER}_${ARCH}.zip
     tar -xf eophis_v${VER}_${ARCH}.zip
     # or
@@ -75,8 +75,6 @@ Once you installed Apptainer, or are running the Virtual Machine, you can downlo
     # In the container: Test Eophis
     cd ~/eophis/tests
     ./run_all_tests.sh
-    
-
 
 
 From Sources

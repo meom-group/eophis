@@ -22,7 +22,7 @@ Eophis package must be imported before anything else with the following command:
     import eophis
     
 
-This automatically creates the log files ``eophis.out`` and ``eophis.err``. The latter is left empty while the first one is filled with informations about Eophis version, dependencies and Python implementation.
+This automatically creates the log files ``eophis.out`` and ``eophis.err``. The latter is left empty while the first one is filled with information about Eophis version, dependencies and Python implementation.
 
 
 .. code-block:: bash
@@ -77,7 +77,7 @@ A last scenario is if ``namcouple`` exists but is stored elsewhere. Indeed, defa
 Note that this is ``eophis.init_namcouple()`` with execution directory as arguments that is called at the start of Eophis. Thoses features allow the user to write himself the coupling namelist.
 
 
-.. seealso:: Let's say that the user expects to deploy a Python model within an ocean model that is also coupled with an atmosphere model with OASIS. Since only one coupling namelist is required by OASIS to perform all the exchanges, the user may bring ``namcouple`` in the execution directory with pre-written informations about the ocean/atmosphere coupling and use Eophis to complete it with the Python coupling informations. Original ``namcouple`` will be saved under ``namcouple_ref``.
+.. seealso:: Let's say that the user expects to deploy a Python model within an ocean model that is also coupled with an atmosphere model with OASIS. Since only one coupling namelist is required by OASIS to perform all the exchanges, the user may bring ``namcouple`` in the execution directory with pre-written information about the ocean/atmosphere coupling and use Eophis to complete it with the Python coupling information. Original ``namcouple`` will be saved under ``namcouple_ref``.
 
 If the user does not know about ``namcouple`` or does not wish to write it, the default case keeps the creation of the OASIS namelist straightforward.
 
@@ -135,6 +135,19 @@ Note that ``eophis.abort()`` will also kill the execution. Here are the outputs:
 
 
 
+Parallel Environment
+~~~~~~~~~~~~~~~~~~~~
+Although all parallel context required to configure and perform coupling is automatically handled by Eophis, it might be useful in some case to perform MPI operations within the Eophis script. Thus, MPI ranks and communicators used by Eophis are accessible with:
+
+::
+
+    from eophis import Paral
+    
+
+Details about ``Paral`` attributes can be found `here <https://eophis.readthedocs.io/en/latest/eophis.utils.html#module-eophis.utils.worker.Paral>`_.
+
+
+
 Import Models
 ~~~~~~~~~~~~~
 Hereunder is the Model ``add_100()`` written in ``models.py`` with the correct requisites described in the **Concepts** section.
@@ -185,7 +198,7 @@ Switching mode is done with the following commands:
     eophis.set_mode('preprod')
     eophis.set_mode('prod')
 
-.. warning :: It is strongly recommended to execute two independent instances of Eophis if you plan to use both modes. Using editing tools and directly switching to production mode to start coupling means that the geoscientific code also started and read the namelists before or during editing. In this situation, each script potentially did not read the same informations, which could lead to hazardous results.
+.. warning :: It is strongly recommended to execute two independent instances of Eophis if you plan to use both modes. Using editing tools and directly switching to production mode to start coupling means that the geoscientific code also started and read the namelists before or during editing. In this situation, each script potentially did not read the same information, which could lead to hazardous results.
 
 
     Structure of ``main.py`` shows an example of separated instructions based on the selected mode.
@@ -424,7 +437,7 @@ Assemble a Loop and a Router
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Loop is not a class that can be instantiated but a pre-defined function that emulates time advancement. It takes the time step value and the number of iterations as arguments, and a Tunnel whose methods will be automatically used to orchestrate exchanges in time.
 
-For instance, only one Loop is available in Eophis. It is named ``all_in_all_out`` since it performs all the Tunnel receptions at the beginning of the time step and all the sendings at the end. With the ``earth`` Tunnel defined earlier and the temporal informations obtained in ``earth_namelist``, we can create the Loop as follows:
+For instance, only one Loop is available in Eophis. It is named ``all_in_all_out`` since it performs all the Tunnel receptions at the beginning of the time step and all the sendings at the end. With the ``earth`` Tunnel defined earlier and the temporal information obtained in ``earth_namelist``, we can create the Loop as follows:
 
 ::
 
@@ -469,7 +482,7 @@ Router content may be more complex but it is recommended to do the extra operati
 
 Preproduction Mode
 ------------------
-At this point, we have a Tunnel that gathers all informations to perform exchanges of coupled fields with "Toy Earth" and a Model with a correct I/O interface. Both are linked with a Router and automated in time with a Loop. The pipeline is ready to be used but we still need to edit the namelists.
+At this point, we have a Tunnel that gathers all information to perform exchanges of coupled fields with "Toy Earth" and a Model with a correct I/O interface. Both are linked with a Router and automated in time with a Loop. The pipeline is ready to be used but we still need to edit the namelists.
 
 ::
 
@@ -499,7 +512,7 @@ Once all Tunnels have been registered. The command to write the updated OASIS na
     eophis.write_coupling_namelist( simulation_time=total_time )
 
 
-Total simulation time is required by the OASIS namelist and is passed as argument here from the informations obtained in ``earth_namelist``. If everything went well, a new ``namcouple`` file has been created.
+Total simulation time is required by the OASIS namelist and is passed as argument here from the information obtained in ``earth_namelist``. If everything went well, new files ``namcouple`` and ``eophis_nml`` have been created.
 
 .. code-block :: bash
 
@@ -543,6 +556,7 @@ Total simulation time is required by the OASIS namelist and is passed as argumen
     #
     $END
 
+
 Without going in the details, just note the header that indicates that Eophis worked here and the comments added to identify which sections correspond to which exchanges and Tunnels.
 
 At this point, everything is ready for OASIS. For curious people or OASIS initiated users, a last editing functionality is available. In a ``namcouple`` section, like:
@@ -558,7 +572,8 @@ the two first terms are aliases that OASIS uses to perform the communications. `
 
 In Eophis, it does not matter to know these aliases since every OASIS actions are wrapped. On the contrary, it might do from the geoscientific side to setup the coupling, depending on the OASIS implementation.
 
-* A first solution is to check the log file ``eophis.out`` in which aliases are summarized each time a Tunnel is registered.
+
+* A first solution is to check the log file ``eophis.out`` in which the aliases are summarized each time a Tunnel is registered:
 
 
 .. code-block :: bash
@@ -586,7 +601,26 @@ In Eophis, it does not matter to know these aliases since every OASIS actions ar
           - msk -> M_IN_2
 
 
-* A second solution is to specify user-defined aliases corresponding to those used in the physical code. This can be done with two optional Tunnel arguments ``geo_aliases`` and ``py_aliases``. Both are dictionnaries that associate an alias to the fields names defined in Tunnel for the Earth side and the Model side, respectively. For example:
+* A second solution is to make the geoscientific model read the ``eophis_nml`` file. The latter contains the correspondence between field names and OASIS aliases in Fortran namelist format, as well as other useful information coming from Tunnel definition. Those are expected to help automate the configuration of OASIS:
+
+
+.. code-block :: bash
+
+    cat eophis_nml
+    &nameophis_nb
+        nb_var = 5
+    /
+
+    &nameophis_var
+        cpl_aliases = 'E_OUT_0', 'E_IN_0', 'E_OUT_1', 'E_IN_1', 'E_OUT_2'
+        cpl_ins = .false., .true., .false., .true., .false.
+        cpl_lvls = 1, 1, 3, 3, 1
+        cpl_names = 'sst', 'sst_var', 'svt', 'svt_var', 'msk'
+    /
+
+
+
+* A last solution is to specify user-defined aliases corresponding to those used in the geophysical code. This can be done with two optional Tunnel arguments ``geo_aliases`` and ``py_aliases``. Both are dictionnaries that associate an alias to the fields names defined in Tunnel for the Earth side and the Model side, respectively. For example:
 
 
 ::
@@ -650,9 +684,20 @@ It is of course possible to use only one of these optional arguments and Eophis 
 
 Fortran Namelist
 ''''''''''''''''
-**Planned for next releases**
+Fortran namelist can be edited and rewritten during preproduction mode. Here is an example from an instantiated ``FortranNamelist`` object:
 
+::
 
+    earth_nml = eophis.FortranNamelist('~/PATH/TO/earth_namelist')
+    # modify item
+    earth_nml.formatted['namrun']['nn_itend'] = 1500
+    earth_nml.write()
+    # new item
+    add_in_nml = { 'namnew' : { 'var' : 2500 } }
+    earth_nml.write(add_in_nml)
+
+.. warning ::
+    Method ``FortranNamelist.write()`` overwrites the original file.
 
 
 Production Mode
@@ -753,7 +798,7 @@ Above function tests if this condition is fulfilled. It is automatically called 
 
     eophis.starter(loop_core)
 
-Once Loop started, it fills ``eophis.out`` log file with informations about time emulation and realized exchanges. Here are some interesting samples:
+Once Loop started, it fills ``eophis.out`` log file with information about time emulation and realized exchanges. Here are some interesting samples:
 
 
 .. code-block :: bash
@@ -796,4 +841,4 @@ Once Loop started, it fills ``eophis.out`` log file with informations about time
 
     EOPHIS run finished
 
-Note the beginning of Loop with informations about time emulation and the end with termination messages. Informations are also given about performed exchanges at different moments with ``sst``, ``sst_var``, ``svt`` and ``svt_var`` exchanged with the correct frequencies. At last, iterations at which no exchanges occur are skipped.
+Note the beginning of Loop with information about time emulation and the end with termination messages. Informations are also given about performed exchanges at different moments with ``sst``, ``sst_var``, ``svt`` and ``svt_var`` exchanged with the correct frequencies. At last, iterations at which no exchanges occur are skipped.

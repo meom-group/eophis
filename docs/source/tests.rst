@@ -106,3 +106,74 @@ Following commands run the test (number of running CPUs may be changed in *Makef
     mpirun -np 1  python3 ./toy_earth.py : -np 1  python3 ./main.py --exec prod
     TEST SUCCESSFUL
     END OF HALO DECOMPOSITION TEST
+
+
+
+`Toy Earth <https://github.com/meom-group/eophis/tree/main/tests/toy_earth>`_
+-----------------------------------------------------------------------------
+
+A surrogate geoscientific code with an hard-coded OASIS interface is emulated by ``toy_earth.py``.
+The script reads the ``namcouple`` and ``eophis_nml`` files generated during preproduction phase. From those information, Toy Earth initializes the right number of arrays with right shapes, following main Eophis script.
+Finally, the script advances in time and perform the exchanges of arrays, according to the defined coupling context.
+
+
+.. important ::
+    
+    In fewer words, Toy Earth adapt its behavior to fit the Eophis main script. Purpose of this test case is to isolate Eophis script to assist in testing and tracking bugs without deploying a whole geophysical model.
+
+
+Prepare your test case:
+    - Copy the Eophis main script and Python model to couple in Toy Earth directory
+    - Copy any additional material required for the test case
+
+Following commands run the custom test (number of running CPUs may be changed in *Makefile*):
+    - `make` : execute commands below
+    - `make clean` : remove working files
+    - `make preprod` : execute eophis in preproduction mode to write coupling namelist
+    - `make prod` : execute eophis in production mode for coupling with dummy earth system script
+
+
+Here is an example of Toy Earth used with Halo Decomposition Eophis scripts. Note here that Toy Earth is a response to the defined coupling context to test its validity, it won't check what Halo Decomposition test case is supposed to achieve:
+
+.. code-block:: bash
+
+    cd tests/toy_earth
+    # Prepare test case
+    cp ../halo_decomposition/main.py  .
+    cp ../halo_decomposition/models.py  .
+    cp ../halo_decomposition/earth_namelist  .
+    # Run test case
+    make
+    python3 ./main.py --exec preprod
+    mv eophis.out preprod_eophis.out
+    mpirun -np 1  python3 ./toy_earth.py : -np 1  python3 ./main.py --exec prod
+    END OF TOY EARTH TEST
+
+
+.. warning::
+    Although Toy Earth test case is designed to adapt with any Eophis script, user specific features might prevent Toy Earth reaching end of execution, which does not necessarily mean failure. Check content of Eophis and Toy Earth logs. ``eophis.out`` should contains lines like these:
+    
+    .. code-block :: bash
+    
+        cat eophis.out
+        # [...]
+        Iteration 982: 1177200s -- 13 days, 15:00:00
+           Treating sst received through tunnel TO_EARTH
+           Sending back sst_var through tunnel TO_EARTH
+        Iteration 985: 1180800s -- 13 days, 16:00:00
+           Treating sst received through tunnel TO_EARTH
+           Sending back sst_var through tunnel TO_EARTH
+   
+        
+    and ``earth_log`` like these:
+    
+    .. code-block :: bash
+    
+        cat earth.log
+        # [...]
+        INFO:root:  Ite 563:
+        INFO:root:    Sending sst - E_OUT_0
+        INFO:root:    Receiving sst_var - E_IN_0
+        INFO:root:  Ite 564:
+        INFO:root:    Sending sst - E_OUT_0
+        INFO:root:    Receiving sst_var - E_IN_0

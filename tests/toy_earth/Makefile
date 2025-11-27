@@ -3,7 +3,7 @@ n1=1  ## number of process for toy earth script
 n2=1  ## number of process for eophis script
 
 default: clean preprod prod
-	@echo 'END OF WRITE AND COUPLE TEST'
+	@echo 'END OF TOY EARTH TEST'
 
 # create coupling namelist
 preprod:
@@ -17,7 +17,6 @@ prod:
 # remove working file
 clean:
 	@-rm namcouple* eophis_nml nout* debug* *.log *.out *.err
-
 
 # purge
 veryclean: clean

@@ -6,6 +6,9 @@ Tools to manipulate namelist content.
     See the `LICENSE <https://github.com/meom-group/eophis/blob/main/LICENSE>`_ file for details.
     
 """
+# eophis modules
+from ..utils.params import Mode
+from ..utils import logs
 # external modules
 import f90nml
 import time
@@ -22,11 +25,17 @@ class FortranNamelist:
         path to namelist file
     formatted : f90nml.namelist.Namelist
         content of the namelist file in Fortran format
+    warn_if_not_found : bool
+        raise error if file not found, return empty dict otherwise
 
     """
-    def __init__(self,file_path):
+    def __init__(self,file_path,warn_if_not_found=True):
         self.file_path = file_path
-        self.formatted = f90nml.read(file_path)
+        try:
+            self.formatted = f90nml.read(file_path)
+        except:
+            logs.abort(f'Fortran namelist {file_path} not found !') if warn_if_not_found else None
+            self.formatted = dict()
 
     def get(self,*labels):
         """
@@ -46,10 +55,21 @@ class FortranNamelist:
         res = { label : gr2 for gr1,gr2 in self.formatted.groups() for label in labels if label.lower() in gr1 }
         return [ res[label] for label in labels ]
 
-    def write(self):
-        """ Writes namelist under Fortran format. """
-        outfile = self.file_path
-        f90nml.write(self.nml,outfile)
+    def write(self,content=None):
+        """ Writes namelist under Fortran format with additional content if given.
+        
+            Parameters
+            ----------
+            content : dict
+                dictionary containing items to add in the namelist
+                
+        """
+        if Mode.PROD:
+            logs.warning('FortranNamelist can only be written in preproduction mode')
+        else:
+            if content is not None:
+                self.formatted.update(content)
+            f90nml.write(self.formatted,self.file_path,force=True)
 
 
 def raw_content(file_path,retries=5):
@@ -68,6 +88,8 @@ def raw_content(file_path,retries=5):
         file lines (str), empty list if FileNotFoundError persistent.
         
     """
+    retries = 10 if Mode.PROD else 1
+    
     for attempt in range(retries):
         try:
             with open(file_path, 'r') as infile:

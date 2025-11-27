@@ -15,7 +15,7 @@ Tunnel
 
 The Tunnel represents the gate towards a coupled geoscientific model.
 
-It gathers informations on:
+It gathers information on:
     - global and local grids on which coupled fields are discretized.
     - exchanges themselves, as communication frequencies, corresponding in/out fields names and associated grids.
 
@@ -50,7 +50,7 @@ For some operations, such as differential calculus or in Convolutional Neural Ne
 When local grids are located at the edges of global grid, boundary conditions must be specified to determine the values of cells that cross the boundary.
 This requirement remains true even if global grid is not distributed across multiple processes.
 
-Thus, grid cells may be divided in two parts:
+Thus, grid cells may be divided into two parts:
     - *real cells*: cells strictly contained in the local grid (yellow)
     - *halo cells*: potential extra cells outside the local grid containing neighboring values (blue)
 
@@ -58,7 +58,7 @@ Thus, grid cells may be divided in two parts:
     :width: 600px
     :align: center
 
-In classic OASIS coupling, communications only involve real cells, as coupled geoscientific models have their own internal communication system to construct halos.
+In classic OASIS coupling, communications only involve real cells, as coupled geoscientific models possess their own internal communication system to construct halos.
 With some tricks and intermediate reconstruction operations, Grid can obtain fields with extra halos cells directly from OASIS communications. This spares the need to create an internal communication system for Eophis, killing two birds with one stone by combining halo construction with field exchanges.
 When sending a field back, Grid automatically removes the halo cells.
 
@@ -106,7 +106,7 @@ Loop is an object that emulates time advancement with a hidden time stepping pro
 
 When Loop starts, all receptions and sendings of the associated Tunnel are temporally orchestrated.
 
-.. Warning:: Time loop won't start if all the Static exchanges (see **Frequency** section) of the associated Tunnel are not done.
+.. Warning:: Time loop won't start if all the Static exchanges (see **Frequency** section) of the associated Tunnel are not performed.
 
 
 Frequency
@@ -125,7 +125,7 @@ Two types of frequency are available:
 Router
 ------
 
-The coupling is now set up with the Tunnel and the exchanges are automated by the Loop. Received fields need then to be sent towards the desired Model inputs and outputed fields need to be pushed in the correct Tunnel for sending back. This pipeline is intended to change with the user wanted realization.
+The coupling is now set up with the Tunnel and the exchanges are automated by the Loop. Received fields need to be sent towards the desired Model inputs, and returned fields need to be pushed in the correct Tunnel for sending back. This pipeline is intended to change with the user wanted realization.
 
 Router is a tool whose role is to offer simplicity and flexibility for setting up connexions between the exchanged data and the inputs / outputs of the Models.
 
@@ -147,11 +147,10 @@ Geoscientific Fortran / C codes often use namelists to configure the physical co
 
 User is free to hard code the physical context in the Python script. Nevertheless, it is more robust to obtain these informations where the coupled physical code does.
 
-Thus, a tool to read formatted namelist (only Fortran for now) and easily access its content is available in Eophis.
+Thus, a tool to read formatted namelist and access its content is available in Eophis. It also allows to modify the namelist items and write the updated version.
 
-Current implementation does not allow to modify and write a namelist. Update physical namelist in accordance with coupling context could spare user time and errors. This feature is under development for next releases.
 
-.. note:: OASIS namelist *namcouple* is a particular case. Only one OASIS namelist is required for all couplings and needs to be correctly written to avoid errors hard to track. Every action related to Tunnel configuration is supervised by *namcouple*. For all these reasons, object Namcouple is a protected unique entity with its own API.
+.. note:: OASIS namelist *namcouple* is a particular case. Only one OASIS namelist is required for all couplings, and needs to be correctly written to avoid errors hard to track. Every action related to Tunnel configuration is supervised by *namcouple*. For all these reasons, object Namcouple is a protected unique entity with its own API.
 
     It is possible to bring its own *namcouple* and use Eophis to check its content in accordance with the desired coupling context.
 
