@@ -244,9 +244,7 @@ We can see here that ``U``, ``force_U``, and ``X`` are manipulated by OASIS unde
     &namcpl        !   coupling
     !-----------------------------------------------------------------------
        ln_cpl = .true.   ! standalone or coupled mode
-    /
-
- 
+    / 
 
 
 
